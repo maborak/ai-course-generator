@@ -4,6 +4,7 @@ import argparse
 import subprocess
 from pathlib import Path
 from openai import OpenAI
+import ollama
 from pprint import pprint as pp
 
 # ==============================
@@ -37,6 +38,7 @@ def parse_args():
     parser.add_argument('--topic', default=DEFAULT_TOPIC, help=f'Topic for the tips (default: {DEFAULT_TOPIC})')
     parser.add_argument('--quantity', type=int, default=DEFAULT_QUANTITY, help=f'Number of tips to generate (default: {DEFAULT_QUANTITY})')
     parser.add_argument('--force', action='store_true', help='Overwrite output file if it exists')
+    parser.add_argument('--engine', default='openai', choices=['openai', 'ollama'], help="Which AI engine to use: openai (default) or ollama")
     return parser.parse_args()
 
 def read_and_replace_prompt(file_path, topic, quantity):
@@ -104,60 +106,72 @@ def convert_files(md_file, css_file="style.css"):
 # ==============================
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-def get_full_completion(prompt, quantity):
-    messages = [{"role": "user", "content": prompt}]
+def get_full_completion(prompt, quantity, engine="openai", ollama_model="llama3.2"):
     full_response = ""
     iteration = 0
-    total_prompt_tokens = 0
-    total_completion_tokens = 0
 
-    while True:
-        iteration += 1
-        print(f"\n--- Requesting chunk {iteration} ---")
-        response = client.chat.completions.create(
-            model=MODEL,
-            messages=messages,
-            temperature=TEMPERATURE,
-            max_tokens=MAX_TOKENS
-        )
-        pp(response)
-        chunk = response.choices[0].message.content
-        finish_reason = response.choices[0].finish_reason
-        print(f"Finish reason: {finish_reason}")
-        print(f"Chunk length: {len(chunk)} characters")
+    if engine == "openai":
+        messages = [{"role": "user", "content": prompt}]
+        total_prompt_tokens = 0
+        total_completion_tokens = 0
 
-        usage = response.usage
-        total_prompt_tokens += usage.prompt_tokens
-        total_completion_tokens += usage.completion_tokens
+        while True:
+            iteration += 1
+            print(f"\n--- Requesting chunk {iteration} [OpenAI] ---")
+            response = client.chat.completions.create(
+                model=MODEL,
+                messages=messages,
+                temperature=TEMPERATURE,
+                max_tokens=MAX_TOKENS
+            )
+            pp(response)
+            chunk = response.choices[0].message.content
+            finish_reason = response.choices[0].finish_reason
+            print(f"Finish reason: {finish_reason}")
+            print(f"Chunk length: {len(chunk)} characters")
 
-        full_response += chunk
+            usage = response.usage
+            total_prompt_tokens += usage.prompt_tokens
+            total_completion_tokens += usage.completion_tokens
 
-        if finish_reason == "stop":
-            if (f"Tip #{quantity}" in chunk or f"Tip {quantity}" in chunk) or iteration > MAX_ITERATIONS:
-                print("Completed successfully.")
-                break
-            else:
-                print(f"Detected incomplete Tip #{quantity}, requesting continuation...")
+            full_response += chunk
+
+            if finish_reason == "stop":
+                if (f"Tip #{quantity}" in chunk or f"Tip {quantity}" in chunk) or iteration > MAX_ITERATIONS:
+                    print("Completed successfully.")
+                    break
+                else:
+                    print(f"Detected incomplete Tip #{quantity}, requesting continuation...")
+                    messages.append({"role": "assistant", "content": chunk})
+                    messages.append({"role": "user", "content": "Please continue from where you left off."})
+                    continue
+            elif finish_reason == "length":
+                print("Output truncated, requesting continuation...")
                 messages.append({"role": "assistant", "content": chunk})
                 messages.append({"role": "user", "content": "Please continue from where you left off."})
-                continue
-        elif finish_reason == "length":
-            print("Output truncated, requesting continuation...")
-            messages.append({"role": "assistant", "content": chunk})
-            messages.append({"role": "user", "content": "Please continue from where you left off."})
-        else:
-            print(f"Unexpected finish_reason: {finish_reason}")
-            break
+            else:
+                print(f"Unexpected finish_reason: {finish_reason}")
+                break
 
-    input_cost = (total_prompt_tokens / 1000) * INPUT_COST_PER_1K
-    output_cost = (total_completion_tokens / 1000) * OUTPUT_COST_PER_1K
-    total_cost = input_cost + output_cost
+        input_cost = (total_prompt_tokens / 1000) * INPUT_COST_PER_1K
+        output_cost = (total_completion_tokens / 1000) * OUTPUT_COST_PER_1K
+        total_cost = input_cost + output_cost
 
-    print(f"\nTotal prompt tokens used: {total_prompt_tokens}")
-    print(f"Total completion tokens used: {total_completion_tokens}")
-    print(f"Input cost: ${input_cost:.4f}")
-    print(f"Output cost: ${output_cost:.4f}")
-    print(f"Total cost: ${total_cost:.4f}")
+        print(f"\nTotal prompt tokens used: {total_prompt_tokens}")
+        print(f"Total completion tokens used: {total_completion_tokens}")
+        print(f"Input cost: ${input_cost:.4f}")
+        print(f"Output cost: ${output_cost:.4f}")
+        print(f"Total cost: ${total_cost:.4f}")
+
+    elif engine == "ollama":
+        print(f"\n--- Requesting chunk {iteration+1} [Ollama: {ollama_model}] ---")
+        messages = [{"role": "user", "content": prompt}]
+        response = ollama.chat(model=ollama_model, messages=messages)
+        chunk = response['message']['content']
+        print(f"Chunk length: {len(chunk)} characters")
+        full_response += chunk
+    else:
+        raise ValueError(f"Unknown engine: {engine}")
 
     return full_response
 
@@ -180,7 +194,7 @@ def main():
         return
 
     print(f"Generating expert-level {topic} tips with OpenAI API...")
-    full_text = get_full_completion(prompt, quantity)
+    full_text = get_full_completion(prompt, quantity, engine=args.engine)
     print(f"\nTotal response length: {len(full_text)} characters")
 
     # Save as markdown

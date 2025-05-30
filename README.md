@@ -27,18 +27,18 @@ Generate expert-level tips on any technical topic using OpenAI’s GPT API, and 
 - **Python 3.8+**
 - **OpenAI API key** (set as `OPENAI_API_KEY` in your environment)
 - **Pandoc** ([installation guide](https://pandoc.org/installing.html))
-- **WeasyPrint** (`pip install weasyprint` + system dependencies; see [WeasyPrint install docs](https://weasyprint.readthedocs.io/en/stable/install.html))
+- **WeasyPrint** (see Python packages and system dependencies below)
 - **style.css** in your working directory (for custom HTML/EPUB/PDF styling)
+- **requirements.txt** in your working directory (contains all Python dependencies)
 
 ### Python packages
 
-Install required Python dependencies:
-
+To install Python dependencies, simply run:
 ```sh
-pip install openai weasyprint
+pip install -r requirements.txt
 ```
 
-> **Note:** You may also need system packages for WeasyPrint, such as `libpango`, `cairo`, and `gdk-pixbuf` (see WeasyPrint’s docs).
+You may also need system packages for WeasyPrint, such as `libpango`, `cairo`, and `gdk-pixbuf` (see WeasyPrint’s docs).
 
 ---
 
