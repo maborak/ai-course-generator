@@ -21,6 +21,7 @@ Generate expert-level tips on any technical topic using OpenAI’s GPT API or Ol
   - PDF (`.pdf`) via [Pandoc](https://pandoc.org/) and [WeasyPrint](https://weasyprint.org/)
 - **Idempotent Output:** Will not overwrite existing files unless you specify `--force`.
 - **Configurable Output Filename:** All output files are named using your topic, sanitized, and suffixed with `_tip`.
+- **Ollama Streaming Output:** Enable live streaming of Ollama LLM responses for real-time progress with `--ollama-stream`.
 
 ---
 
@@ -71,6 +72,7 @@ python tool.py
 | `--engine`       | AI engine to use (`openai` or `ollama`)                                | `openai`  |
 | `--ollama-host`  | Host URL for Ollama server (used if engine is `ollama`)                  | `http://localhost:11434` |
 | `--ollama-model` | Ollama model name to use (used if engine is `ollama`)                    | `llama2`  |
+| `--ollama-stream` | Enable streaming progress for Ollama engine (default: off) | *off* |
 
 #### Examples
 
@@ -92,6 +94,11 @@ Generate 5 Kubernetes tips using a remote Ollama server and a custom model:
 python tool.py --topic="Kubernetes" --quantity=5 --engine=ollama --ollama-host="http://remote-ollama-server:11434" --ollama-model="custom-k8s-model"
 ```
 
+Generate 10 tips on Python with live streaming from Ollama:
+```sh
+python tool.py --topic="Python" --quantity=10 --engine=ollama --ollama-stream
+```
+
 ---
 
 ## Output Files
@@ -111,7 +118,8 @@ After generation, **four files** will be produced, all with your topic name (san
    Reads `prompt.txt`, replaces `{{TOPIC}}` and `{{NUMBER_OF_TIPS}}` with your chosen values.
 2. **Generation:**  
    Sends the prompt to the selected AI engine (`openai` or `ollama`).  
-   For Ollama, the model and host can be specified to customize the request.
+   For Ollama, the model and host can be specified to customize the request.  
+   If streaming is enabled with Ollama, the response is printed live as the model generates text.
 3. **Markdown Output:**  
    Saves the generated content as `<topic>_tip.md`.
 4. **Conversion:**  
