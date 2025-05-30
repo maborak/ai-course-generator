@@ -3,14 +3,16 @@ Using OpenAI generate PDF or Markdown files with tips and tricks
 
 # AI Tips Generator
 
-Generate expert-level tips on any technical topic using OpenAI’s GPT API, and automatically export the output in **Markdown, HTML, EPUB, and PDF** formats—with custom styling and syntax highlighting.
+Generate expert-level tips on any technical topic using OpenAI’s GPT API or Ollama, and automatically export the output in **Markdown, HTML, EPUB, and PDF** formats—with custom styling and syntax highlighting. Supports multi-engine selection for flexible AI backend usage.
 
 ---
 
 ## Features
 
 - **Flexible Topic Selection:** Choose your topic and number of tips from the command line.
+- **Multi-Engine Support:** Use OpenAI GPT-4.1 or Ollama for tip generation.
 - **OpenAI GPT-4.1 Integration:** Automatically generates concise, high-quality tips.
+- **Ollama Integration:** Supports local or remote Ollama servers with customizable models.
 - **Templated Prompting:** Uses `prompt.txt` with placeholders for easy customization.
 - **Automatic File Conversion:** 
   - Markdown (`.md`)
@@ -25,11 +27,12 @@ Generate expert-level tips on any technical topic using OpenAI’s GPT API, and 
 ## Requirements
 
 - **Python 3.8+**
-- **OpenAI API key** (set as `OPENAI_API_KEY` in your environment)
+- **OpenAI API key** (set as `OPENAI_API_KEY` in your environment) for OpenAI engine
 - **Pandoc** ([installation guide](https://pandoc.org/installing.html))
 - **WeasyPrint** (see Python packages and system dependencies below)
 - **style.css** in your working directory (for custom HTML/EPUB/PDF styling)
 - **requirements.txt** in your working directory (contains all Python dependencies)
+- **Ollama Python package and an Ollama server** if using the Ollama engine
 
 ### Python packages
 
@@ -52,7 +55,7 @@ Edit `prompt.txt` and use the following placeholders:
 
 ### 2. Run the Script
 
-Basic usage (default topic: `linux`, default quantity: `5`):
+Basic usage (default topic: `linux`, default quantity: `5`, default engine: `openai`):
 
 ```sh
 python tool.py
@@ -60,18 +63,33 @@ python tool.py
 
 #### Command Line Options
 
-| Option          | Description                                                             | Default   |
-|-----------------|-------------------------------------------------------------------------|-----------|
-| `--topic`       | Topic for tips (will replace `{{TOPIC}}` in `prompt.txt`)               | `linux`   |
-| `--quantity`    | Number of tips to generate (replaces `{{NUMBER_OF_TIPS}}` in prompt)    | `5`       |
-| `--force`       | Overwrite existing output files (otherwise, script exits if present)     | *off*     |
+| Option           | Description                                                             | Default   |
+|------------------|-------------------------------------------------------------------------|-----------|
+| `--topic`        | Topic for tips (will replace `{{TOPIC}}` in `prompt.txt`)               | `linux`   |
+| `--quantity`     | Number of tips to generate (replaces `{{NUMBER_OF_TIPS}}` in prompt)    | `5`       |
+| `--force`        | Overwrite existing output files (otherwise, script exits if present)     | *off*     |
+| `--engine`       | AI engine to use (`openai` or `ollama`)                                | `openai`  |
+| `--ollama-host`  | Host URL for Ollama server (used if engine is `ollama`)                  | `http://localhost:11434` |
+| `--ollama-model` | Ollama model name to use (used if engine is `ollama`)                    | `llama2`  |
 
 #### Examples
 
-Generate 10 Bash scripting tips, overwriting files if they exist:
+Generate 10 Bash scripting tips, overwriting files if they exist, using OpenAI:
 
 ```sh
 python tool.py --topic="Bash scripting" --quantity=10 --force
+```
+
+Generate 7 tips on Docker using the Ollama engine with the default local host:
+
+```sh
+python tool.py --topic="Docker" --quantity=7 --engine=ollama
+```
+
+Generate 5 Kubernetes tips using a remote Ollama server and a custom model:
+
+```sh
+python tool.py --topic="Kubernetes" --quantity=5 --engine=ollama --ollama-host="http://remote-ollama-server:11434" --ollama-model="custom-k8s-model"
 ```
 
 ---
@@ -92,7 +110,8 @@ After generation, **four files** will be produced, all with your topic name (san
 1. **Prompt Preparation:**  
    Reads `prompt.txt`, replaces `{{TOPIC}}` and `{{NUMBER_OF_TIPS}}` with your chosen values.
 2. **Generation:**  
-   Sends the prompt to OpenAI (using GPT-4.1), automatically continuing until the requested number of tips is reached.
+   Sends the prompt to the selected AI engine (`openai` or `ollama`).  
+   For Ollama, the model and host can be specified to customize the request.
 3. **Markdown Output:**  
    Saves the generated content as `<topic>_tip.md`.
 4. **Conversion:**  
@@ -112,6 +131,9 @@ After generation, **four files** will be produced, all with your topic name (san
   See [WeasyPrint's install docs](https://weasyprint.readthedocs.io/en/stable/install.html).
 - **OpenAI errors:**  
   Make sure your API key is set as the `OPENAI_API_KEY` environment variable.
+- **Ollama errors:**  
+  Ensure the Ollama server is running and accessible at the specified host URL.  
+  Verify the Ollama Python package is installed.
 
 ---
 

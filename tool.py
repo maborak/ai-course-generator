@@ -39,6 +39,9 @@ def parse_args():
     parser.add_argument('--quantity', type=int, default=DEFAULT_QUANTITY, help=f'Number of tips to generate (default: {DEFAULT_QUANTITY})')
     parser.add_argument('--force', action='store_true', help='Overwrite output file if it exists')
     parser.add_argument('--engine', default='openai', choices=['openai', 'ollama'], help="Which AI engine to use: openai (default) or ollama")
+    parser.add_argument('--ollama-host', default=None, help='Ollama server URL (default: http://localhost:11434)')
+    parser.add_argument('--ollama-model', default='llama3.2', help='Ollama model name to use (default: llama3.2)')
+    parser.add_argument('--ollama-stream', action='store_true', help='Enable streaming progress for Ollama engine (default: disabled)')
     return parser.parse_args()
 
 def read_and_replace_prompt(file_path, topic, quantity):
@@ -106,18 +109,17 @@ def convert_files(md_file, css_file="style.css"):
 # ==============================
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-def get_full_completion(prompt, quantity, engine="openai", ollama_model="llama3.2"):
+def get_full_completion(prompt, quantity, engine="openai", ollama_model="llama3.2", ollama_host=None, ollama_stream=False):
+    messages = [{"role": "user", "content": prompt}]
     full_response = ""
     iteration = 0
+    total_prompt_tokens = 0
+    total_completion_tokens = 0
 
-    if engine == "openai":
-        messages = [{"role": "user", "content": prompt}]
-        total_prompt_tokens = 0
-        total_completion_tokens = 0
-
-        while True:
-            iteration += 1
-            print(f"\n--- Requesting chunk {iteration} [OpenAI] ---")
+    while True:
+        iteration += 1
+        print(f"\n--- Requesting chunk {iteration} ---")
+        if engine == "openai":
             response = client.chat.completions.create(
                 model=MODEL,
                 messages=messages,
@@ -133,26 +135,50 @@ def get_full_completion(prompt, quantity, engine="openai", ollama_model="llama3.
             usage = response.usage
             total_prompt_tokens += usage.prompt_tokens
             total_completion_tokens += usage.completion_tokens
+        elif engine == "ollama":
+            ollama_kwargs = {}
+            if ollama_host is not None and bool(ollama_host):
+                ollama_kwargs['host'] = ollama_host
+            if ollama_stream:
+                stream_response = ollama.chat(model=ollama_model, messages=messages, stream=True, **ollama_kwargs)
+                chunk = ""
+                print(f"\n[Ollama Streaming Output]: ", end="", flush=True)
+                for msg in stream_response:
+                    content_piece = msg['message']['content']
+                    print(content_piece, end="", flush=True)
+                    chunk += content_piece
+                print("\n[End of Ollama Output]")
+                finish_reason = 'stop'
+            else:
+                response = ollama.chat(model=ollama_model, messages=messages, **ollama_kwargs)
+                chunk = response['message']['content']
+                finish_reason = response['message'].get('finish_reason', 'stop')
+                print(f"Finish reason: {finish_reason}")
+                print(f"Chunk length: {len(chunk)} characters")
+                # Ollama API may not provide token usage, so skip cost calculation
+        else:
+            raise ValueError(f"Unknown engine: {engine}")
 
-            full_response += chunk
+        full_response += chunk
 
-            if finish_reason == "stop":
-                if (f"Tip #{quantity}" in chunk or f"Tip {quantity}" in chunk) or iteration > MAX_ITERATIONS:
-                    print("Completed successfully.")
-                    break
-                else:
-                    print(f"Detected incomplete Tip #{quantity}, requesting continuation...")
-                    messages.append({"role": "assistant", "content": chunk})
-                    messages.append({"role": "user", "content": "Please continue from where you left off."})
-                    continue
-            elif finish_reason == "length":
-                print("Output truncated, requesting continuation...")
+        if finish_reason == "stop":
+            if (f"Tip #{quantity}" in chunk or f"Tip {quantity}" in chunk) or iteration > MAX_ITERATIONS:
+                print("Completed successfully.")
+                break
+            else:
+                print(f"Detected incomplete Tip #{quantity}, requesting continuation...")
                 messages.append({"role": "assistant", "content": chunk})
                 messages.append({"role": "user", "content": "Please continue from where you left off."})
-            else:
-                print(f"Unexpected finish_reason: {finish_reason}")
-                break
+                continue
+        elif finish_reason == "length":
+            print("Output truncated, requesting continuation...")
+            messages.append({"role": "assistant", "content": chunk})
+            messages.append({"role": "user", "content": "Please continue from where you left off."})
+        else:
+            print(f"Unexpected finish_reason: {finish_reason}")
+            break
 
+    if engine == "openai":
         input_cost = (total_prompt_tokens / 1000) * INPUT_COST_PER_1K
         output_cost = (total_completion_tokens / 1000) * OUTPUT_COST_PER_1K
         total_cost = input_cost + output_cost
@@ -162,16 +188,6 @@ def get_full_completion(prompt, quantity, engine="openai", ollama_model="llama3.
         print(f"Input cost: ${input_cost:.4f}")
         print(f"Output cost: ${output_cost:.4f}")
         print(f"Total cost: ${total_cost:.4f}")
-
-    elif engine == "ollama":
-        print(f"\n--- Requesting chunk {iteration+1} [Ollama: {ollama_model}] ---")
-        messages = [{"role": "user", "content": prompt}]
-        response = ollama.chat(model=ollama_model, messages=messages)
-        chunk = response['message']['content']
-        print(f"Chunk length: {len(chunk)} characters")
-        full_response += chunk
-    else:
-        raise ValueError(f"Unknown engine: {engine}")
 
     return full_response
 
@@ -193,8 +209,15 @@ def main():
         print(f"Completed: output file '{output_md}' already exists. Use --force to overwrite.")
         return
 
-    print(f"Generating expert-level {topic} tips with OpenAI API...")
-    full_text = get_full_completion(prompt, quantity, engine=args.engine)
+    print(f"Generating expert-level {topic} tips with {args.engine} API...")
+    full_text = get_full_completion(
+        prompt,
+        quantity,
+        engine=getattr(args, 'engine', 'openai'),
+        ollama_model=args.ollama_model,
+        ollama_host=args.ollama_host,
+        ollama_stream=args.ollama_stream
+    )
     print(f"\nTotal response length: {len(full_text)} characters")
 
     # Save as markdown
