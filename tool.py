@@ -1,45 +1,113 @@
 import os
+import re
+import argparse
+import subprocess
 from pathlib import Path
 from openai import OpenAI
 from pprint import pprint as pp
-import markdown2
-from fpdf import FPDF
-import re
 
-# Configuration
+# ==============================
+#        Configuration
+# ==============================
 PROMPT_FILE = "prompt.txt"
-OUTPUT_MD = "output.md"
-OUTPUT_PDF = "output.pdf"
+DEFAULT_TOPIC = "linux"
+DEFAULT_QUANTITY = 5
 MODEL = "gpt-4.1"  # Use a model with a larger context window
 MAX_TOKENS = 4096
 TEMPERATURE = 0.7
+MAX_ITERATIONS = 50  # Maximum number of iterations to avoid infinite loops
 
 # Define per-token costs for the selected model
-# For GPT-4.1, as of May 2025:
-# Input: $0.002 per 1K tokens
-# Output: $0.008 per 1K tokens
 INPUT_COST_PER_1K = 0.002
 OUTPUT_COST_PER_1K = 0.008
 
-# Initialize OpenAI client
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+# ==============================
+#         Utilities
+# ==============================
 
-def read_prompt(file_path):
-    """
-    Reads the prompt content from the specified text file.
-    """
+def sanitize_filename(s):
+    """Sanitize string for safe filename."""
+    s = s.strip().lower()
+    s = re.sub(r'[^\w\s-]', '', s)      # Remove special characters
+    s = re.sub(r'[\s-]+', '_', s)       # Replace spaces/hyphens with underscores
+    return s
+
+def parse_args():
+    parser = argparse.ArgumentParser(description="AI Tips Generator")
+    parser.add_argument('--topic', default=DEFAULT_TOPIC, help=f'Topic for the tips (default: {DEFAULT_TOPIC})')
+    parser.add_argument('--quantity', type=int, default=DEFAULT_QUANTITY, help=f'Number of tips to generate (default: {DEFAULT_QUANTITY})')
+    parser.add_argument('--force', action='store_true', help='Overwrite output file if it exists')
+    return parser.parse_args()
+
+def read_and_replace_prompt(file_path, topic, quantity):
     try:
-        return Path(file_path).read_text(encoding='utf-8')
+        content = Path(file_path).read_text(encoding='utf-8')
+        content = content.replace("{{TOPIC}}", topic)
+        content = content.replace("{{NUMBER_OF_TIPS}}", str(quantity))
+        return content
     except FileNotFoundError:
         print(f"Error: The file '{file_path}' was not found.")
         exit(1)
 
-def get_full_completion(prompt):
+def run_subprocess(command, success_message):
+    """Run a shell command, report errors if any, and print a success message."""
+    print(f"Running: {' '.join(command)}")
+    try:
+        subprocess.run(command, check=True)
+        print(success_message)
+    except subprocess.CalledProcessError as e:
+        print(f"Error: Command '{' '.join(command)}' failed with exit code {e.returncode}.")
+        print(f"Details: {e}")
+        print("Please check that all required tools (pandoc, weasyprint) are installed and your input files are valid.")
+        exit(1)
+
+def convert_files(md_file, css_file="style.css"):
+    base_name = os.path.splitext(md_file)[0]
+    html_file = base_name + ".html"
+    epub_file = base_name + ".epub"
+    pdf_file = base_name + ".pdf"
+
+    # 1. Convert Markdown to HTML using Pandoc
+    pandoc_html_cmd = [
+        "pandoc",
+        md_file,
+        "-o", html_file,
+        "--standalone",
+        "--embed-resources",
+        f"--css={css_file}",
+        "--highlight-style=kate"
+    ]
+    run_subprocess(pandoc_html_cmd, f"HTML file generated: {html_file}")
+
+    # 2. Convert Markdown to EPUB using Pandoc
+    pandoc_epub_cmd = [
+        "pandoc",
+        md_file,
+        "-o", epub_file,
+        "--standalone",
+        "--embed-resources",
+        f"--css={css_file}",
+        "--highlight-style=kate"
+    ]
+    run_subprocess(pandoc_epub_cmd, f"EPUB file generated: {epub_file}")
+
+    # 3. Convert HTML to PDF using WeasyPrint
+    weasyprint_cmd = [
+        "weasyprint",
+        html_file,
+        pdf_file
+    ]
+    run_subprocess(weasyprint_cmd, f"PDF file generated: {pdf_file}")
+
+# ==============================
+#     OpenAI Completion Logic
+# ==============================
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+def get_full_completion(prompt, quantity):
     messages = [{"role": "user", "content": prompt}]
     full_response = ""
     iteration = 0
-
-    # Initialize token counters
     total_prompt_tokens = 0
     total_completion_tokens = 0
 
@@ -58,24 +126,21 @@ def get_full_completion(prompt):
         print(f"Finish reason: {finish_reason}")
         print(f"Chunk length: {len(chunk)} characters")
 
-        # Update token counters
         usage = response.usage
         total_prompt_tokens += usage.prompt_tokens
         total_completion_tokens += usage.completion_tokens
 
         full_response += chunk
 
-        # Check if the response seems incomplete
         if finish_reason == "stop":
-            # Heuristic: check if the last tip is incomplete
-            if "Tip 20" not in chunk:
-                print("Detected incomplete Tip #20, requesting continuation...")
+            if (f"Tip #{quantity}" in chunk or f"Tip {quantity}" in chunk) or iteration > MAX_ITERATIONS:
+                print("Completed successfully.")
+                break
+            else:
+                print(f"Detected incomplete Tip #{quantity}, requesting continuation...")
                 messages.append({"role": "assistant", "content": chunk})
                 messages.append({"role": "user", "content": "Please continue from where you left off."})
                 continue
-            else:
-                print("Completed successfully.")
-                break
         elif finish_reason == "length":
             print("Output truncated, requesting continuation...")
             messages.append({"role": "assistant", "content": chunk})
@@ -84,12 +149,10 @@ def get_full_completion(prompt):
             print(f"Unexpected finish_reason: {finish_reason}")
             break
 
-    # Calculate costs
     input_cost = (total_prompt_tokens / 1000) * INPUT_COST_PER_1K
     output_cost = (total_completion_tokens / 1000) * OUTPUT_COST_PER_1K
     total_cost = input_cost + output_cost
 
-    # Display token usage and costs
     print(f"\nTotal prompt tokens used: {total_prompt_tokens}")
     print(f"Total completion tokens used: {total_completion_tokens}")
     print(f"Input cost: ${input_cost:.4f}")
@@ -98,60 +161,35 @@ def get_full_completion(prompt):
 
     return full_response
 
-def convert_md_to_pdf(md_file, pdf_file):
-    """
-    Converts a markdown file to PDF format.
-    """
-    try:
-        # Read markdown content
-        with open(md_file, 'r', encoding='utf-8') as f:
-            md_content = f.read()
-        
-        # Convert markdown to HTML
-        html_content = markdown2.markdown(md_content)
-        
-        # Create PDF
-        pdf = FPDF()
-        pdf.add_page()
-        pdf.set_auto_page_break(auto=True, margin=15)
-        
-        # Set font
-        pdf.set_font("Arial", size=12)
-        
-        # Process HTML content
-        # Remove HTML tags and split into lines
-        text_content = re.sub('<[^<]+?>', '', html_content)
-        lines = text_content.split('\n')
-        
-        # Add content to PDF
-        for line in lines:
-            if line.strip():
-                pdf.multi_cell(0, 10, txt=line.strip())
-        
-        # Save PDF
-        pdf.output(pdf_file)
-        print(f"PDF saved as {pdf_file}")
-        
-    except Exception as e:
-        print(f"Error converting markdown to PDF: {str(e)}")
-        exit(1)
-
+# ==============================
+#           Main
+# ==============================
 def main():
-    print("Reading prompt from file...")
-    prompt = read_prompt(PROMPT_FILE)
+    args = parse_args()
+    topic = args.topic
+    quantity = args.quantity
 
-    print("Generating expert-level Bash scripting tips with OpenAI API...")
-    full_text = get_full_completion(prompt)
+    print("Reading prompt from file...")
+    prompt = read_and_replace_prompt(PROMPT_FILE, topic, quantity)
+
+    # Generate sanitized filename for the output with _tip suffix
+    output_md = f"{sanitize_filename(topic)}_tip.md"
+
+    if os.path.exists(output_md) and not args.force:
+        print(f"Completed: output file '{output_md}' already exists. Use --force to overwrite.")
+        return
+
+    print(f"Generating expert-level {topic} tips with OpenAI API...")
+    full_text = get_full_completion(prompt, quantity)
     print(f"\nTotal response length: {len(full_text)} characters")
 
     # Save as markdown
-    with open(OUTPUT_MD, "w", encoding="utf-8") as f:
+    with open(output_md, "w", encoding="utf-8") as f:
         f.write(full_text)
-    print(f"Markdown saved as {OUTPUT_MD}")
-    
-    # Convert to PDF
-    print("Converting markdown to PDF...")
-    convert_md_to_pdf(OUTPUT_MD, OUTPUT_PDF)
+    print(f"Markdown saved as {output_md}")
+
+    # Convert to HTML, EPUB, PDF
+    convert_files(output_md)
 
 if __name__ == "__main__":
     main()

@@ -1,8 +1,8 @@
-Topic: Docker
+Topic: {{TOPIC}}
 
 You are an expert in the above topic with 20 years of experience.
 
-Generate 20 expert-level tips and tricks about this topic. For each tip or trick, provide:
+Generate {{NUMBER_OF_TIPS}} expert-level tips and tricks about this topic. For each tip or trick, provide:
 
 1. An extensive explanation of the problem/scenario (why this is a problem, what goes wrong, and why a better approach is needed).
 2. A “Before” section with the naive or problematic code implementation.
