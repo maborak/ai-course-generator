@@ -10,7 +10,7 @@ from pprint import pprint as pp
 # ==============================
 #        Configuration
 # ==============================
-PROMPT_FILE = "prompt.txt"
+PROMPT_FILE = "prompt_slot.txt"
 DEFAULT_TOPIC = "linux"
 DEFAULT_QUANTITY = 5
 MODEL = "gpt-4.1"  # Use a model with a larger context window
@@ -199,11 +199,13 @@ def main():
     topic = args.topic
     quantity = args.quantity
 
+    model_name = args.ollama_model if args.engine == 'ollama' else MODEL
+
     print("Reading prompt from file...")
     prompt = read_and_replace_prompt(PROMPT_FILE, topic, quantity)
 
-    # Generate sanitized filename for the output with _tip suffix
-    output_md = f"{sanitize_filename(topic)}_tip.md"
+    # Generate sanitized filename for the output with engine and model name
+    output_md = f"{sanitize_filename(topic)}_{args.engine}_{sanitize_filename(model_name)}_tip.md"
 
     if os.path.exists(output_md) and not args.force:
         print(f"Completed: output file '{output_md}' already exists. Use --force to overwrite.")

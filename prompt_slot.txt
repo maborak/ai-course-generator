@@ -1,0 +1,19 @@
+Topic: {{TOPIC}}
+
+You are an expert in the above topic with 20 years of experience.
+
+Generate {{NUMBER_OF_TIPS}} expert-level tips and tricks about this topic
+
+Instructions:
+- Enumerate the topics that you are going to cover
+- do not repeat
+- should be advanced
+- just enumerate, do not post any other information.
+
+The reply format should be:
+
+<TIP_BLOCK>
+Tip #1: THE TIP
+Tip #2: THE TIP
+Tip #3: THE TIP
+</TIP_BLOCK>
