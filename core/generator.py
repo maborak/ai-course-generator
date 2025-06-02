@@ -7,7 +7,7 @@ class AITipsGenerator:
         self.engine = engine
         self.converter = converter
 
-    def generate_tips(self, prompt, topic, quantity, output_md, force=False):
+    def generate_tips(self, topic, quantity, output_md, force=False):
         import os
 
         logger.debug(f"generate_tips called with topic={topic}, quantity={quantity}, output_md={output_md}, force={force}")
@@ -17,7 +17,18 @@ class AITipsGenerator:
             return
 
         logger.debug(f"Calling engine.generate()...")
-        text = self.engine.generate(prompt, quantity)
+        tips = self.engine.generate(topic, quantity)
+
+        def format_tips_to_markdown(tips_list):
+            md = ""
+            for idx, tip_title, tip_detail in tips_list:
+                md += f"## Tip #{idx}: {tip_title}\n\n{tip_detail}\n\n***\n"
+            return md
+
+        if isinstance(tips, str):
+            text = tips
+        else:
+            text = format_tips_to_markdown(tips)
         logger.debug(f"Writing generated tips to {output_md}")
 
         with open(output_md, "w", encoding="utf-8") as f:
@@ -27,3 +38,9 @@ class AITipsGenerator:
         logger.debug("Calling converter.convert()...")
         self.converter.convert(output_md)
         logger.info("File conversion complete.")
+
+    def format_tips_to_markdown(self, tips_list):
+        md = ""
+        for idx, tip_title, tip_detail in tips_list:
+            md += f"### Tip #{idx}: {tip_title}\n\n{tip_detail}\n\n***\n"
+        return md

@@ -10,7 +10,7 @@ from pprint import pprint as pp
 # ==============================
 #        Configuration
 # ==============================
-PROMPT_FILE = "prompt_slot.txt"
+PROMPT_FILE = "adapters/engines/openai/prompt.txt"
 DEFAULT_TOPIC = "linux"
 DEFAULT_QUANTITY = 5
 MODEL = "gpt-4.1"  # Use a model with a larger context window

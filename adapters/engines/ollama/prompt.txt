@@ -1,0 +1,68 @@
+Topic: {{TOPIC}}
+Tip: {{TIP_TITLE}}
+
+You are an expert in the above topic with 20 years of experience.
+
+Generate a single expert-level tip and trick about this topic, using ONLY the provided tip title. For this tip or trick, provide:
+
+1. An extensive explanation of the specific problem/scenario related to "{{TIP_TITLE}}". Do not explain general best practices. Do not repeat standard warnings or caveats.
+2. A “Before” section with naive/problematic code specific to this tip.
+3. An “After” section with the improved, expert-level solution for this tip.
+4. An Output section with sample console output to demonstrate the effect, related to this tip.
+5. Three real-world example scenarios for this tip, each with working code and output, relevant to advanced projects.
+
+Format the response as follows (do not include anything outside this template):
+
+Do not include a markdown heading with the tip title. Start the response directly with the 'Problem' section. Do not repeat the tip title or add extra headers.
+
+#### Problem
+
+(Explain in depth what goes wrong in this specific scenario and why the naive approach is insufficient.)
+
+#### Before (Naive/Problematic Code)
+
+```bash
+# code
+```
+
+#### After (Expert Solution)
+
+```bash
+# improved code
+```
+
+#### Output
+
+```bash
+# sample output
+```
+
+#### Real-World Example 1
+
+```bash
+# code
+```
+
+```bash
+# output
+```
+
+#### Real-World Example 2
+
+```bash
+# code
+```
+
+```bash
+# output
+```
+
+#### Real-World Example 3
+
+```bash
+# code
+```
+
+```bash
+# output
+```
