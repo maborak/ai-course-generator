@@ -1,68 +1,153 @@
-Topic: {{TOPIC}}
-Tip: {{TIP_TITLE}}
 
-You are an expert in the above topic with 20 years of experience.
+Topic: {{TOPIC}}  
+Title: {{TIP_TITLE}}  
+Category: {{CATEGORY}}  
+Expertise Level: {{EXPERTISE_LEVEL}}  
 
-Generate a single expert-level tip and trick about this topic, using ONLY the provided tip title. For this tip or trick, provide:
+You are an engineer with {{EXPERTISE_LEVEL}}-level expertise. {{CONTEXT_NOTE}}
+Your task is to write a complete, structured response about this specific title and category.
 
-1. An extensive explanation of the specific problem/scenario related to "{{TIP_TITLE}}". Do not explain general best practices. Do not repeat standard warnings or caveats.
-2. A “Before” section with naive/problematic code specific to this tip.
-3. An “After” section with the improved, expert-level solution for this tip.
-4. An Output section with sample console output to demonstrate the effect, related to this tip.
-5. Three real-world example scenarios for this tip, each with working code and output, relevant to advanced projects.
+Use only the provided Title and Category. Do not include general advice, unrelated best practices, or repeated caveats.
 
-Format the response as follows (do not include anything outside this template):
+Your response must include:
 
-Do not include a markdown heading with the tip title. Start the response directly with the 'Problem' section. Do not repeat the tip title or add extra headers.
+1. A detailed explanation of the specific problem or scenario directly related to "{{TIP_TITLE}}".  
+2. A "Before" section with naive or problematic code for this title.  
+3. An "After" section with a corrected or improved expert-level solution.  
+4. Console output for both code sections to show the difference.  
+5. A real-world example using this tip in a meaningful project scenario.  
+6. An explanation of why the solution works.  
+7. Pros and Cons of the solution.  
+8. A conclusion summarizing the resolution of the specific issue in "{{TIP_TITLE}}".  
+   - If no conclusion is necessary, explicitly state that.
 
-#### Problem
+Format your output exactly like this (do not add or omit sections, headings, or commentary):
 
-(Explain in depth what goes wrong in this specific scenario and why the naive approach is insufficient.)
+### Problem  
+(Describe the specific problem. No general advice.)
 
-#### Before (Naive/Problematic Code)
-
+### Before (Naive/Problematic Code)
 ```bash
-# code
-```
-
-#### After (Expert Solution)
-
-```bash
-# improved code
+# code here
 ```
 
 #### Output
-
 ```bash
-# sample output
+# output here
 ```
 
-#### Real-World Example 1
-
+### After (Expert Solution)
 ```bash
-# code
+# improved code here
 ```
 
+#### Output
+```bash
+# output here
+```
+
+#### Explanation  
+(Why this solves the problem and how.)
+
+##### Pros  
+- Pro 1  
+- Pro 2  
+
+##### Cons  
+- Con 1  
+- Con 2  
+
+### Real-World Implementation
+
+#### Scenario  
+(Describe the real use case for this tip.)
+
+#### Implementation
+```bash
+# full code
+```
+
+#### Output
 ```bash
 # output
 ```
 
-#### Real-World Example 2
+### Conclusion  
+(Specific conclusion for "{{TIP_TITLE}}". Do not include general advice.)
 
+---
+
+Example response:
+
+### Problem  
+Using mutable default arguments like `[]` in Python functions can lead to unexpected behavior when the default value is modified across calls.
+
+### Before (Naive/Problematic Code)
 ```bash
-# code
+def add_item(item, lst=[]):
+    lst.append(item)
+    return lst
+
+print(add_item("apple"))
+print(add_item("banana"))
 ```
 
+#### Output
 ```bash
-# output
+['apple']
+['apple', 'banana']
 ```
 
-#### Real-World Example 3
-
+### After (Expert Solution)
 ```bash
-# code
+def add_item(item, lst=None):
+    if lst is None:
+        lst = []
+    lst.append(item)
+    return lst
+
+print(add_item("apple"))
+print(add_item("banana"))
 ```
 
+#### Output
 ```bash
-# output
+['apple']
+['banana']
 ```
+
+#### Explanation  
+The original code uses a mutable list as a default argument, causing the list to persist between calls. The fixed version uses `None` and initializes a new list inside the function.
+
+##### Pros  
+- Avoids shared state bugs  
+- Predictable behavior  
+
+##### Cons  
+- Slightly more verbose  
+
+### Real-World Implementation
+
+#### Scenario  
+A developer adds log entries to a list and uses a function with a mutable default argument.
+
+#### Implementation
+```bash
+def log_entry(entry, log=[]):
+    log.append(entry)
+    return log
+
+print(log_entry("Login"))
+print(log_entry("Logout"))
+```
+
+#### Output
+```bash
+['Login']
+['Login', 'Logout']
+```
+
+### Conclusion  
+Mutable default arguments like lists can introduce hidden state bugs. Always use `None` and create the object inside the function instead.
+
+-------

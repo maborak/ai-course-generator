@@ -1,19 +1,29 @@
-Topic: {{TOPIC}}
+Topic: {{TOPIC}}  
+Category: {{CATEGORY}}  
+Expertise Level: {{EXPERTISE_LEVEL}}  
 
-You are an expert in the above topic with 20 years of experience.
+You are an engineer with a {{EXPERTISE_LEVEL}} level of knowledge. {{CONTEXT_NOTE}}  
+Your task is to generate exactly {{NUMBER_OF_TIPS}} unique and non-repeating {{CATEGORY}}s related to the topic "{{TOPIC}}".
 
-Generate {{NUMBER_OF_TIPS}} expert-level tips and tricks about this topic
+Requirements:
+- Each entry must follow this exact format: "#N: FULL_TITLE | SHORT_TITLE"
+- FULL_TITLE must clearly describe a {{CATEGORY}} appropriate for the {{EXPERTISE_LEVEL}} level.
+- SHORT_TITLE must be a concise summary or label (5 words max).
+- Do not include any explanations, notes, or comments.
+- The block must be enclosed with <TITLE_BLOCK_START> and </TITLE_BLOCK_END> — spelled exactly like this. Do not add extra characters, colons, or change casing.
+- Each line must begin with #N: (where N is the index, starting from 1)
 
-Instructions:
-- Enumerate the topics that you are going to cover
-- do not repeat
-- should be advanced
-- just enumerate, do not post any other information.
+Output format:
+<TITLE_BLOCK_START>
+#1: FULL_TITLE | SHORT_TITLE  
+#2: FULL_TITLE | SHORT_TITLE  
+...  
+#{{NUMBER_OF_TIPS}}: FULL_TITLE | SHORT_TITLE  
+</TITLE_BLOCK_END>
 
-The reply format should be:
-
-<TIP_BLOCK>
-Tip #1: THE TIP
-Tip #2: THE TIP
-Tip #3: THE TIP
-</TIP_BLOCK>
+Example:
+<TITLE_BLOCK_START>
+#1: Misunderstanding Docker CMD vs ENTRYPOINT | CMD vs ENTRYPOINT  
+#2: Not Pinning Dependency Versions in Dockerfiles | Unpinned Dependencies  
+#3: Running Apps as Root in Containers | Root User Mistake  
+</TITLE_BLOCK_END>

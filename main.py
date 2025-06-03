@@ -3,6 +3,8 @@ from adapters.engines.openai import OpenAIEngine
 from adapters.engines.ollama import OllamaEngine
 from adapters.file_converter import FileConverter
 from core.generator import AITipsGenerator
+import tempfile
+import glob
 
 def sanitize_filename(s):
     import re
@@ -30,20 +32,75 @@ def main():
     parser.add_argument('--ollama-host', default=None)
     parser.add_argument('--ollama-model', default='llama3.2')
     parser.add_argument('--ollama-stream', action='store_true')
+    parser.add_argument('--check', action='store_true', help='Check if output files can be generated with dummy content')
+    parser.add_argument('--category', default='Tip', help='Category for the tips (used as CATEGORY)')
+    parser.add_argument('--expertise-level', default='Novice', help='Expertise level for the tips')
     args = parser.parse_args()
     logger.debug(f"Arguments: {args}")
 
     output_dir = "output"
     os.makedirs(output_dir, exist_ok=True)
+
+    if args.check:
+        GREEN = "\033[92m"
+        RED = "\033[91m"
+        RESET = "\033[0m"
+
+        # Use a temporary file prefix
+        with tempfile.NamedTemporaryFile(
+            dir=output_dir, prefix="check_", suffix="_tip.md", delete=False
+        ) as tmp_md:
+            output_md = tmp_md.name
+            dummy_content = "# Dummy AI Tips Output\n\nThis is a test file for --check mode.\n\n## Tip 1\nDummy tip content.\n\n## Tip 2\nMore dummy content.\n"
+            tmp_md.write(dummy_content.encode("utf-8"))
+        logger.info(f"Dummy markdown saved as {output_md}")
+
+        converter = FileConverter()
+        try:
+            converter.convert(output_md)
+        except Exception as e:
+            print(f"{RED}FAILED{RESET} to convert files: {e}")
+
+        base = os.path.splitext(output_md)[0]
+        results = {}
+        for ext in [".md", ".html", ".pdf", ".epub"]:
+            file_path = base + ext
+            if os.path.exists(file_path):
+                results[ext] = True
+            else:
+                results[ext] = False
+
+        print("\nCheck results:")
+        for ext in [".md", ".html", ".pdf", ".epub"]:
+            file_path = base + ext  # <-- Move this inside the loop
+            status = f"{GREEN}SUCCESS{RESET}" if results[ext] else f"{RED}FAILED{RESET}"
+            print(f"  {file_path}: {status}")
+
+        # Cleanup
+        for ext in [".md", ".html", ".pdf", ".epub"]:
+            file_path = base + ext
+            if os.path.exists(file_path):
+                os.remove(file_path)
+
+        print("\nCleanup complete.")
+        logger.info("Check complete: All output files generated and cleaned up successfully.")
+        return
+
     output_md = os.path.join(
         output_dir,
-        f"{sanitize_filename(args.topic)}_{args.engine}_{sanitize_filename(args.ollama_model if args.engine == 'ollama' else 'gpt-4.1')}_tip.md"
+        f"{sanitize_filename(args.topic)}_{sanitize_filename(args.category)}_{sanitize_filename(args.expertise_level)}_{args.engine}_{sanitize_filename(args.ollama_model if args.engine == 'ollama' else 'gpt-4.1')}_tip.md"
     )
 
     if args.engine == 'openai':
         engine = OpenAIEngine()
     else:
-        engine = OllamaEngine(args.ollama_model, host=args.ollama_host, stream=args.ollama_stream)
+        engine = OllamaEngine(
+            args.ollama_model,
+            host=args.ollama_host,
+            stream=args.ollama_stream,
+            category=args.category,
+            expertise_level=args.expertise_level
+        )
     converter = FileConverter()
 
     generator = AITipsGenerator(engine, converter)
