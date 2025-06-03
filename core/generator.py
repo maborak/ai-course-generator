@@ -36,7 +36,7 @@ class AITipsGenerator:
             f"- **Model Used:** {model}\n"
             f"- **Total Tokens Used:** {tokens_used}\n"
             f"- **Generated on:** {now_str}\n"
-            f"- **Generated in:** {elapsed:.2f} seconds\n\n"
+            f"- **Generated in:** {self.format_elapsed(elapsed)}\n\n"
             "---\n\n"
         )
 
@@ -49,10 +49,40 @@ class AITipsGenerator:
         logger.info(f"Markdown saved as {output_md}")
         logger.info(f"Total tokens used: {tokens_used}")
 
-        self.converter.convert(output_md)
+        # Prepare metadata for embedding
+        metadata = {
+            "title": topic,
+            "author": "Maborak",
+            "category": category,
+            "expertise_level": expertise_level,
+            "model": model,
+            "tokens_used": tokens_used,
+            "generated_on": now_str,
+            "language": "en",
+            "date": now_str,
+            "description": f"{topic} ({category}, {expertise_level})",
+        }
+        # Optionally add short titles for each tip (first one as example)
+        if details:
+            metadata["shorttitle"] = details[0][1]["short"]
+
+        self.converter.convert(output_md, metadata=metadata)
 
     def format_tips_to_markdown(self, tips_list):
         md = ""
         for idx, tip_title, tip_detail in tips_list:
             md += f"### Tip #{idx}: {tip_title}\n\n{tip_detail}\n\n***\n"
         return md
+
+    def format_elapsed(self, seconds):
+        seconds = int(seconds)
+        hours, remainder = divmod(seconds, 3600)
+        minutes, seconds = divmod(remainder, 60)
+        parts = []
+        if hours:
+            parts.append(f"{hours} hour{'s' if hours != 1 else ''}")
+        if minutes:
+            parts.append(f"{minutes} minute{'s' if minutes != 1 else ''}")
+        if seconds or not parts:
+            parts.append(f"{seconds} second{'s' if seconds != 1 else ''}")
+        return ", ".join(parts)
