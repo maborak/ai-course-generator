@@ -6,24 +6,33 @@ You are an engineer with a {{EXPERTISE_LEVEL}} level of knowledge. {{CONTEXT_NOT
 Your task is to generate exactly {{NUMBER_OF_TIPS}} unique and non-repeating {{CATEGORY}}s related to the topic "{{TOPIC}}".
 
 Requirements:
-- Each entry must follow this exact format: "#N: FULL_TITLE | SHORT_TITLE"
-- FULL_TITLE must clearly describe a {{CATEGORY}} appropriate for the {{EXPERTISE_LEVEL}} level.
-- SHORT_TITLE must be a concise summary or label (5 words max).
-- Do not include any explanations, notes, or comments.
-- The block must be enclosed with <TITLE_BLOCK_START> and </TITLE_BLOCK_END> — spelled exactly like this. Do not add extra characters, colons, or change casing.
-- Each line must begin with #N: (where N is the index, starting from 1)
+- Output must be a single valid JSON object — do not include markdown, code blocks, comments, or extra text before or after.
+- Important: Output only the JSON object. Do not include logging, debug messages, markdown formatting, or explanatory commentary.
+- The output must begin with `{` and end with `}` — nothing else outside the JSON.
+- JSON must contain two keys:
+  - "title_block": an array of objects, each with:
+    - "number": index starting from 1
+    - "full_title": a descriptive title for the item
+    - "short_title": a concise summary (max 5 words)
+  - "overview": a single paragraph written as the introduction to the complete eBook.
+    - Do not refer to “tips,” “titles,” “entries,” “chapters,” or “sections.”
+    - Write it as if you're introducing a full collection of categorized insights to the reader.
+    - The tone should match the target expertise level and highlight the value of learning, applying, or mastering the {{TOPIC}}.
+    - Emphasize the purpose, focus areas, and benefits of reading the content.
 
-Output format:
-<TITLE_BLOCK_START>
-#1: FULL_TITLE | SHORT_TITLE  
-#2: FULL_TITLE | SHORT_TITLE  
-...  
-#{{NUMBER_OF_TIPS}}: FULL_TITLE | SHORT_TITLE  
-</TITLE_BLOCK_END>
-
-Example:
-<TITLE_BLOCK_START>
-#1: Misunderstanding Docker CMD vs ENTRYPOINT | CMD vs ENTRYPOINT  
-#2: Not Pinning Dependency Versions in Dockerfiles | Unpinned Dependencies  
-#3: Running Apps as Root in Containers | Root User Mistake  
-</TITLE_BLOCK_END>
+Output example:
+{
+  "title_block": [
+    {
+      "number": 1,
+      "full_title": "Misunderstanding Docker CMD vs ENTRYPOINT",
+      "short_title": "CMD vs ENTRYPOINT"
+    },
+    {
+      "number": 2,
+      "full_title": "Not Pinning Dependency Versions in Dockerfiles",
+      "short_title": "Unpinned Dependencies"
+    }
+  ],
+  "overview": "This collection is designed to help novice developers build a confident foundation in Docker usage. By exploring common pitfalls and practical insights, readers gain real-world awareness of configuration nuances, security considerations, and deployment strategies essential to modern container-based development."
+}

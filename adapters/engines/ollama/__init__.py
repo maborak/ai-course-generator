@@ -1,6 +1,7 @@
 import os
 import re
 import logging
+import json
 from core.ports import CompletionEnginePort
 from ollama import Client
 
@@ -62,55 +63,58 @@ class OllamaEngine(CompletionEnginePort):
 
     def generate_tip_titles(self, topic, quantity):
         """
-        Returns a list of tip titles by parsing the TITLE_BLOCK section.
+        Returns a list of tip titles by parsing the JSON output from the model.
+        Retries if the JSON is incomplete.
         """
-        import re
         prompt = self.build_titles_prompt(topic, quantity)
         logger.debug(f"Prompt: {prompt}")
-        
+
         messages = [
             {"role": "system", "content": "You are a helpful AI assistant."},
             {"role": "user", "content": prompt}
         ]
 
         content = ""
-        try:
-            for msg in self.ollama.chat(
-                model=self.model,
-                messages=messages,
-                stream=True
-            ):
-                piece = msg['message']['content']
-                print(piece, end="", flush=True)
-                content += piece
-        except KeyboardInterrupt:
-            print("\n[Interrupted] Partial session discarded.")
-            return []
+        max_retries = 3
+        attempt = 0
+        while attempt < max_retries:
+            try:
+                for msg in self.ollama.chat(
+                    model=self.model,
+                    messages=messages,
+                    stream=True
+                ):
+                    piece = msg['message']['content']
+                    print(piece, end="", flush=True)
+                    content += piece
+            except KeyboardInterrupt:
+                print("\n[Interrupted] Partial session discarded.")
+                return [], ""
 
-        # Save original content for token counting
-        original_content = content
+            original_content = content
+            self.tokens_used += int(len(original_content.split()) * 0.75)
 
-        # Remove <think> tags (if any) for parsing
-        content = re.sub(r'<think\b[^>]*>.*?</think>', '', content, flags=re.DOTALL | re.IGNORECASE)
+            try:
+                data = json.loads(content)
+                tips = []
+                for item in data.get("title_block", []):
+                    tips.append({
+                        "full": item.get("full_title", ""),
+                        "short": item.get("short_title", "")
+                    })
+                # Get overview/explanation if present
+                overview = data.get("overview") or data.get("explanation", "")
+                logger.debug(f"Extracted tips: {tips}, overview: {overview}")
+                return tips, overview
+            except Exception as e:
+                logger.warning(f"Attempt {attempt+1}: Failed to parse JSON from model output: {e}")
+                messages.append({"role": "assistant", "content": content})
+                messages.append({"role": "user", "content": "Please continue and finish the JSON."})
+                content = ""
+                attempt += 1
 
-        # Extract TITLE_BLOCK
-        match = re.search(r"<TITLE_BLOCK_START>\s*(.*?)\s*</TITLE_BLOCK_END>", content, re.DOTALL | re.IGNORECASE)
-        tips = []
-
-        if match:
-            block = match.group(1)
-            for line in block.strip().splitlines():
-                if line.strip().startswith("#") and '|' in line:
-                    parts = line.split(":", 1)
-                    if len(parts) == 2:
-                        title_block = parts[1].strip()
-                        full, short = map(str.strip, title_block.split("|", 1))
-                        tips.append({"full": full, "short": short})
-
-        # Estimate and log the token usage using the original content
-        self.tokens_used += int(len(original_content.split()) * 0.75)
-        logger.debug(f"Extracted tips: {tips}")
-        return tips
+        logger.error("Failed to get complete and valid JSON after retries.")
+        return [], ""
 
     def generate_tip_detail(self, topic, tip_title, tip_index, total_tips):
         """
@@ -178,12 +182,11 @@ class OllamaEngine(CompletionEnginePort):
 
     def generate(self, topic, quantity):
         """
-        Returns a list of tuples: (tip_index, tip_title, tip_detail)
+        Returns a list of tuples: (tip_index, tip_dict, tip_detail), and overview
         """
-        tips = self.generate_tip_titles(topic, quantity)
-        #exit(0)
+        tips, overview = self.generate_tip_titles(topic, quantity)
         details = []
         for i, tip in enumerate(tips, 1):
             detail = self.generate_tip_detail(topic, tip["full"], i, len(tips))
-            details.append((i, tip["full"], detail))
-        return details
+            details.append((i, tip, detail))  # pass the whole tip dict
+        return details, overview

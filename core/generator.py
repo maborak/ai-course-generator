@@ -14,11 +14,9 @@ class AITipsGenerator:
     def generate_tips(self, topic, quantity, output_md, force=False):
         start_time = time.time()
         logger.info(f"Generating {quantity} tips for topic '{topic}'")
-        tips = self.engine.generate_tip_titles(topic, quantity)
-        details = []
-        for i, tip in enumerate(tips, 1):
-            detail = self.engine.generate_tip_detail(topic, tip["full"], i, len(tips))
-            details.append((i, tip, detail))
+        details, overview = self.engine.generate(topic, quantity)
+        #print(details)
+        #exit(1)
         elapsed = time.time() - start_time
 
         # Add expertise level, category, model, generation time, date, and tokens to the top of the markdown
@@ -42,6 +40,8 @@ class AITipsGenerator:
 
         with open(output_md, "w", encoding="utf-8") as f:
             f.write(header)
+            if overview:
+                f.write(f"## Overview\n\n{overview}\n\n---\n\n")
             for i, tip, detail in details:
                 f.write(f"## {i}. {tip['full']}\n")
                 f.write(f"**Short Title:** {tip['short']}\n\n")
