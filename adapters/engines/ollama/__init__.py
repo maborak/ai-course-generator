@@ -91,7 +91,7 @@ class OllamaEngine(CompletionEnginePort):
         original_content = content
         # Remove <think> tags for further processing
         content = re.sub(r'<think\b[^>]*>.*?</think>', '', content, flags=re.DOTALL | re.IGNORECASE)
-        logger.debug(f"Content after <think> removal: {content}")
+        logger.debug(f"Content after <think> removal:\n{content}")
         self.tokens_used += int(len(original_content.split()) * 0.75)
 
         try:
@@ -135,7 +135,7 @@ class OllamaEngine(CompletionEnginePort):
         # Remove <think> tags for further processing
         content = re.sub(r'<think\b[^>]*>.*?</think>', '', content, flags=re.DOTALL | re.IGNORECASE)
         print("\n[End of Ollama Streaming Output]")
-        logger.debug(f"Received tip detail response: {content}")
+        logger.debug(f"Received tip detail response:\n{content}")
 
         # Estimate and log the token usage using the original content
         self.tokens_used += int(len(original_content.split()) * 0.75)

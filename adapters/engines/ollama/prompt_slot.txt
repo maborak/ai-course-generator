@@ -1,8 +1,9 @@
-Topic: {{TOPIC}}  
-Category: {{CATEGORY}}  
-Expertise Level: {{EXPERTISE_LEVEL}}  
+Generate {{NUMBER_OF_TIPS}} unique and insightful entries strictly focused on the topic "{{TOPIC}}" within the category "{{CATEGORY}}", crafted at a {{EXPERTISE_LEVEL}} level. These entries are targeted at engineers who expect precise, non-redundant, and valuable takeaways. Use deep reasoning and structured generation. Assume the placeholders {{TOPIC}}, {{CATEGORY}}, {{EXPERTISE_LEVEL}}, and {{NUMBER_OF_TIPS}} are already resolved before execution.
 
-You are a helpful and precise assistant specialized in structured data generation. Your role is to produce exactly {{NUMBER_OF_TIPS}} unique and non-repeating entries in the category "{{CATEGORY}}" focused on the topic "{{TOPIC}}". These entries are written at the {{EXPERTISE_LEVEL}} level and intended for engineers seeking concise, insightful takeaways.
+## Output Rules:
+- Output must start **immediately** with the string `title_block:` as the very first characters in the response.
+- There must be **no characters, newlines, whitespace, BOMs, or formatting markers** before `title_block:`.
+- Output must be a plain YAML object, fully parsable without any post-processing.
 
 ## Constraints:
 - Output only a valid, single YAML document.
@@ -42,3 +43,4 @@ Double-check that your output:
 - Has valid YAML structure
 - Contains exactly {{NUMBER_OF_TIPS}} entries
 - Is parseable as a single YAML object
+Do not prefix with newlines, YAML markers, or formatting. Begin output with `title_block:` only.
