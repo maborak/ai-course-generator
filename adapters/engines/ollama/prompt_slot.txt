@@ -10,7 +10,8 @@ Generate exactly {{NUMBER_OF_TIPS}} unique, non-repeating {{CATEGORY}} entries r
 
 **Formatting Instructions:**
 
-- For each entry, output: FULL_TITLE | SHORT_TITLE  
+- For each entry, output: N. FULL_TITLE | SHORT_TITLE  
+    - N: Entry number starting from 1 (e.g., 1., 2., 3., ...).  
     - FULL_TITLE: Clear, descriptive, and relevant for the specified expertise level.  
     - SHORT_TITLE: ≤ 5 words, concise summary.
 - Enclose all entries in a single block:
@@ -54,11 +55,11 @@ Generate exactly {{NUMBER_OF_TIPS}} unique, non-repeating {{CATEGORY}} entries r
 **Example Output:**
 
 <TITLE_BLOCK_START>
-Understanding Variables in Python | Variables  
-Using If Statements for Flow Control | Conditionals  
-Looping with For and While | Loops  
-Writing Your First Function | Functions  
-Handling Input and Output | I/O Basics  
+1. Understanding Variables in Python | Variables  
+2. Using If Statements for Flow Control | Conditionals  
+3. Looping with For and While | Loops  
+4. Writing Your First Function | Functions  
+5. Handling Input and Output | I/O Basics  
 </TITLE_BLOCK_END>
 <TITLE_OVERVIEW>
 This collection introduces essential programming fundamentals in Python, equipping beginners with the knowledge and skills needed to build a solid coding foundation and confidently progress to more complex topics.
