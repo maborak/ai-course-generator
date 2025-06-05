@@ -1,29 +1,58 @@
 Topic: {{TOPIC}}  
 Category: {{CATEGORY}}  
 Expertise Level: {{EXPERTISE_LEVEL}}  
+{{CONTEXT_NOTE}}
 
-You are an engineer with a {{EXPERTISE_LEVEL}} level of knowledge. {{CONTEXT_NOTE}}  
-Your task is to generate exactly {{NUMBER_OF_TIPS}} unique and non-repeating {{CATEGORY}}s related to the topic "{{TOPIC}}".
+You are an engineer with {{EXPERTISE_LEVEL}} expertise.  
+Generate exactly {{NUMBER_OF_TIPS}} unique, non-repeating {{CATEGORY}} entries related to "{{TOPIC}}".
 
-Requirements:
-- Each entry must follow this exact format: FULL_TITLE | SHORT_TITLE
-- FULL_TITLE must clearly describe a {{CATEGORY}} appropriate for the {{EXPERTISE_LEVEL}} level.
-- SHORT_TITLE must be a concise summary or label (5 words max).
-- Do not include any explanations, notes, or comments.
-- The block must be enclosed with <TITLE_BLOCK_START> and </TITLE_BLOCK_END> — spelled exactly like this. Do not add extra characters, colons, or change casing.
-- Avoid using phrases such as "additional", "continued", or "next set" — always generate a fresh, self-contained list.
-- All tag lines (<TITLE_BLOCK_START>, </TITLE_BLOCK_START>, <TITLE_OVERVIEW>, </TITLE_OVERVIEW>) must appear unindented and start at the beginning of a new line with no preceding spaces or tabs.
-- This must be a fresh, independent list.
-- Do not continue from or refer to any prior entries.
-- Never include transitional phrases such as “this continues”, “additionally”, or “following tips”.
-- You must generate exactly {{NUMBER_OF_TIPS}} entries inside the <TITLE_BLOCK_START> and </TITLE_BLOCK_END> block — no more and no less.
-- You must generate only one <TITLE_BLOCK_START>...</TITLE_BLOCK_END> block. Never include multiple blocks.
-- The total number of entries across the single block must exactly match {{NUMBER_OF_TIPS}}.
-- Never repeat <TITLE_BLOCK_START> or <TITLE_OVERVIEW> more than once.
-- Generating more or fewer than {{NUMBER_OF_TIPS}} entries will be considered a failure of the task. You must count the lines inside <TITLE_BLOCK_START>...</TITLE_BLOCK_END> and stop when you reach {{NUMBER_OF_TIPS}}.
-- When {{NUMBER_OF_TIPS}} equals 1, you must generate only a single line inside the <TITLE_BLOCK_START> and </TITLE_BLOCK_END> block — do not interpret it as a request for a group or category. Any more than 1 line is incorrect.
+---
 
-Example:
+**Formatting Instructions:**
+
+- For each entry, output: FULL_TITLE | SHORT_TITLE  
+    - FULL_TITLE: Clear, descriptive, and relevant for the specified expertise level.  
+    - SHORT_TITLE: ≤ 5 words, concise summary.
+- Enclose all entries in a single block:
+    ```
+    <TITLE_BLOCK_START>
+    [each entry here, one per line]
+    </TITLE_BLOCK_END>
+    ```
+- **No additional text**, explanations, transitional phrases, or extra commentary before, between, or after entries.
+
+- **Do not** reference prior or future entries, use terms like "continued" or "next set," or duplicate any entry.
+
+- The block must contain exactly {{NUMBER_OF_TIPS}} lines (entries).
+    - If {{NUMBER_OF_TIPS}} is 1, output only one entry.
+    - No repeated entries.
+
+---
+
+**Overview Generation:**
+
+- After the title block, generate a single overview block:
+    ```
+    <TITLE_OVERVIEW>
+    [one paragraph]
+    </TITLE_OVERVIEW>
+    ```
+- The overview must synthesize the shared purpose, themes, and value of the complete set.
+    - **Do not summarize, list, or mention any individual entry.**
+    - Focus only on the collection as a whole, emphasizing overall benefit, breadth, and intended audience.
+
+---
+
+**Validation Rules:**
+
+- Only one <TITLE_BLOCK_START> block and one <TITLE_OVERVIEW> block per output, both tags flush-left.
+- No extra indentation, comments, or stray characters outside the required blocks.
+- Output must strictly follow these formatting and content instructions.
+
+---
+
+**Example Output:**
+
 <TITLE_BLOCK_START>
 Understanding Variables in Python | Variables  
 Using If Statements for Flow Control | Conditionals  
@@ -32,14 +61,13 @@ Writing Your First Function | Functions
 Handling Input and Output | I/O Basics  
 </TITLE_BLOCK_END>
 <TITLE_OVERVIEW>
-This collection introduces the topic {{TOPIC}}, highlights its relevance to the {{CATEGORY}} category, and is tailored for {{EXPERTISE_LEVEL}} learners.
+This collection introduces essential programming fundamentals in Python, equipping beginners with the knowledge and skills needed to build a solid coding foundation and confidently progress to more complex topics.
 </TITLE_OVERVIEW>
-Validation Rules:
-Before completing the response, confirm the following are true:
-- The number of entries between <TITLE_BLOCK_START> and </TITLE_BLOCK_END> is exactly {{NUMBER_OF_TIPS}}.
-- There is only one <TITLE_BLOCK_START> block and one <TITLE_OVERVIEW> block.
-- No entries are duplicated.
-- Each entry follows the FULL_TITLE | SHORT_TITLE format with a concise summary (≤ 5 words).
-- No transitional language or references to prior output appear.
-- All tag lines are flush-left with no indentation or extra characters.
-If any of these conditions are not met, recheck your output and regenerate until all validations pass.
+
+---
+
+**General Notes:**
+
+- Tags (`<TITLE_BLOCK_START>`, `</TITLE_BLOCK_END>`, `<TITLE_OVERVIEW>`, etc.) must never be omitted, nested, or repeated.
+- All output must be easily machine-parseable using simple regular expressions.
+- Adapt this format for additional block types (e.g., <EXAMPLES_BLOCK_START>) as needed, always following the same rules.
