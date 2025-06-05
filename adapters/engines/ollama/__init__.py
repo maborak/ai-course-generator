@@ -113,10 +113,8 @@ class OllamaEngine(CompletionEnginePort):
     def generate_tip_detail(self, topic, tip_title, tip_index, total_tips):
         """
         Generates a full expert tip (markdown) for the given tip title.
-        Continues the chat if '### Conclusion' is not found in the response, up to 3 times.
+        Only makes a single request, does not retry if '### Conclusion' is missing.
         """
-        max_retries = 3
-        attempt = 0
         prompt = self.build_detail_prompt(topic, tip_title)
         logger.debug(f"Prompt: {prompt} (Attempt 1)")
         messages = [{"role": "user", "content": prompt}]
@@ -139,40 +137,10 @@ class OllamaEngine(CompletionEnginePort):
         print("\n[End of Ollama Streaming Output]")
         logger.debug(f"Received tip detail response: {content}")
 
-        while "### Conclusion" not in content and attempt < max_retries - 1:
-            attempt += 1
-            logger.warning(f"'### Conclusion' not found in response for tip #{tip_index}. Sending 'Please continue.' (Attempt {attempt+1})")
-            followup_messages = [
-                {"role": "user", "content": prompt},
-                {"role": "assistant", "content": content},
-                {"role": "user", "content": "Please continue."}
-            ]
-            new_content = ""
-            for msg in self.ollama.chat(
-                model=self.model,
-                messages=followup_messages,
-                stream=True
-            ):
-                piece = msg['message']['content']
-                print(piece, end="", flush=True)
-                new_content += piece
-
-            # Save original new_content for token counting
-            original_content += new_content
-
-            new_content = re.sub(r'<think\b[^>]*>.*?</think>', '', new_content, flags=re.DOTALL | re.IGNORECASE)
-            print("\n[End of Ollama Streaming Output]")
-            logger.debug(f"Received tip detail response (continued): {new_content}")
-            content += new_content
-
-        # Estimate and log the token usage using the original content (all responses)
+        # Estimate and log the token usage using the original content
         self.tokens_used += int(len(original_content.split()) * 0.75)
 
-        if "### Conclusion" in content:
-            return content
-        else:
-            logger.error(f"Failed to get complete tip detail for tip #{tip_index} after {max_retries} attempts.")
-            return content  # Return the last attempt's content even if incomplete
+        return content
 
     def generate(self, topic, quantity):
         """
