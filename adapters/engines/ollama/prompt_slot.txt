@@ -1,46 +1,29 @@
-Generate {{NUMBER_OF_TIPS}} unique and insightful entries strictly focused on the topic "{{TOPIC}}" within the category "{{CATEGORY}}", crafted at a {{EXPERTISE_LEVEL}} level. These entries are targeted at engineers who expect precise, non-redundant, and valuable takeaways. Use deep reasoning and structured generation. Assume the placeholders {{TOPIC}}, {{CATEGORY}}, {{EXPERTISE_LEVEL}}, and {{NUMBER_OF_TIPS}} are already resolved before execution.
+Topic: {{TOPIC}}  
+Category: {{CATEGORY}}  
+Expertise Level: {{EXPERTISE_LEVEL}}  
 
-## Output Rules:
-- Output must start **immediately** with the string `title_block:` as the very first characters in the response.
-- There must be **no characters, newlines, whitespace, BOMs, or formatting markers** before `title_block:`.
-- Output must be a plain YAML object, fully parsable without any post-processing.
+You are an engineer with a {{EXPERTISE_LEVEL}} level of knowledge. {{CONTEXT_NOTE}}  
+Your task is to generate exactly {{NUMBER_OF_TIPS}} unique and non-repeating {{CATEGORY}}s related to the topic "{{TOPIC}}".
 
-## Constraints:
-- Output only a valid, single YAML document.
-- Do NOT include:
-  - Code fences (e.g., ```yaml or ```)
-  - YAML document markers like `---` or `...`
-  - Markdown formatting such as `backticks`, *asterisks*, or _underscores_
-  - Any labels, titles, summaries, commentary, or logging
-- The YAML must start directly with `title_block:` on the first line (lowercase `t`)
-- Use plain YAML with no extra indentation blocks or syntax variants
+Requirements:
+- Each entry must follow this exact format: "#N: FULL_TITLE | SHORT_TITLE"
+- FULL_TITLE must clearly describe a {{CATEGORY}} appropriate for the {{EXPERTISE_LEVEL}} level.
+- SHORT_TITLE must be a concise summary or label (5 words max).
+- Do not include any explanations, notes, or comments.
+- The block must be enclosed with <TITLE_BLOCK_START> and </TITLE_BLOCK_END> — spelled exactly like this. Do not add extra characters, colons, or change casing.
+- Each line must begin with #N: (where N is the index, starting from 1)
 
-## YAML Structure:
-- `title_block`: A list of entries. Each entry must include:
-  - `number`: integer, starting at 1
-  - `full_title`: a complete, descriptive sentence or phrase
-  - `short_title`: a concise summary (no more than 5 words)
-- `overview`: A single paragraph introducing the theme and its value to the reader
-  - Do NOT mention "tips", "chapters", or formatting structure
-  - Frame the overview as a narrative preface, describing what the reader will gain
+Output format:
+<TITLE_BLOCK_START>
+#1: FULL_TITLE | SHORT_TITLE  
+#2: FULL_TITLE | SHORT_TITLE  
+...  
+#{{NUMBER_OF_TIPS}}: FULL_TITLE | SHORT_TITLE  
+</TITLE_BLOCK_END>
 
-## Example Output (Do not copy — use as structural reference only):
-
-title_block:
-  - number: 1
-    full_title: Understanding Python's Global Interpreter Lock
-    short_title: Python GIL
-  - number: 2
-    full_title: Leveraging List Comprehensions for Cleaner Syntax
-    short_title: List Comprehensions
-
-overview: >
-  This guide provides intermediate Python developers with practical insights into language behavior, idiomatic usage, and performance-conscious design. Focusing on topics often misunderstood or underutilized, this collection helps readers refine their code, understand trade-offs, and adopt best practices for robust and maintainable development.
-
-## Final Check:
-Double-check that your output:
-- Starts with `title_block:` and contains no markdown or wrapping
-- Has valid YAML structure
-- Contains exactly {{NUMBER_OF_TIPS}} entries
-- Is parseable as a single YAML object
-Do not prefix with newlines, YAML markers, or formatting. Begin output with `title_block:` only.
+Example:
+<TITLE_BLOCK_START>
+#1: Misunderstanding Docker CMD vs ENTRYPOINT | CMD vs ENTRYPOINT  
+#2: Not Pinning Dependency Versions in Dockerfiles | Unpinned Dependencies  
+#3: Running Apps as Root in Containers | Root User Mistake  
+</TITLE_BLOCK_END>
