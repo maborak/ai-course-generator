@@ -2,37 +2,40 @@ Topic: {{TOPIC}}
 Category: {{CATEGORY}}  
 Expertise Level: {{EXPERTISE_LEVEL}}  
 
-You are an engineer with a {{EXPERTISE_LEVEL}} level of knowledge. {{CONTEXT_NOTE}}  
-Your task is to generate exactly {{NUMBER_OF_TIPS}} unique and non-repeating {{CATEGORY}}s related to the topic "{{TOPIC}}".
+You are an engineer with {{EXPERTISE_LEVEL}}-level expertise. {{CONTEXT_NOTE}}  
+Your task is to generate exactly {{NUMBER_OF_TIPS}} unique and non-repeating items in the "{{CATEGORY}}" category related to the topic "{{TOPIC}}".
 
-Requirements:
-- Output must be a single valid JSON object — do not include markdown, code blocks, comments, or extra text before or after.
-- Important: Output only the JSON object. Do not include logging, debug messages, markdown formatting, or explanatory commentary.
-- The output must begin with `{` and end with `}` — nothing else outside the JSON.
-- JSON must contain two keys:
-  - "title_block": an array of objects, each with:
-    - "number": index starting from 1
-    - "full_title": a descriptive title for the item
-    - "short_title": a concise summary (max 5 words)
-  - "overview": a single paragraph written as the introduction to the complete eBook.
-    - Do not refer to “tips,” “titles,” “entries,” “chapters,” or “sections.”
-    - Write it as if you're introducing a full collection of categorized insights to the reader.
-    - The tone should match the target expertise level and highlight the value of learning, applying, or mastering the {{TOPIC}}.
-    - Emphasize the purpose, focus areas, and benefits of reading the content.
+Follow these formatting rules strictly. This is critical to ensure the output is parsed correctly:
 
-Output example:
-{
-  "title_block": [
-    {
-      "number": 1,
-      "full_title": "Misunderstanding Docker CMD vs ENTRYPOINT",
-      "short_title": "CMD vs ENTRYPOINT"
-    },
-    {
-      "number": 2,
-      "full_title": "Not Pinning Dependency Versions in Dockerfiles",
-      "short_title": "Unpinned Dependencies"
-    }
-  ],
-  "overview": "This collection is designed to help novice developers build a confident foundation in Docker usage. By exploring common pitfalls and practical insights, readers gain real-world awareness of configuration nuances, security considerations, and deployment strategies essential to modern container-based development."
-}
+Output Format:
+- Return only a valid YAML document.
+- The YAML must begin with the key `title_block:` followed by `overview:` — no preamble, no code fences, no formatting wrappers.
+- DO NOT include:
+  - Code fences (e.g., triple backticks, tildes, indentation).
+  - YAML document markers (`---`, `...`) anywhere.
+  - Markdown or inline formatting (e.g., backticks `like this`, asterisks *bold*, underscores _italic_).
+  - Logging, debug messages, or commentary.
+- Write YAML as plain text. Do not label it as "YAML" in any way.
+
+Structure:
+- The YAML must contain two keys:
+  1. `title_block`: A list of objects, each with:
+     - `number`: integer starting from 1
+     - `full_title`: a complete descriptive title
+     - `short_title`: a concise summary (no more than 5 words)
+  2. `overview`: A single paragraph (plain text) written as an introduction to the material.
+     - Do NOT refer to "tips", "chapters", or "sections".
+     - Emphasize the significance of mastering "{{TOPIC}}" at the {{EXPERTISE_LEVEL}} level.
+     - Explain the benefits of applying these insights in real-world scenarios.
+
+EXAMPLE:
+title_block:
+  - number: 1
+    full_title: Understanding Python's Global Interpreter Lock
+    short_title: Python GIL
+  - number: 2
+    full_title: Leveraging List Comprehensions for Cleaner Syntax
+    short_title: List Comprehensions
+
+overview: >
+  This guide provides intermediate Python developers with practical insights into language behavior, idiomatic usage, and performance-conscious design. Focusing on topics often misunderstood or underutilized, this collection helps readers refine their code, understand trade-offs, and adopt best practices for robust and maintainable development.

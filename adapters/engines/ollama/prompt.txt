@@ -1,153 +1,130 @@
-
 Topic: {{TOPIC}}  
 Title: {{TIP_TITLE}}  
 Category: {{CATEGORY}}  
 Expertise Level: {{EXPERTISE_LEVEL}}  
 
-You are an engineer with {{EXPERTISE_LEVEL}}-level expertise. {{CONTEXT_NOTE}}
-Your task is to write a complete, structured response about this specific title and category.
-
-Use only the provided Title and Category. Do not include general advice, unrelated best practices, or repeated caveats.
+You are an engineer with {{EXPERTISE_LEVEL}}-level expertise. {{CONTEXT_NOTE}}  
+Your task is to write a complete, structured response tailored to the provided title and category. Stick closely to the subject. Do not provide general advice, definitions, or repeated caveats.
 
 Your response must include:
 
-1. A detailed explanation of the specific problem or scenario directly related to "{{TIP_TITLE}}".  
-2. A "Before" section with naive or problematic code for this title.  
-3. An "After" section with a corrected or improved expert-level solution.  
-4. Console output for both code sections to show the difference.  
-5. A real-world example using this tip in a meaningful project scenario.  
-6. An explanation of why the solution works.  
-7. Pros and Cons of the solution.  
-8. A conclusion summarizing the resolution of the specific issue in "{{TIP_TITLE}}".  
-   - If no conclusion is necessary, explicitly state that.
-
-Format your output exactly like this (do not add or omit sections, headings, or commentary):
+---
 
 ### Problem  
-(Describe the specific problem. No general advice.)
+<!-- Describe the specific issue or inefficiency. Focus only on what's directly relevant to "{{TIP_TITLE}}". -->
 
 ### Before (Naive/Problematic Code)
-```bash
-# code here
+```python
+# Code example that demonstrates the issue or naive solution
 ```
 
 #### Output
 ```bash
-# output here
+# Output from the above code
 ```
 
 ### After (Expert Solution)
-```bash
-# improved code here
+```python
+# Improved or corrected solution
 ```
 
 #### Output
 ```bash
-# output here
+# Output from the improved solution
 ```
 
-#### Explanation  
-(Why this solves the problem and how.)
+### How It Works  
+<!-- Explain what changed and why this works better. Break down logic for novices; focus on internals or tradeoffs for experts. -->
 
-##### Pros  
-- Pro 1  
-- Pro 2  
+### Pros vs Cons
 
-##### Cons  
-- Con 1  
-- Con 2  
+#### Pros  
+- **Clear Benefit**: Full sentence description  
+- **Another Advantage**: Full sentence description  
 
-### Real-World Implementation
-
-#### Scenario  
-(Describe the real use case for this tip.)
-
-#### Implementation
-```bash
-# full code
-```
-
-#### Output
-```bash
-# output
-```
-
-### Conclusion  
-(Specific conclusion for "{{TIP_TITLE}}". Do not include general advice.)
+#### Cons  
+- **Limitation**: Full sentence description  
+- **Tradeoff**: Full sentence description  
 
 ---
 
-Example response:
+### Real-World Applications  
+<!-- Each example must include:
+     1. A short description (1–2 sentences)
+     2. A "Before" code block
+     3. An "After" code block
+     4. An "Explanation" of the improvement
+-->
 
-### Problem  
-Using mutable default arguments like `[]` in Python functions can lead to unexpected behavior when the default value is modified across calls.
+#### Example 1: (Short descriptive title)
 
-### Before (Naive/Problematic Code)
-```bash
-def add_item(item, lst=[]):
-    lst.append(item)
-    return lst
+(Brief summary of what this example solves.)
 
-print(add_item("apple"))
-print(add_item("banana"))
+**Before**  
+```python
+# Code that reflects the old or flawed way
 ```
 
-#### Output
-```bash
-['apple']
-['apple', 'banana']
+**After**  
+```python
+# Code showing the improved or correct solution
 ```
 
-### After (Expert Solution)
-```bash
-def add_item(item, lst=None):
-    if lst is None:
-        lst = []
-    lst.append(item)
-    return lst
+**Explanation**  
+(What improved and how it solves the problem better.)
 
-print(add_item("apple"))
-print(add_item("banana"))
+---
+
+#### Example 2: (Short descriptive title)
+
+(Brief summary of what this example solves.)
+
+**Before**  
+```python
+# Code that reflects the old or flawed way
 ```
 
-#### Output
-```bash
-['apple']
-['banana']
+**After**  
+```python
+# Code showing the improved or correct solution
 ```
 
-#### Explanation  
-The original code uses a mutable list as a default argument, causing the list to persist between calls. The fixed version uses `None` and initializes a new list inside the function.
+**Explanation**  
+(What improved and how it solves the problem better.)
 
-##### Pros  
-- Avoids shared state bugs  
-- Predictable behavior  
+---
 
-##### Cons  
-- Slightly more verbose  
+#### Example 3: (Short descriptive title)
 
-### Real-World Implementation
+(Brief summary of what this example solves.)
 
-#### Scenario  
-A developer adds log entries to a list and uses a function with a mutable default argument.
-
-#### Implementation
-```bash
-def log_entry(entry, log=[]):
-    log.append(entry)
-    return log
-
-print(log_entry("Login"))
-print(log_entry("Logout"))
+**Before**  
+```python
+# Code that reflects the old or flawed way
 ```
 
-#### Output
-```bash
-['Login']
-['Login', 'Logout']
+**After**  
+```python
+# Code showing the improved or correct solution
 ```
+
+**Explanation**  
+(What improved and how it solves the problem better.)
+
+---
 
 ### Conclusion  
-Mutable default arguments like lists can introduce hidden state bugs. Always use `None` and create the object inside the function instead.
+<!-- Summarize the resolution of "{{TIP_TITLE}}". Focus only on the result. If not needed, state that. -->
 
--------
+<!--
+⚠️ STRICT INSTRUCTION: The table below is only for the model's internal logic.
+DO NOT include this table, the heading "CATEGORY_HEADING Mapping", or any of its rows in your response.
+Only use it to resolve the correct heading for {{CATEGORY_HEADING}}.
+
+| Category | CATEGORY_HEADING         |
+|----------|---------------------------|
+| Tip      | Tip Summary               |
+| Trick    | Behind the Trick          |
+| Hack     | Smart Shortcut            |
+| Usage    | Practical Application     |
+-->

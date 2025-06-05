@@ -2,6 +2,7 @@ import os
 import re
 import logging
 import json
+import yaml
 from core.ports import CompletionEnginePort
 from ollama import Client
 
@@ -63,8 +64,7 @@ class OllamaEngine(CompletionEnginePort):
 
     def generate_tip_titles(self, topic, quantity):
         """
-        Returns a list of tip titles by parsing the JSON output from the model.
-        Retries if the JSON is incomplete.
+        Returns a list of tip titles by parsing the YAML output from the model.
         """
         prompt = self.build_titles_prompt(topic, quantity)
         logger.debug(f"Prompt: {prompt}")
@@ -75,46 +75,40 @@ class OllamaEngine(CompletionEnginePort):
         ]
 
         content = ""
-        max_retries = 3
-        attempt = 0
-        while attempt < max_retries:
-            try:
-                for msg in self.ollama.chat(
-                    model=self.model,
-                    messages=messages,
-                    stream=True
-                ):
-                    piece = msg['message']['content']
-                    print(piece, end="", flush=True)
-                    content += piece
-            except KeyboardInterrupt:
-                print("\n[Interrupted] Partial session discarded.")
-                return [], ""
+        try:
+            for msg in self.ollama.chat(
+                model=self.model,
+                messages=messages,
+                stream=True
+            ):
+                piece = msg['message']['content']
+                print(piece, end="", flush=True)
+                content += piece
+        except KeyboardInterrupt:
+            print("\n[Interrupted] Partial session discarded.")
+            return [], ""
 
-            original_content = content
-            self.tokens_used += int(len(original_content.split()) * 0.75)
+        original_content = content
+        # Remove <think> tags for further processing
+        content = re.sub(r'<think\b[^>]*>.*?</think>', '', content, flags=re.DOTALL | re.IGNORECASE)
+        logger.debug(f"Content after <think> removal: {content}")
+        self.tokens_used += int(len(original_content.split()) * 0.75)
 
-            try:
-                data = json.loads(content)
-                tips = []
-                for item in data.get("title_block", []):
-                    tips.append({
-                        "full": item.get("full_title", ""),
-                        "short": item.get("short_title", "")
-                    })
-                # Get overview/explanation if present
-                overview = data.get("overview") or data.get("explanation", "")
-                logger.debug(f"Extracted tips: {tips}, overview: {overview}")
-                return tips, overview
-            except Exception as e:
-                logger.warning(f"Attempt {attempt+1}: Failed to parse JSON from model output: {e}")
-                messages.append({"role": "assistant", "content": content})
-                messages.append({"role": "user", "content": "Please continue and finish the JSON."})
-                content = ""
-                attempt += 1
-
-        logger.error("Failed to get complete and valid JSON after retries.")
-        return [], ""
+        try:
+            # Parse YAML output
+            data = yaml.safe_load(content)
+            tips = []
+            for item in data.get("title_block", []):
+                tips.append({
+                    "full": item.get("full_title", ""),
+                    "short": item.get("short_title", "")
+                })
+            overview = data.get("overview", "")
+            logger.debug(f"Extracted tips: {tips}, overview: {overview}")
+            return tips, overview
+        except Exception as e:
+            logger.error(f"Failed to parse YAML from model output: {e}")
+            return [], ""
 
     def generate_tip_detail(self, topic, tip_title, tip_index, total_tips):
         """
