@@ -6,24 +6,40 @@ You are an engineer with a {{EXPERTISE_LEVEL}} level of knowledge. {{CONTEXT_NOT
 Your task is to generate exactly {{NUMBER_OF_TIPS}} unique and non-repeating {{CATEGORY}}s related to the topic "{{TOPIC}}".
 
 Requirements:
-- Each entry must follow this exact format: "#N: FULL_TITLE | SHORT_TITLE"
+- Each entry must follow this exact format: FULL_TITLE | SHORT_TITLE
 - FULL_TITLE must clearly describe a {{CATEGORY}} appropriate for the {{EXPERTISE_LEVEL}} level.
 - SHORT_TITLE must be a concise summary or label (5 words max).
 - Do not include any explanations, notes, or comments.
 - The block must be enclosed with <TITLE_BLOCK_START> and </TITLE_BLOCK_END> — spelled exactly like this. Do not add extra characters, colons, or change casing.
-- Each line must begin with #N: (where N is the index, starting from 1)
-
-Output format:
-<TITLE_BLOCK_START>
-#1: FULL_TITLE | SHORT_TITLE  
-#2: FULL_TITLE | SHORT_TITLE  
-...  
-#{{NUMBER_OF_TIPS}}: FULL_TITLE | SHORT_TITLE  
-</TITLE_BLOCK_END>
+- Avoid using phrases such as "additional", "continued", or "next set" — always generate a fresh, self-contained list.
+- All tag lines (<TITLE_BLOCK_START>, </TITLE_BLOCK_START>, <TITLE_OVERVIEW>, </TITLE_OVERVIEW>) must appear unindented and start at the beginning of a new line with no preceding spaces or tabs.
+- This must be a fresh, independent list.
+- Do not continue from or refer to any prior entries.
+- Never include transitional phrases such as “this continues”, “additionally”, or “following tips”.
+- You must generate exactly {{NUMBER_OF_TIPS}} entries inside the <TITLE_BLOCK_START> and </TITLE_BLOCK_END> block — no more and no less.
+- You must generate only one <TITLE_BLOCK_START>...</TITLE_BLOCK_END> block. Never include multiple blocks.
+- The total number of entries across the single block must exactly match {{NUMBER_OF_TIPS}}.
+- Never repeat <TITLE_BLOCK_START> or <TITLE_OVERVIEW> more than once.
+- Generating more or fewer than {{NUMBER_OF_TIPS}} entries will be considered a failure of the task. You must count the lines inside <TITLE_BLOCK_START>...</TITLE_BLOCK_END> and stop when you reach {{NUMBER_OF_TIPS}}.
+- When {{NUMBER_OF_TIPS}} equals 1, you must generate only a single line inside the <TITLE_BLOCK_START> and </TITLE_BLOCK_END> block — do not interpret it as a request for a group or category. Any more than 1 line is incorrect.
 
 Example:
 <TITLE_BLOCK_START>
-#1: Misunderstanding Docker CMD vs ENTRYPOINT | CMD vs ENTRYPOINT  
-#2: Not Pinning Dependency Versions in Dockerfiles | Unpinned Dependencies  
-#3: Running Apps as Root in Containers | Root User Mistake  
+Understanding Variables in Python | Variables  
+Using If Statements for Flow Control | Conditionals  
+Looping with For and While | Loops  
+Writing Your First Function | Functions  
+Handling Input and Output | I/O Basics  
 </TITLE_BLOCK_END>
+<TITLE_OVERVIEW>
+This collection introduces the topic {{TOPIC}}, highlights its relevance to the {{CATEGORY}} category, and is tailored for {{EXPERTISE_LEVEL}} learners.
+</TITLE_OVERVIEW>
+Validation Rules:
+Before completing the response, confirm the following are true:
+- The number of entries between <TITLE_BLOCK_START> and </TITLE_BLOCK_END> is exactly {{NUMBER_OF_TIPS}}.
+- There is only one <TITLE_BLOCK_START> block and one <TITLE_OVERVIEW> block.
+- No entries are duplicated.
+- Each entry follows the FULL_TITLE | SHORT_TITLE format with a concise summary (≤ 5 words).
+- No transitional language or references to prior output appear.
+- All tag lines are flush-left with no indentation or extra characters.
+If any of these conditions are not met, recheck your output and regenerate until all validations pass.
