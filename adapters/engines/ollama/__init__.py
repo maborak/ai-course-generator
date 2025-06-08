@@ -38,16 +38,26 @@ class OllamaEngine(CompletionEnginePort):
             self.ollama = Client()
 
         here = os.path.dirname(__file__)
-        # Load prompt templates
-        with open(os.path.join(here, "prompt_slot.txt"), encoding="utf-8") as f:
-            self.prompt_titles_template = f.read()
+
+        # --- Load prompt_titles_template based on model ---
+        # Extract base model name (e.g., "llama" from "llama3.2")
+        base_model = self.model.split(":")[0].split(".")[0].lower()
+        prompt_dir = os.path.abspath(os.path.join(here, "prompts/titles"))
+        prompt_path = os.path.join(prompt_dir, f"{base_model}.txt")
+        if not os.path.exists(prompt_path):
+            # Fallback to llama.txt if specific model prompt does not exist
+            prompt_path = os.path.join(prompt_dir, "llama.txt")
+        with open(prompt_path, encoding="utf-8") as f:
+            self._prompt_titles_template = f.read()  # protected
+
+        # --- Load prompt_detail_template as before ---
         with open(os.path.join(here, "prompt.txt"), encoding="utf-8") as f:
             self.prompt_detail_template = f.read()
 
         self.tokens_used = 0
 
     def build_titles_prompt(self, topic, quantity):
-        prompt = self.prompt_titles_template.replace("{{TOPIC}}", topic)
+        prompt = self._prompt_titles_template.replace("{{TOPIC}}", topic)
         prompt = prompt.replace("{{NUMBER_OF_TIPS}}", str(quantity))
         prompt = prompt.replace("{{CATEGORY}}", self.category)
         prompt = prompt.replace("{{EXPERTISE_LEVEL}}", self.expertise_level)
@@ -64,11 +74,10 @@ class OllamaEngine(CompletionEnginePort):
 
     def generate_tip_titles(self, topic, quantity):
         """
-        Returns a list of tip titles by parsing the YAML output from the model.
+        Returns a list of tip titles by parsing the model output between <TITLE_BLOCK_START> and <TITLE_BLOCK_END>.
         """
         prompt = self.build_titles_prompt(topic, quantity)
-        logger.debug(f"Prompt: {prompt}")
-
+        logger.debug(f"----Prompt BEGIN----\n{prompt}\n----Prompt END----")
         messages = [
             {"role": "system", "content": "You are a helpful AI assistant."},
             {"role": "user", "content": prompt}
@@ -94,21 +103,35 @@ class OllamaEngine(CompletionEnginePort):
         logger.debug(f"Content after <think> removal:\n{content}")
         self.tokens_used += int(len(original_content.split()) * 0.75)
 
-        try:
-            # Parse YAML output
-            data = yaml.safe_load(content)
-            tips = []
-            for item in data.get("title_block", []):
-                tips.append({
-                    "full": item.get("full_title", ""),
-                    "short": item.get("short_title", "")
-                })
-            overview = data.get("overview", "")
-            logger.debug(f"Extracted tips: {tips}, overview: {overview}")
-            return tips, overview
-        except Exception as e:
-            logger.error(f"Failed to parse YAML from model output: {e}")
-            return [], ""
+        # Extract title block and overview using regex
+        title_block_match = re.search(
+            r"<TITLE_BLOCK_START>(.*?)</TITLE_BLOCK_END>", content, re.DOTALL | re.IGNORECASE
+        )
+        overview_match = re.search(
+            r"<TITLE_OVERVIEW>(.*?)</TITLE_OVERVIEW>", content, re.DOTALL | re.IGNORECASE
+        )
+
+        tips = []
+        overview = ""
+        if title_block_match:
+            title_lines = title_block_match.group(1).strip().splitlines()
+            for line in title_lines:
+                # Match lines like: 1. Decorators for Advanced Functionality | Decorators
+                m = re.match(r"\d+\.\s*(.*?)\s*\|\s*(.*)", line)
+                if m:
+                    full_title = m.group(1).strip()
+                    short_title = m.group(2).strip()
+                    tips.append({"full": full_title, "short": short_title})
+        else:
+            logger.error("TITLE_BLOCK not found in model output.")
+
+        if overview_match:
+            overview = overview_match.group(1).strip()
+        else:
+            logger.error("TITLE_OVERVIEW not found in model output.")
+
+        #logger.debug(f"Extracted tips: {tips}, overview: {overview}")
+        return tips, overview
 
     def generate_tip_detail(self, topic, tip_title, tip_index, total_tips):
         """
@@ -116,7 +139,7 @@ class OllamaEngine(CompletionEnginePort):
         Only makes a single request, does not retry if '### Conclusion' is missing.
         """
         prompt = self.build_detail_prompt(topic, tip_title)
-        logger.debug(f"Prompt: {prompt} (Attempt 1)")
+        logger.debug(f"----Prompt BEGIN----\n{prompt}\n----Prompt END----")
         messages = [{"role": "user", "content": prompt}]
         content = ""
         print(f"+-----\n| Processing Tip #{tip_index} of {total_tips} (Attempt 1)\n+-----")
