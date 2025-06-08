@@ -74,7 +74,7 @@ class OllamaEngine(CompletionEnginePort):
 
     def generate_tip_titles(self, topic, quantity):
         """
-        Returns a list of tip titles by parsing the model output between <TITLE_BLOCK_START> and <TITLE_BLOCK_END>.
+        Returns a list of tip titles by parsing the model output between <TITLE_BLOCK> and </TITLE_BLOCK>.
         """
         prompt = self.build_titles_prompt(topic, quantity)
         logger.debug(f"----Prompt BEGIN----\n{prompt}\n----Prompt END----")
@@ -108,7 +108,7 @@ class OllamaEngine(CompletionEnginePort):
 
         # Extract title block and overview using regex
         title_block_match = re.search(
-            r"<TITLE_BLOCK_START>(.*?)</TITLE_BLOCK_END>", content, re.DOTALL | re.IGNORECASE
+            r"<TITLE_BLOCK>(.*?)</TITLE_BLOCK>", content, re.DOTALL | re.IGNORECASE
         )
         overview_match = re.search(
             r"<TITLE_OVERVIEW>(.*?)</TITLE_OVERVIEW>", content, re.DOTALL | re.IGNORECASE
