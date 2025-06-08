@@ -1,4 +1,4 @@
-ONLY output what is required below. Never use code blocks, markdown, or extra commentary. All tags and entries must be flush-left and alone on their line.
+OUTPUT ONLY WHAT IS SPECIFIED. No markdown, no explanations, no formatting extras. Tags and content must be flush-left, one per line.
 
 If you are a model with limited instruction-following (e.g. Llama 3.2), just follow the Output Example exactly.
 
@@ -16,16 +16,17 @@ IMPORTANT: Strict Formatting Rules
 - NO bullet points, NO bold/italic, NO extra commentary.
 - If you cannot fit all requested entries, stop at the last complete entry within your limit.
 - Do NOT summarize or explain anything outside the blocks.
-- Do NOT output any line that does not follow this format.
 - Do NOT wrap any tags or output in code blocks, quotes, or backticks. Tags must always be flush-left.
 
-Topic: {{TOPIC}}
-Category: {{CATEGORY}}
-Expertise Level: {{EXPERTISE_LEVEL}}
+Topic: {{TOPIC}}  
+Category: {{CATEGORY}}  
+Expertise Level: {{EXPERTISE_LEVEL}}  
 {{CONTEXT_NOTE}}
 
-You are an engineer with {{EXPERTISE_LEVEL}} expertise.
-Generate exactly {{NUMBER_OF_TIPS}} unique, non-repeating {{CATEGORY}} entries related to "{{TOPIC}}".
+You are an engineer with {{EXPERTISE_LEVEL}} expertise.  
+Generate exactly {{NUMBER_OF_TIPS}} unique, non-repeating {{CATEGORY}} entries related to "{{TOPIC}}", enclosed within <TITLE_BLOCK_START> and </TITLE_BLOCK_END> tags, both flush-left on their own lines.  
+Do not omit the closing tag </TITLE_BLOCK_END> — it is mandatory.  
+Do not generate more than {{NUMBER_OF_TIPS}} entries under any circumstance. This is a hard limit and must be respected at all costs. Output must match {{NUMBER_OF_TIPS}} exactly—any deviation is invalid and must be regenerated.
 
 ---
 
@@ -37,9 +38,13 @@ Formatting Instructions:
     - SHORT_TITLE: ≤ 5 words, concise summary.
 - Every entry must have a SHORT_TITLE after the pipe ("|") character. Do NOT omit SHORT_TITLE in any entry.
 - Enclose all entries in a single block:
+- You MUST include both <TITLE_BLOCK_START> and </TITLE_BLOCK_END> tags. The closing tag is mandatory and must appear flush-left on its own line after the final entry.
+- If you omit </TITLE_BLOCK_END>, your output is invalid and must be regenerated.
+
 <TITLE_BLOCK_START>
 [each entry here, one per line]
 </TITLE_BLOCK_END>
+
 - No additional text, explanations, transitional phrases, or extra commentary before, between, or after entries.
 - Do not reference prior or future entries, use terms like "continued" or "next set," or duplicate any entry.
 - The block must contain exactly {{NUMBER_OF_TIPS}} lines (entries).
@@ -48,6 +53,20 @@ Formatting Instructions:
 - For large lists, you must support generating output in batches. Each batch must use sequential numbering that continues from the previous batch.
 
 ---
+
+If you are a model like DeepSeek:
+- You must not generate more than {{NUMBER_OF_TIPS}} entries. This is a strict cap.
+- You must not repeat entries or invent formatting.
+- All tags must appear exactly as shown, with no additional symbols, wrapping, or commentary.
+- Output is invalid if it contains extra lines, missing tags, or deviates in any way from the structure shown below.
+- Think carefully before outputting—verify that entry count and tags are correct before finalizing your response.
+
+---
+
+ABSOLUTE ENTRY COUNT CHECK (STRICT):
+- If you produce more or fewer than {{NUMBER_OF_TIPS}} entries, your output is invalid and must be discarded.
+- You must validate that the number of lines inside <TITLE_BLOCK_START>...</TITLE_BLOCK_END> is exactly {{NUMBER_OF_TIPS}} before finishing.
+- Overproduction will be interpreted as a failure to follow instructions. Do not try to be helpful by adding more.
 
 Overview Generation:
 
@@ -69,7 +88,7 @@ Validation Rules:
 
 - Only one <TITLE_BLOCK_START> block and one <TITLE_OVERVIEW> block per output, both tags flush-left.
 - No extra indentation, comments, or stray characters outside the required blocks.
-- Output must strictly follow these formatting and content instructions.
+- Output must strictly follow the formatting and content instructions.
 - Tags must never be wrapped in code blocks, quotes, or backticks.
 - Every entry must include the SHORT_TITLE after the pipe character.
 
@@ -77,17 +96,8 @@ Validation Rules:
 
 Output Example (ALWAYS copy this format):
 
-# NOTE FOR LLAMA 3.2 USERS:
-# For best results with Llama 3.2 and similar models, use the shortest possible prompt.
-# Copy and edit the Output Example block directly as your input, customizing the entries and overview as needed.
-# Avoid using the full generic prompt with Llama 3.2—use minimal, flush-left, direct prompts for reliable results.
-
 <TITLE_BLOCK_START>
 1. Understanding Variables in Python | Variables
-2. Using If Statements for Flow Control | Conditionals
-3. Looping with For and While | Loops
-4. Writing Your First Function | Functions
-5. Handling Input and Output | I/O Basics
 </TITLE_BLOCK_END>
 <TITLE_OVERVIEW>
 This collection introduces essential programming fundamentals in Python, equipping beginners with the knowledge and skills needed to build a solid coding foundation and confidently progress to more complex topics.

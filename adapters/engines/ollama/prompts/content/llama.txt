@@ -1,38 +1,29 @@
-<s>[INST] <<SYS>>
-You are an engineer with {{EXPERTISE_LEVEL}} expertise.
-<</SYS>>
+Topic: {{TOPIC}}  
+Category: {{CATEGORY}}  
+Expertise Level: {{EXPERTISE_LEVEL}}  
 
-Generate exactly {{NUMBER_OF_TIPS}} unique, non-repeating {{CATEGORY}} entries related to "{{TOPIC}}".
+You are an engineer with a {{EXPERTISE_LEVEL}} level of knowledge. {{CONTEXT_NOTE}}  
+Your task is to generate exactly {{NUMBER_OF_TIPS}} unique and non-repeating {{CATEGORY}}s related to the topic "{{TOPIC}}".
 
-Formatting Instructions:
+Requirements:
+- Each entry must follow this exact format: "#N: FULL_TITLE | SHORT_TITLE"
+- FULL_TITLE must clearly describe a {{CATEGORY}} appropriate for the {{EXPERTISE_LEVEL}} level.
+- SHORT_TITLE must be a concise summary or label (5 words max).
+- Do not include any explanations, notes, or comments.
+- The block must be enclosed with <TITLE_BLOCK_START> and </TITLE_BLOCK_END> — spelled exactly like this. Do not add extra characters, colons, or change casing.
+- Each line must begin with #N: (where N is the index, starting from 1)
 
-- For each entry, output: N. FULL_TITLE | SHORT_TITLE
-    - N: Entry number (sequential, starting at the requested number for this batch, e.g., 1., 2., ...).
-    - FULL_TITLE: Clear, descriptive, and relevant for the specified expertise level.
-    - SHORT_TITLE: ≤ 5 words, concise summary.
-- Every entry must have a SHORT_TITLE after the pipe ("|") character. Do NOT omit SHORT_TITLE in any entry.
-- Enclose all entries in a single block:
+Output format:
 <TITLE_BLOCK_START>
-[each entry here, one per line]
+#1: FULL_TITLE | SHORT_TITLE  
+#2: FULL_TITLE | SHORT_TITLE  
+...  
+#{{NUMBER_OF_TIPS}}: FULL_TITLE | SHORT_TITLE  
 </TITLE_BLOCK_END>
-- No additional text, explanations, transitional phrases, or extra commentary before, between, or after entries.
-- Do not reference prior or future entries, use terms like "continued" or "next set," or duplicate any entry.
-- The block must contain exactly {{NUMBER_OF_TIPS}} lines (entries).
-    - If {{NUMBER_OF_TIPS}} is 1, output only one entry.
-    - No repeated entries.
-- For large lists, you must support generating output in batches. Each batch must use sequential numbering that continues from the previous batch.
 
-Overview Generation:
-
-- After the title block, output an overview:
-<TITLE_OVERVIEW>
-[One paragraph ONLY.]
-</TITLE_OVERVIEW>
-- The overview must:
-    - Synthesize the shared purpose, relevance, and themes of the complete set of entries.
-    - Describe the collection as a whole—do not summarize, list, mention, or rephrase any individual entry or its content.
-    - Explain the value of the collection for the intended audience, including how the variety, scope, and selection support their goals for {{TOPIC}} at the {{EXPERTISE_LEVEL}} level.
-    - Emphasize breadth, progression, and practical utility (e.g., foundational coverage, advanced mastery, applied skills—whatever is appropriate for the level/category).
-    - Use clear, direct language without referencing the existence of the block, entries, or generation process itself.
-    - Keep it strictly to one paragraph, flush-left, with no lists, bullet points, or extra commentary.
-[/INST]
+Example:
+<TITLE_BLOCK_START>
+#1: Misunderstanding Docker CMD vs ENTRYPOINT | CMD vs ENTRYPOINT  
+#2: Not Pinning Dependency Versions in Dockerfiles | Unpinned Dependencies  
+#3: Running Apps as Root in Containers | Root User Mistake  
+</TITLE_BLOCK_END>

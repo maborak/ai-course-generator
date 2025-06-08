@@ -100,8 +100,11 @@ class OllamaEngine(CompletionEnginePort):
         original_content = content
         # Remove <think> tags for further processing
         content = re.sub(r'<think\b[^>]*>.*?</think>', '', content, flags=re.DOTALL | re.IGNORECASE)
-        logger.debug(f"Content after <think> removal:\n{content}")
         self.tokens_used += int(len(original_content.split()) * 0.75)
+
+        # Ensure </TITLE_OVERVIEW> is present for consistent parsing
+        if "<TITLE_OVERVIEW>" in content and "</TITLE_OVERVIEW>" not in content:
+            content += "</TITLE_OVERVIEW>"
 
         # Extract title block and overview using regex
         title_block_match = re.search(
@@ -110,6 +113,8 @@ class OllamaEngine(CompletionEnginePort):
         overview_match = re.search(
             r"<TITLE_OVERVIEW>(.*?)</TITLE_OVERVIEW>", content, re.DOTALL | re.IGNORECASE
         )
+
+        logger.debug(f"Content after all regex and tag fixes:\n{content}")
 
         tips = []
         overview = ""
@@ -170,6 +175,7 @@ class OllamaEngine(CompletionEnginePort):
         Returns a list of tuples: (tip_index, tip_dict, tip_detail), and overview
         """
         tips, overview = self.generate_tip_titles(topic, quantity)
+        exit(1)
         details = []
         for i, tip in enumerate(tips, 1):
             detail = self.generate_tip_detail(topic, tip["full"], i, len(tips))
