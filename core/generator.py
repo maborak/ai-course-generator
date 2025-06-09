@@ -43,8 +43,10 @@ class AITipsGenerator:
             if overview:
                 f.write(f"## Overview\n\n{overview}\n\n---\n\n")
             for i, tip, detail in details:
-                f.write(f"## {i}. {tip['full']}\n")
-                f.write(f"**Short Title:** {tip['short']}\n\n")
+                #f.write(f"## {i}. {tip['full']}\n")
+                #f.write(f"**Short Title:** {tip['short']}\n\n")
+                #logger.debug(f"Response:\n --begin--\n{detail}\n --end--")
+                #exit(1)
                 f.write(detail.strip() + "\n\n---\n\n")
         logger.info(f"Markdown saved as {output_md}")
         logger.info(f"Total tokens used: {tokens_used}")
