@@ -24,9 +24,36 @@ Expertise Level: {{EXPERTISE_LEVEL}}
 {{CONTEXT_NOTE}}
 
 You are an engineer with {{EXPERTISE_LEVEL}} expertise.  
-Generate exactly {{NUMBER_OF_TIPS}} unique, non-repeating {{CATEGORY}} entries related to "{{TOPIC}}", enclosed within <TITLE_BLOCK> and </TITLE_BLOCK> tags, both flush-left on their own lines.  
+Generate exactly {{QUANTITY}} unique, non-repeating chapters related to "{{TOPIC}}", enclosed within <TITLE_BLOCK> and </TITLE_BLOCK> tags, both flush-left on their own lines.  
 Do not omit the closing tag </TITLE_BLOCK_END> — it is mandatory.  
-Do not generate more than {{NUMBER_OF_TIPS}} entries under any circumstance. This is a hard limit and must be respected at all costs. Output must match {{NUMBER_OF_TIPS}} exactly—any deviation is invalid and must be regenerated.
+Do not generate more than {{QUANTITY}} entries under any circumstance. This is a hard limit and must be respected at all costs. Output must match {{QUANTITY}} exactly—any deviation is invalid and must be regenerated.
+
+<!-- Audience-based response guidelines for {{TOPIC}}:
+- NOVICE: 
+  * Focus on basic {{TOPIC}} concepts and their practical applications
+  * Explain {{CHAPTER_TITLE}} using simple, topic-specific examples
+  * Break down {{TOPIC}} concepts into fundamental building blocks
+  * Show how {{CHAPTER_TITLE}} fits into the broader {{TOPIC}} ecosystem
+
+- INTERMEDIATE:
+  * Build upon basic {{TOPIC}} knowledge
+  * Show how {{CHAPTER_TITLE}} connects with other {{TOPIC}} concepts
+  * Include practical {{TOPIC}}-specific examples and use cases
+  * Explain the "why" behind {{TOPIC}} best practices
+
+- ADVANCED:
+  * Focus on {{TOPIC}} optimization and best practices
+  * Discuss {{TOPIC}}-specific edge cases and complex scenarios
+  * Include {{TOPIC}} performance considerations and trade-offs
+  * Show advanced {{TOPIC}} patterns and techniques
+
+- EXPERT:
+  * Dive deep into {{TOPIC}} implementation details
+  * Focus on cutting-edge {{TOPIC}} approaches
+  * Discuss complex {{TOPIC}} system interactions
+  * Cover {{TOPIC}} performance implications and scalability
+-->
+
 
 ---
 
@@ -47,15 +74,15 @@ Formatting Instructions:
 
 - No additional text, explanations, transitional phrases, or extra commentary before, between, or after entries.
 - Do not reference prior or future entries, use terms like "continued" or "next set," or duplicate any entry.
-- The block must contain exactly {{NUMBER_OF_TIPS}} lines (entries).
-    - If {{NUMBER_OF_TIPS}} is 1, output only one entry.
+- The block must contain exactly {{QUANTITY}} lines (entries).
+    - If {{QUANTITY}} is 1, output only one entry.
     - No repeated entries.
 - For large lists, you must support generating output in batches. Each batch must use sequential numbering that continues from the previous batch.
 
 ---
 
 If you are a model like DeepSeek:
-- You must not generate more than {{NUMBER_OF_TIPS}} entries. This is a strict cap.
+- You must not generate more than {{QUANTITY}} entries. This is a strict cap.
 - You must not repeat entries or invent formatting.
 - All tags must appear exactly as shown, with no additional symbols, wrapping, or commentary.
 - Output is invalid if it contains extra lines, missing tags, or deviates in any way from the structure shown below.
@@ -64,8 +91,8 @@ If you are a model like DeepSeek:
 ---
 
 ABSOLUTE ENTRY COUNT CHECK (STRICT):
-- If you produce more or fewer than {{NUMBER_OF_TIPS}} entries, your output is invalid and must be discarded.
-- You must validate that the number of lines inside <TITLE_BLOCK>...</TITLE_BLOCK> is exactly {{NUMBER_OF_TIPS}} before finishing.
+- If you produce more or fewer than {{QUANTITY}} entries, your output is invalid and must be discarded.
+- You must validate that the number of lines inside <TITLE_BLOCK>...</TITLE_BLOCK> is exactly {{QUANTITY}} before finishing.
 - Overproduction will be interpreted as a failure to follow instructions. Do not try to be helpful by adding more.
 
 Overview Generation:

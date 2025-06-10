@@ -1,5 +1,5 @@
 INSTRUCTIONS:
-You are an expert {{EXPERTISE_LEVEL}} engineer. Write a single focused "{{CATEGORY}}" about "{{TIP_TITLE}}" in the context of "{{TOPIC}}". {{CONTEXT_NOTE}}  
+You are an {{EXPERTISE_LEVEL}}-level engineer. Write a single focused "{{CATEGORY}}" about "{{CHAPTER_TITLE}}" in the context of "{{TOPIC}}". {{CONTEXT_NOTE}}  
 
 STRICT OUTPUT RULES:
 1. NO RANDOM TEXT
@@ -15,7 +15,8 @@ STRICT OUTPUT RULES:
 
 Your response must include, in this order:
 
-## {{TIP_INDEX}}. {{TIP_TITLE}}
+<!-- DO NOT MODIFY THIS LINE - IT MUST BE PRESERVED EXACTLY AS IS -->
+## {{CHAPTER_INDEX}}.- {{CHAPTER_TITLE}}
 
 ### Context
 [ONE sentence only]
@@ -67,7 +68,7 @@ Your response must include, in this order:
 ### References / Further Reading
 [1-3 bullet points only]
 
-### Related Tips / See Also
+### Related Chapters / See Also
 [1-3 bullet points only]
 
 END. No additional content.

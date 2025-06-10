@@ -1,8 +1,8 @@
-"""Ollama Engine implementation for AI tips generation.
+"""Ollama Engine implementation for AI content generation.
 
 This module provides an implementation of the CompletionEnginePort interface
 using Ollama as the underlying language model. It handles the generation of
-AI tips with different expertise levels and formats the output according to
+AI content with different expertise levels and formats the output according to
 specified templates.
 
 The engine supports:
@@ -17,6 +17,7 @@ import re
 import logging
 from typing import Dict, List, Tuple, Optional
 from ollama import Client
+from ollama._types import ResponseError
 from core.ports import CompletionEnginePort
 
 # ANSI color codes
@@ -46,7 +47,7 @@ MAX_ITERATIONS = 3
 class OllamaEngine(CompletionEnginePort):
     """Implementation of CompletionEnginePort using Ollama as the backend.
 
-    This class handles the generation of AI tips using Ollama's language
+    This class handles the generation of AI content using Ollama's language
     models. It supports different expertise levels and formats the output
     according to specified templates.
 
@@ -55,8 +56,8 @@ class OllamaEngine(CompletionEnginePort):
             their descriptions.
         model (str): The name of the Ollama model to use.
         stream (bool): Whether to stream the responses.
-        category (str): The category of tips to generate.
-        expertise_level (str): The expertise level for the generated tips.
+        category (str): The category of content to generate.
+        expertise_level (str): The expertise level for the generated content.
         context_note (str): The context note based on expertise level.
         tokens_used (int): Counter for tokens used in generation.
     """
@@ -82,7 +83,8 @@ class OllamaEngine(CompletionEnginePort):
         host: Optional[str] = None,
         stream: bool = False,
         category: str = "Tip",
-        expertise_level: str = "Novice"
+        expertise_level: str = "Novice",
+        think: bool = True
     ) -> None:
         """Initialize the OllamaEngine.
 
@@ -90,22 +92,26 @@ class OllamaEngine(CompletionEnginePort):
             model: The name of the Ollama model to use.
             host: Optional host URL for the Ollama server.
             stream: Whether to stream the responses.
-            category: The category of tips to generate.
-            expertise_level: The expertise level for the generated tips.
+            category: The category of content to generate.
+            expertise_level: The expertise level for the generated content.
+            think: Whether to show thinking process in the output.
 
         Raises:
             OllamaEngineError: If there's an error initializing the engine.
             ValueError: If the expertise level is invalid.
         """
         logger.debug(
-            "Initializing OllamaEngine with model=%s, host=%s, stream=%s",
+            "Initializing OllamaEngine with model=%s, host=%s, stream=%s, "
+            "think=%s",
             model,
             host,
-            stream
+            stream,
+            think
         )
         self.model = model
         self.stream = stream
         self.category = category
+        self.think = think
 
         # Normalize expertise_level to title case for matching
         normalized_level = expertise_level.strip().title()
@@ -196,53 +202,58 @@ class OllamaEngine(CompletionEnginePort):
         self.tokens_used = 0
 
     def build_titles_prompt(self, topic: str, quantity: int) -> str:
-        """Build the prompt for generating tip titles.
+        """Build the prompt for generating chapter titles.
 
         Args:
-            topic: The topic to generate tips for.
-            quantity: The number of tips to generate.
+            topic: The topic to generate chapters for.
+            quantity: The number of chapters to generate.
 
         Returns:
             The formatted prompt string.
         """
-        prompt = self._prompt_titles_template.replace("{{TOPIC}}", topic)
-        prompt = prompt.replace("{{NUMBER_OF_TIPS}}", str(quantity))
+        prompt = self._prompt_titles_template
+        prompt = prompt.replace("{{TOPIC}}", topic)
+        prompt = prompt.replace("{{QUANTITY}}", str(quantity))
         prompt = prompt.replace("{{CATEGORY}}", self.category)
         prompt = prompt.replace("{{EXPERTISE_LEVEL}}", self.expertise_level)
         prompt = prompt.replace("{{CONTEXT_NOTE}}", self.context_note)
         return prompt
 
-    def build_detail_prompt(self, topic: str, tip_title: str, tip_index: int) -> str:
-        """Build the prompt for generating tip details.
+    def build_detail_prompt(
+        self, topic: str, chapter_title: str, chapter_index: int
+    ) -> str:
+        """Build the prompt for generating chapter content.
 
         Args:
-            topic: The topic to generate tips for.
-            tip_title: The title of the tip to generate details for.
-            tip_index: The index of the tip to generate details for.
+            topic: The topic to generate content for.
+            chapter_title: The title of the chapter to generate content for.
+            chapter_index: The index of the current chapter.
+
         Returns:
             The formatted prompt string.
         """
-        prompt = self.prompt_detail_template.replace("{{TOPIC}}", topic)
-        prompt = prompt.replace("{{TIP_TITLE}}", tip_title)
+        prompt = self.prompt_detail_template
+        prompt = prompt.replace("{{TOPIC}}", topic)
+        prompt = prompt.replace("{{CHAPTER_TITLE}}", chapter_title)
         prompt = prompt.replace("{{CATEGORY}}", self.category)
         prompt = prompt.replace("{{EXPERTISE_LEVEL}}", self.expertise_level)
         prompt = prompt.replace("{{CONTEXT_NOTE}}", self.context_note)
-        prompt = prompt.replace("{{TIP_INDEX}}", str(tip_index))
+        prompt = prompt.replace("{{CHAPTER_INDEX}}", str(chapter_index))
         return prompt
 
-    def generate_tip_titles(
+    def generate_chapters(
         self, topic: str, quantity: int
     ) -> Tuple[List[Dict[str, str]], str]:
-        """Generate a list of tip titles for the given topic.
+        """Generate a list of chapter titles for the given topic.
 
         Args:
-            topic: The topic to generate tips for.
-            quantity: The number of tips to generate.
+            topic: The topic to generate chapters for.
+            quantity: The number of chapters to generate.
 
         Returns:
             A tuple containing:
                 - List of dictionaries with 'full' and 'short' title keys
-                - Overview string of the generated tips
+                - Overview string of the generated chapters
 
         Note:
             The output is parsed from the model's response between
@@ -265,11 +276,15 @@ class OllamaEngine(CompletionEnginePort):
         content = ""
         in_think_block = False
         try:
-            for msg in self.ollama.chat(
-                model=self.model,
-                messages=messages,
-                stream=True
-            ):
+            chat_kwargs = {
+                "model": self.model,
+                "messages": messages,
+                "stream": True
+            }
+            if not self.think:
+                chat_kwargs["think"] = False
+
+            for msg in self.ollama.chat(**chat_kwargs):
                 piece = msg['message']['content']
 
                 # Handle think tags for display only
@@ -282,9 +297,25 @@ class OllamaEngine(CompletionEnginePort):
                 color = RED if in_think_block else GRAY
                 print(f"{color}{piece}{RESET}", end="", flush=True)
                 content += piece
-        except KeyboardInterrupt:
-            print("\n[Interrupted] Partial session discarded.")
-            return [], ""
+        except Exception as e:
+            if "does not support thinking" in str(e) and self.think:
+                logger.warning(
+                    "Model %s does not support thinking feature. "
+                    "Retrying without thinking.",
+                    self.model
+                )
+                # Retry without thinking
+                chat_kwargs = {
+                    "model": self.model,
+                    "messages": messages,
+                    "stream": True
+                }
+                for msg in self.ollama.chat(**chat_kwargs):
+                    piece = msg['message']['content']
+                    print(f"{GRAY}{piece}{RESET}", end="", flush=True)
+                    content += piece
+            else:
+                raise
 
         original_content = content
         # Remove <think> tags for further processing
@@ -315,11 +346,11 @@ class OllamaEngine(CompletionEnginePort):
 
         logger.debug("Content after all regex and tag fixes:\n%s", content)
 
-        tips = []
+        chapters = []
         overview = ""
         if not title_block_match:
             raise OllamaResponseError(
-                "Failed to generate tip titles. The model's response did not "
+                "Failed to generate chapter titles. The model's response did not "
                 "contain the expected TITLE_BLOCK format. Please try again "
                 "with a different topic or model."
             )
@@ -332,11 +363,11 @@ class OllamaEngine(CompletionEnginePort):
             if match:
                 full_title = match.group(1).strip()
                 short_title = match.group(2).strip()
-                tips.append({"full": full_title, "short": short_title})
+                chapters.append({"full": full_title, "short": short_title})
 
-        if not tips:
+        if not chapters:
             raise OllamaResponseError(
-                "Failed to parse tip titles from the model's response. "
+                "Failed to parse chapter titles from the model's response. "
                 "The response format was not as expected. Please try again."
             )
 
@@ -345,29 +376,30 @@ class OllamaEngine(CompletionEnginePort):
         else:
             overview = overview_match.group(1).strip()
 
-        # Log extracted tips and overview
-        logger.debug("Extracted tips: %s, overview: %s", tips, overview)
-        return tips, overview
+        # Log extracted chapters and overview
+        logger.debug("Extracted chapters: %s, overview: %s", chapters, overview)
+        return chapters, overview
 
-    def generate_tip_detail(
-        self, topic: str, tip_title: str, tip_index: int, total_tips: int
+    def generate_content(
+        self, topic: str, chapter_title: str, chapter_index: int, 
+        total_chapters: int
     ) -> str:
-        """Generate detailed content for a specific tip.
+        """Generate detailed content for a specific chapter.
 
         Args:
-            topic: The topic to generate tips for.
-            tip_title: The title of the tip to generate details for.
-            tip_index: The index of the current tip being generated.
-            total_tips: The total number of tips being generated.
+            topic: The topic to generate content for.
+            chapter_title: The title of the chapter to generate content for.
+            chapter_index: The index of the current chapter being generated.
+            total_chapters: The total number of chapters being generated.
 
         Returns:
-            The generated tip content as a string.
+            The generated chapter content as a string.
 
         Note:
             The content is generated in markdown format and includes sections
             like introduction, main content, and conclusion.
         """
-        prompt = self.build_detail_prompt(topic, tip_title, tip_index)
+        prompt = self.build_detail_prompt(topic, chapter_title, chapter_index)
         logger.debug(
             "----Prompt BEGIN----\n"
             "%s%s%s\n"
@@ -379,28 +411,52 @@ class OllamaEngine(CompletionEnginePort):
         messages = [{"role": "user", "content": prompt}]
         content = ""
         print(
-            f"+-----\n| Processing Tip #{tip_index} of {total_tips} "
-            f"(Attempt 1)\n+-----"
+            f"+-----\n| Processing Chapter #{chapter_index} of "
+            f"{total_chapters} (Attempt 1)\n+-----"
         )
 
         in_think_block = False
-        for msg in self.ollama.chat(
-            model=self.model,
-            messages=messages,
-            stream=True
-        ):
-            piece = msg['message']['content']
+        try:
+            chat_kwargs = {
+                "model": self.model,
+                "messages": messages,
+                "stream": True
+            }
+            if not self.think:
+                chat_kwargs["think"] = False
 
-            # Handle think tags for display only
-            if "<think>" in piece:
-                in_think_block = True
-            if "</think>" in piece:
-                in_think_block = False
+            for msg in self.ollama.chat(**chat_kwargs):
+                piece = msg['message']['content']
 
-            # Print with appropriate color
-            color = RED if in_think_block else GRAY
-            print(f"{color}{piece}{RESET}", end="", flush=True)
-            content += piece
+                # Handle think tags for display only
+                if "<think>" in piece:
+                    in_think_block = True
+                if "</think>" in piece:
+                    in_think_block = False
+
+                # Print with appropriate color
+                color = RED if in_think_block else GRAY
+                print(f"{color}{piece}{RESET}", end="", flush=True)
+                content += piece
+        except Exception as e:
+            if "does not support thinking" in str(e) and self.think:
+                logger.warning(
+                    "Model %s does not support thinking feature. "
+                    "Retrying without thinking.",
+                    self.model
+                )
+                # Retry without thinking
+                chat_kwargs = {
+                    "model": self.model,
+                    "messages": messages,
+                    "stream": True
+                }
+                for msg in self.ollama.chat(**chat_kwargs):
+                    piece = msg['message']['content']
+                    print(f"{GRAY}{piece}{RESET}", end="", flush=True)
+                    content += piece
+            else:
+                raise
 
         # Save original content for token counting
         original_content = content
@@ -413,7 +469,6 @@ class OllamaEngine(CompletionEnginePort):
             flags=re.DOTALL | re.IGNORECASE
         )
         print("\n[End of Ollama Streaming Output]")
-        # logger.debug("Received tip detail response:\n%s", content)
 
         # Estimate and log the token usage using the original content
         self.tokens_used += int(len(original_content.split()) * 0.75)
@@ -423,29 +478,29 @@ class OllamaEngine(CompletionEnginePort):
     def generate(
         self, topic: str, quantity: int
     ) -> Tuple[List[Tuple[int, Dict[str, str], str]], str]:
-        """Generate a complete set of tips for the given topic.
+        """Generate a complete set of chapters with their content.
 
         Args:
-            topic: The topic to generate tips for.
-            quantity: The number of tips to generate.
+            topic: The topic to generate chapters for.
+            quantity: The number of chapters to generate.
 
         Returns:
             A tuple containing:
-                - List of tuples with (tip_index, tip_dict, tip_detail)
-                - Overview string of all generated tips
+                - List of tuples with (index, chapter_info, content)
+                - Overview string of the generated chapters
 
         Note:
-            This method orchestrates the generation of both tip titles and
+            This method orchestrates the generation of chapter titles and
             their detailed content.
         """
-        tips, overview = self.generate_tip_titles(topic, quantity)
+        chapters, overview = self.generate_chapters(topic, quantity)
         details = []
-        for i, tip in enumerate(tips, 1):
-            detail = self.generate_tip_detail(
+        for i, chapter in enumerate(chapters, 1):
+            detail = self.generate_content(
                 topic,
-                tip["full"],
+                chapter["full"],
                 i,
-                len(tips)
+                len(chapters)
             )
-            details.append((i, tip, detail))
+            details.append((i, chapter, detail))
         return details, overview

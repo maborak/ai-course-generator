@@ -4,7 +4,7 @@ from adapters.engines.ollama_adapter import OllamaEngine
 from adapters.file_converter import FileConverter
 from core.generator import AITipsGenerator
 import tempfile
-import glob
+
 
 def sanitize_filename(s):
     import re
@@ -12,6 +12,7 @@ def sanitize_filename(s):
     s = re.sub(r'[^\w\s-]', '', s)
     s = re.sub(r'[\s-]+', '_', s)
     return s
+
 
 def main():
     import os
@@ -24,17 +25,36 @@ def main():
     )
     logger = logging.getLogger(__name__)
 
-    parser = argparse.ArgumentParser(description="AI Tips Generator (Hexagonal Architecture)")
+    parser = argparse.ArgumentParser(
+        description="AI Tips Generator (Hexagonal Architecture)"
+    )
     parser.add_argument('--topic', default='linux')
     parser.add_argument('--quantity', type=int, default=5)
-    parser.add_argument('--engine', default='openai', choices=['openai', 'ollama'])
+    parser.add_argument(
+        '--engine',
+        default='openai',
+        choices=['openai', 'ollama']
+    )
     parser.add_argument('--force', action='store_true')
     parser.add_argument('--ollama-host', default=None)
     parser.add_argument('--ollama-model', default='llama3.2')
     parser.add_argument('--ollama-stream', action='store_true')
-    parser.add_argument('--check', action='store_true', help='Check if output files can be generated with dummy content')
-    parser.add_argument('--category', default='Tip', help='Category for the tips (used as CATEGORY)')
-    parser.add_argument('--expertise-level', default='Novice', help='Expertise level for the tips')
+    parser.add_argument('--ollama-no-think', action='store_true', help='Disable thinking process in Ollama')
+    parser.add_argument(
+        '--check',
+        action='store_true',
+        help='Check if output files can be generated with dummy content'
+    )
+    parser.add_argument(
+        '--category',
+        default='Tip',
+        help='Category for the tips (used as CATEGORY)'
+    )
+    parser.add_argument(
+        '--expertise-level',
+        default='Novice',
+        help='Expertise level for the tips'
+    )
     args = parser.parse_args()
     logger.debug(f"Arguments: {args}")
 
@@ -51,7 +71,16 @@ def main():
             dir=output_dir, prefix="check_", suffix="_tip.md", delete=False
         ) as tmp_md:
             output_md = tmp_md.name
-            dummy_content = "# Dummy AI Tips Output\n\nThis is a test file for --check mode.\n\n## Tip 1\nDummy tip content.\n\n## Tip 2\nMore dummy content.\n"
+            dummy_content = '''# Dummy AI Tips Output
+
+This is a test file for --check mode.
+
+## Tip 1
+Dummy tip content.
+
+## Tip 2
+More dummy content.
+'''
             tmp_md.write(dummy_content.encode("utf-8"))
         logger.info(f"Dummy markdown saved as {output_md}")
 
@@ -72,8 +101,12 @@ def main():
 
         print("\nCheck results:")
         for ext in [".md", ".html", ".pdf", ".epub"]:
-            file_path = base + ext  # <-- Move this inside the loop
-            status = f"{GREEN}SUCCESS{RESET}" if results[ext] else f"{RED}FAILED{RESET}"
+            file_path = base + ext
+            status = (
+                f"{GREEN}SUCCESS{RESET}"
+                if results[ext]
+                else f"{RED}FAILED{RESET}"
+            )
             print(f"  {file_path}: {status}")
 
         # Cleanup
@@ -83,12 +116,18 @@ def main():
                 os.remove(file_path)
 
         print("\nCleanup complete.")
-        logger.info("Check complete: All output files generated and cleaned up successfully.")
+        logger.info(
+            "Check complete: All output files generated and cleaned up successfully."
+        )
         return
 
     output_md = os.path.join(
         output_dir,
-        f"{sanitize_filename(args.topic)}_{sanitize_filename(args.category)}_{sanitize_filename(args.expertise_level)}_{args.engine}_{sanitize_filename(args.ollama_model if args.engine == 'ollama' else 'gpt-4.1')}_tip.md"
+        f"{sanitize_filename(args.topic)}_"
+        f"{sanitize_filename(args.category)}_"
+        f"{sanitize_filename(args.expertise_level)}_"
+        f"{args.engine}_"
+        f"{sanitize_filename(args.ollama_model if args.engine == 'ollama' else 'gpt-4.1')}_tip.md"
     )
 
     if args.engine == 'openai':
@@ -99,13 +138,20 @@ def main():
             host=args.ollama_host,
             stream=args.ollama_stream,
             category=args.category,
-            expertise_level=args.expertise_level
+            expertise_level=args.expertise_level,
+            think=not args.ollama_no_think
         )
     converter = FileConverter()
 
     generator = AITipsGenerator(engine, converter)
     logger.debug("Calling generator.generate_tips")
-    generator.generate_tips(args.topic, args.quantity, output_md, force=args.force)
+    generator.generate_tips(
+        args.topic,
+        args.quantity,
+        output_md,
+        force=args.force
+    )
+
 
 if __name__ == "__main__":
     import logging
