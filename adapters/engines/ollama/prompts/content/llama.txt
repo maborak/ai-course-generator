@@ -1,98 +1,89 @@
+<!-- 
+STRICT OUTPUT RULES:
+- Do not add any introduction, meta-commentary, or explanation.
+- Never wrap the entire response in a code block.
+- Only use code blocks for code/output sections as shown.
+- Do not add "---" at the beginning or end.
+- Use each heading as below, with only the required content under it.
+-->
+
 Topic: {{TOPIC}}  
 Title: {{TIP_TITLE}}  
 Category: {{CATEGORY}}  
 Expertise Level: {{EXPERTISE_LEVEL}}  
 
 You are an engineer with {{EXPERTISE_LEVEL}}-level expertise. {{CONTEXT_NOTE}}  
-Your task is to write a complete, structured response tailored to the provided title, category in the context of {{TOPIC}}. Stick closely to the subject. Do not provide general advice, definitions, or repeated caveats.
+Your task is to write a complete, structured response tailored to the provided title and category in the context of {{TOPIC}}. Stick closely to the subject.
 
-Your response must include:
+Your response must include, in this order:
 
----
-<!-- 
-IMPORTANT: Do NOT add "---" at the beginning or end of your response. 
-Start directly with the Title section, and end with the last section's content.
--->
-## {{TIP_TITLE}} 
+## {{TIP_TITLE}}  
 
-### Context
+### Context  
 <!-- 
 Briefly describe a real-world scenario, domain, or use case where this advice, technique, or concept is relevant or valuable.
 State the conditions, project type, workflow, or common challenge that makes this tip important, whether it's a trick, usage, hack, or mistake.
-
+Provide 1-2 sentences only. DO NOT add generic, filler, or hypothetical language. After you finish, immediately continue to the next section.
 **Examples:**  
 - Used in production systems where zero-downtime is required.  
-- Helpful in educational tools that must provide instant feedback.  
 - Relevant when working with large datasets that exceed memory capacity.  
-- Commonly encountered during API integration tasks.  
-- A frequent mistake when handling asynchronous code.  
 -->
 
-### Key Concepts / Technologies
+### Key Concepts / Technologies  
 <!-- 
 List the most important algorithms, concepts, libraries, APIs, tools, or technologies that are relevant to this tip, usage, hack, or mistake.
-Use concise bullet points for clarity.
-
+Provide 2-4 bullet points only. DO NOT write paragraphs or explanations. After you finish, immediately continue to the next section.
 **Examples:**  
 - Relevance feedback  
-- Implicit user signals  
 - Online learning  
-- TF-IDF scoring  
-- Collaborative filtering  
-- Webhooks  
-- OAuth2 authentication  
-- Async/await pattern  
 - REST API integration  
-- Indexing strategies  
+- Async/await pattern  
 -->
 
 ### Problem  
-<!-- Describe the specific issue or inefficiency. Focus only on what's directly relevant to "{{TIP_TITLE}}". -->
+<!-- 
+Describe the specific issue or inefficiency. Focus only on what's directly relevant to "{{TIP_TITLE}}".
+Use 1-2 sentences only. Do NOT repeat information from other sections. After you finish, immediately continue to the next section.
+-->
 
 ### Before (Naive/Problematic Code)
-```python
-# Code example that demonstrates the issue or naive solution
-```
+<!-- 
+Provide a code example that demonstrates the issue or naive solution. 
+Only include code—no paragraphs, explanations, or extra commentary.
+Use fenced code blocks for code only. After you finish, immediately continue to the next section.
+-->
 
 #### Output
-```bash
-# Output from the above code
-```
+<!-- 
+Show the output or result from the above code.
+Only include output—no paragraphs, explanations, or extra commentary.
+Use fenced code blocks for output only. After you finish, immediately continue to the next section.
+-->
 
 ### After (Expert Solution)
-```python
-# Improved or corrected solution
-```
+<!-- 
+Provide an improved or corrected code example that solves the problem.
+Only include code—no paragraphs, explanations, or extra commentary.
+Use fenced code blocks for code only. After you finish, immediately continue to the next section.
+-->
 
 #### Output
-```bash
-# Output from the improved solution
-```
+<!-- 
+Show the output or result from the improved code.
+Only include output—no paragraphs, explanations, or extra commentary.
+Use fenced code blocks for output only. After you finish, immediately continue to the next section.
+-->
 
 ### How It Works  
-<!-- Explain what changed and why this works better. Break down logic for novices; focus on internals or tradeoffs for experts. -->
-
-### Tradeoffs / Limitations
 <!-- 
-List 2 to 5 specific drawbacks, tradeoffs, or limitations as concise bullet points.
-DO NOT write paragraphs, summaries, conclusions, or generic advice.
-DO NOT repeat ideas.
-DO NOT use phrases like "in conclusion," "in summary," or similar.
-Each bullet must be one sentence and directly related to this tip.
-
-**Examples:**  
-- Requires large user data volume to be effective  
-- May increase computational overhead  
-- Can introduce bias if feedback is noisy  
-- Less effective with sparse datasets  
-- Not supported in older Python versions  
+Explain what changed and why this works better.
+Provide 2-4 concise bullet points. Do NOT write paragraphs, summaries, or repeated information. After you finish, immediately continue to the next section.
 -->
 
 ### Applicability / When to Use
 <!-- 
 List 1 to 3 concise bullet points describing the scenarios, projects, or contexts where this tip, trick, usage, hack, or approach is most appropriate or valuable.
-Be specific, avoid paragraphs or vague statements.
-
+Be specific, avoid paragraphs or vague statements. After you finish, immediately continue to the next section.
 **Examples:**  
 - Ideal for high-traffic APIs requiring rapid response times  
 - Best used in data processing pipelines with large, batch inputs  
@@ -102,8 +93,7 @@ Be specific, avoid paragraphs or vague statements.
 ### When Not to Use / Anti-Patterns
 <!-- 
 List 1 to 3 bullet points highlighting situations, project types, or contexts where this approach is not recommended, may cause issues, or is commonly misapplied.
-Do not write paragraphs or general advice; be direct and specific.
-
+Do not write paragraphs or general advice; be direct and specific. After you finish, immediately continue to the next section.
 **Examples:**  
 - Not suitable for real-time data streams  
 - Avoid in low-memory environments  
@@ -113,21 +103,30 @@ Do not write paragraphs or general advice; be direct and specific.
 ### Common Mistakes
 <!-- 
 List 2 to 5 specific, concise mistakes, pitfalls, or common errors users make when attempting this tip, trick, usage, or hack.
-Each mistake should be a short bullet point, not a paragraph, and should avoid general or vague language.
-
+Each mistake should be a short bullet point, not a paragraph, and should avoid general or vague language. After you finish, immediately continue to the next section.
 **Examples:**  
 - Forgetting to handle edge cases in user input  
 - Not validating API responses before processing  
 - Overwriting global state without proper locking  
-- Assuming all errors are recoverable  
 - Missing required dependencies in the deployment environment  
+-->
+
+### Tradeoffs / Limitations
+<!-- 
+List 2 to 5 specific drawbacks, tradeoffs, or limitations as concise bullet points.
+DO NOT write paragraphs, summaries, or generic advice.
+DO NOT repeat ideas.
+After you finish, immediately continue to the next section.
+**Examples:**  
+- Requires large user data volume to be effective  
+- May increase computational overhead  
+- Not supported in older Python versions  
 -->
 
 ### Performance Impact / Benchmark
 <!-- 
 List 1 to 3 bullet points quantifying any measurable improvements (speed, memory, resource usage, accuracy, etc.) resulting from this tip, trick, usage, or hack.
-Include specific metrics if possible. If not applicable, leave blank.
-
+Include specific metrics if possible. If not applicable, leave blank. After you finish, immediately continue to the next section.
 **Examples:**  
 - Reduces API response time by 40%  
 - Decreases memory usage by 100MB per process  
@@ -137,34 +136,51 @@ Include specific metrics if possible. If not applicable, leave blank.
 ### Security Considerations
 <!-- 
 List 1 to 3 concise bullet points outlining any relevant security, privacy, or robustness concerns, requirements, or protections for this tip, usage, or hack.
-Only include actionable points, not generic advice or long explanations.
-
+Only include actionable points, not generic advice or long explanations. After you finish, immediately continue to the next section.
 **Examples:**  
 - Always sanitize user input to prevent injection attacks  
 - Requires authenticated access to sensitive endpoints  
 - May expose sensitive logs if not properly configured  
 -->
 
+### Real-World Example / Case Study
+<!-- 
+Summarize a brief, specific real-world application, case study, or anecdote demonstrating the value of this tip, usage, or hack.
+1-3 sentences only, focused on results or outcomes.
+
+**Examples:**  
+- At CompanyX, adopting this approach reduced incident response times by 60%.  
+- This method enabled a team to migrate legacy data with zero downtime.  
+- In production, this trick prevented a major outage caused by unhandled exceptions.  
+-->
+
 ### References / Further Reading
 <!-- 
 List 1 to 3 concise references, links, docs, papers, or official resources for readers to explore more.
-Do not add unrelated links or marketing. Use markdown links where appropriate.
-
+Do not add unrelated links or marketing. Use markdown links where appropriate. After you finish, immediately continue to the next section.
 **Examples:**  
 - [FastAPI Error Handling Docs](https://fastapi.tiangolo.com/tutorial/handling-errors/)  
 - RFC 7807: Problem Details for HTTP APIs  
 - [Official Python Logging Guide](https://docs.python.org/3/howto/logging.html)  
 -->
 
+### Real-World Example / Case Study
+<!-- 
+Summarize a brief, specific real-world application, case study, or anecdote demonstrating the value of this tip, usage, or hack.
+1-3 sentences only, focused on results or outcomes.
+
+**Examples:**  
+- At CompanyX, adopting this approach reduced incident response times by 60%.  
+- This method enabled a team to migrate legacy data with zero downtime.  
+- In production, this trick prevented a major outage caused by unhandled exceptions.  
+-->
+
 ### Related Tips / See Also
 <!-- 
 List 1 to 3 related tips, tricks, usages, hacks, or sections from your ebook that connect or add value to this entry.
-Use concise bullet points or markdown links.
-
+Use concise bullet points or markdown links. After you finish, immediately continue to the next section.
 **Examples:**  
 - See also: “Async Error Handling in FastAPI”  
 - Related: “API Versioning Best Practices”  
 - See: “Efficient Batch Processing”  
 -->
-
----

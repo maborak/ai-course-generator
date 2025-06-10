@@ -1,0 +1,70 @@
+Topic: {{TOPIC}}
+Title: {{TIP_TITLE}}
+Category: {{CATEGORY}}
+Expertise Level: {{EXPERTISE_LEVEL}}
+Context Note: {{CONTEXT_NOTE}}
+
+## {{TIP_TITLE}}
+
+### Context
+[1-2 sentence real-world scenario]
+
+### Key Concepts / Technologies
+- [Concept 1]
+- [Concept 2]
+
+### Problem
+[1-2 sentence specific issue]
+
+### Before (Naive/Problematic Code)
+[CODE_START]
+[Code snippet]
+[CODE_END]
+
+#### Output
+[OUTPUT_START]
+[Output snippet]
+[OUTPUT_END]
+
+### After (Expert Solution)
+[CODE_START]
+[Improved code]
+[CODE_END]
+
+#### Output
+[OUTPUT_START]
+[Improved output]
+[OUTPUT_END]
+
+### How It Works
+- [Change 1]
+- [Change 2]
+
+### Applicability / When to Use
+- [Use case 1]
+
+### When Not to Use / Anti-Patterns
+- [Anti-pattern 1]
+
+### Common Mistakes
+- [Mistake 1]
+- [Mistake 2]
+
+### Tradeoffs / Limitations
+- [Limitation 1]
+- [Limitation 2]
+
+### Performance Impact / Benchmark
+- [Metric 1]
+
+### Security Considerations
+- [Security note 1]
+
+### Real-World Example / Case Study
+[1-3 sentence specific case study]
+
+### References / Further Reading
+- [Reference 1]
+
+### Related Tips / See Also
+- [Related tip 1]

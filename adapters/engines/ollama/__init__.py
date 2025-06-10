@@ -23,7 +23,19 @@ from ollama import Client
 GRAY = "\033[90m"
 ORANGE = "\033[33m"  # Orange color
 RED = "\033[31m"    # Red color
+CYAN = "\033[36m"   # Cyan color
 RESET = "\033[0m"
+
+
+class OllamaEngineError(Exception):
+    """Base exception for Ollama engine errors."""
+    pass
+
+
+class OllamaPromptError(OllamaEngineError):
+    """Raised when there are issues with prompt processing."""
+    pass
+
 
 logger = logging.getLogger(__name__)
 MAX_ITERATIONS = 3
@@ -117,8 +129,22 @@ class OllamaEngine(CompletionEnginePort):
         )
         if not os.path.exists(titles_prompt_path):
             titles_prompt_path = os.path.join(titles_prompt_dir, "llama.txt")
-        with open(titles_prompt_path, encoding="utf-8") as file:
-            self._prompt_titles_template = file.read()
+            logger.warning(
+                f"Model-specific prompt template not found for {base_model}, "
+                f"falling back to llama.txt"
+            )
+        
+        logger.debug(
+            f"{CYAN}Using titles prompt file: {titles_prompt_path}{RESET}"
+        )
+        try:
+            with open(titles_prompt_path, encoding="utf-8") as file:
+                self._prompt_titles_template = file.read()
+        except Exception as e:
+            raise OllamaPromptError(
+                f"Failed to load titles prompt template from "
+                f"{titles_prompt_path}. Error: {str(e)}"
+            )
 
         # Load content prompt template
         content_prompt_dir = os.path.abspath(
@@ -129,8 +155,22 @@ class OllamaEngine(CompletionEnginePort):
         )
         if not os.path.exists(content_prompt_path):
             content_prompt_path = os.path.join(content_prompt_dir, "llama.txt")
-        with open(content_prompt_path, encoding="utf-8") as file:
-            self.prompt_detail_template = file.read()
+            logger.warning(
+                f"Model-specific content template not found for {base_model}, "
+                f"falling back to llama.txt"
+            )
+        
+        logger.debug(
+            f"{CYAN}Using content prompt file: {content_prompt_path}{RESET}"
+        )
+        try:
+            with open(content_prompt_path, encoding="utf-8") as file:
+                self.prompt_detail_template = file.read()
+        except Exception as e:
+            raise OllamaPromptError(
+                f"Failed to load content prompt template from "
+                f"{content_prompt_path}. Error: {str(e)}"
+            )
 
         self.tokens_used = 0
 
@@ -335,7 +375,7 @@ class OllamaEngine(CompletionEnginePort):
             flags=re.DOTALL | re.IGNORECASE
         )
         print("\n[End of Ollama Streaming Output]")
-        #logger.debug("Received tip detail response:\n%s", content)
+        # logger.debug("Received tip detail response:\n%s", content)
 
         # Estimate and log the token usage using the original content
         self.tokens_used += int(len(original_content.split()) * 0.75)
