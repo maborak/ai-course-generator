@@ -1,0 +1,139 @@
+OUTPUT ONLY WHAT IS SPECIFIED. No markdown, no explanations, no formatting extras. Tags and content must be flush-left, one per line.
+
+If you are a model with limited instruction-following (e.g. Llama 3.2), just follow the Output Example exactly.
+
+---
+
+IMPORTANT: Strict Formatting Rules
+
+- Use ONLY these tags: <TITLE_BLOCK>, </TITLE_BLOCK>, <TITLE_OVERVIEW>.
+- DO NOT use any other tags, HTML, markdown, code blocks, or explanations.
+- Each entry: N. FULL_TITLE | SHORT_TITLE
+  - N: Entry number (sequential, starting at the requested number, e.g., 1., 2., ...).
+  - FULL_TITLE: Clear and descriptive, tailored to {{EXPERTISE_LEVEL}} for {{TOPIC}}.
+  - SHORT_TITLE: ≤5 words, concise summary.
+- Entries must be flush-left, no indentation or extra characters.
+- NO bullet points, NO bold/italic, NO extra commentary.
+- If you cannot fit all requested entries, stop at the last complete entry within your limit.
+- Do NOT summarize or explain anything outside the blocks.
+- Do NOT wrap any tags or output in code blocks, quotes, or backticks. Tags must always be flush-left.
+
+Topic: {{TOPIC}}  
+Category: {{CATEGORY}}  
+Expertise Level: {{EXPERTISE_LEVEL}}  
+{{CONTEXT_NOTE}}
+
+You are an expert content creator tasked with generating chapter titles for a comprehensive guide on {{TOPIC}}.
+
+Your task is to generate {{QUANTITY}} chapter titles that will form the structure of this guide. The content is targeted at {{EXPERTISE_LEVEL}} level readers, where {{CONTEXT_NOTE}}.
+
+Each chapter should be a {{CATEGORY}} that provides valuable insights and practical knowledge about {{TOPIC}}.
+
+Please follow these guidelines:
+1. Each chapter title should be clear, descriptive, and engaging
+2. The titles should progress logically from basic to advanced concepts
+3. Each title should reflect the expertise level of the target audience
+4. The titles should be specific enough to give readers a clear idea of what to expect
+
+Format your response exactly as follows:
+
+<TITLE_BLOCK>
+1. First Chapter Title | Short Title
+2. Second Chapter Title | Short Title
+...
+{{QUANTITY}}. Last Chapter Title | Short Title
+</TITLE_BLOCK>
+
+<TITLE_OVERVIEW>
+Provide a brief overview of how these chapters work together to create a comprehensive guide on {{TOPIC}}.
+</TITLE_OVERVIEW>
+
+Remember:
+- Each line must follow the format: "number. Full Title | Short Title"
+- The short title should be a concise version of the full title
+- Do not include any additional text outside the specified blocks
+- Ensure the titles are properly numbered from 1 to {{QUANTITY}}
+
+---
+
+Formatting Instructions:
+
+- For each entry, output: N. FULL_TITLE | SHORT_TITLE
+    - N: Entry number (sequential, starting at the requested number for this batch, e.g., 1., 2., ...).
+    - FULL_TITLE: Clear, descriptive, and relevant for the specified expertise level.
+    - SHORT_TITLE: ≤ 5 words, concise summary.
+- Every entry must have a SHORT_TITLE after the pipe ("|") character. Do NOT omit SHORT_TITLE in any entry.
+- Enclose all entries in a single block:
+- You MUST include both <TITLE_BLOCK> and </TITLE_BLOCK> tags. The closing tag is mandatory and must appear flush-left on its own line after the final entry.
+- If you omit </TITLE_BLOCK_END>, your output is invalid and must be regenerated.
+
+<TITLE_BLOCK>
+[each entry here, one per line]
+</TITLE_BLOCK>
+
+- No additional text, explanations, transitional phrases, or extra commentary before, between, or after entries.
+- Do not reference prior or future entries, use terms like "continued" or "next set," or duplicate any entry.
+- The block must contain exactly {{QUANTITY}} lines (entries).
+    - If {{QUANTITY}} is 1, output only one entry.
+    - No repeated entries.
+- For large lists, you must support generating output in batches. Each batch must use sequential numbering that continues from the previous batch.
+
+---
+
+If you are a model like DeepSeek:
+- You must not generate more than {{QUANTITY}} entries. This is a strict cap.
+- You must not repeat entries or invent formatting.
+- All tags must appear exactly as shown, with no additional symbols, wrapping, or commentary.
+- Output is invalid if it contains extra lines, missing tags, or deviates in any way from the structure shown below.
+- Think carefully before outputting—verify that entry count and tags are correct before finalizing your response.
+
+---
+
+ABSOLUTE ENTRY COUNT CHECK (STRICT):
+- If you produce more or fewer than {{QUANTITY}} entries, your output is invalid and must be discarded.
+- You must validate that the number of lines inside <TITLE_BLOCK>...</TITLE_BLOCK> is exactly {{QUANTITY}} before finishing.
+- Overproduction will be interpreted as a failure to follow instructions. Do not try to be helpful by adding more.
+
+Overview Generation:
+
+- After the title block, output an overview:
+<TITLE_OVERVIEW>
+[One paragraph ONLY.]
+</TITLE_OVERVIEW>
+- The overview must:
+    - Synthesize the shared purpose, relevance, and themes of the complete set of entries.
+    - Describe the collection as a whole—do not summarize, list, mention, or rephrase any individual entry or its content.
+    - Explain the value of the collection for the intended audience, including how the variety, scope, and selection support their goals for {{TOPIC}} at the {{EXPERTISE_LEVEL}} level.
+    - Emphasize breadth, progression, and practical utility (e.g., foundational coverage, advanced mastery, applied skills—whatever is appropriate for the level/category).
+    - Use clear, direct language without referencing the existence of the block, entries, or generation process itself.
+    - Keep it strictly to one paragraph, flush-left, with no lists, bullet points, or extra commentary.
+
+---
+
+Validation Rules:
+
+- Only one <TITLE_BLOCK> block and one <TITLE_OVERVIEW> block per output, both tags flush-left.
+- No extra indentation, comments, or stray characters outside the required blocks.
+- Output must strictly follow the formatting and content instructions.
+- Tags must never be wrapped in code blocks, quotes, or backticks.
+- Every entry must include the SHORT_TITLE after the pipe character.
+
+---
+
+Output Example (ALWAYS copy this format):
+
+<TITLE_BLOCK>
+1. Leveraging Python's Memory Management | Memory Optimization
+2. Mastering Concurrency with asyncio | Asyncio Mastery
+3. Implementing metaprogramming Patterns | Metaprogramming Tricks
+4. Optimizing Code with Numpy Arrays | NumPy Efficiency
+5. Advanced Exception Handling Techniques | Error Handling
+6. Using Decorators for Code Reuse | Decorator Patterns
+7. Exploiting C Extensions in Python | C Extensions
+8. Utilizing Generators and Coroutines | Generator Tricks
+9. Applying Custom Data Structures | Data Structure Hacks
+10. Enhancing Performance with Cython | Cython Optimization
+</TITLE_BLOCK>
+<TITLE_OVERVIEW>
+This collection provides expert-level Python techniques focusing on advanced topics like memory optimization, concurrency, and metaprogramming. Each entry offers insights into optimizing performance, leveraging libraries, and applying best practices for complex problem-solving in Python development.
+</TITLE_OVERVIEW>

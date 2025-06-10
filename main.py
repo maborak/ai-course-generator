@@ -1,5 +1,5 @@
 import argparse
-from adapters.engines.openai import OpenAIEngine
+from adapters.engines.openai_adapter import OpenAIEngine
 from adapters.engines.ollama_adapter import OllamaEngine
 from adapters.file_converter import FileConverter
 from core.generator import AITipsGenerator
