@@ -6,6 +6,7 @@ from pathlib import Path
 from openai import OpenAI
 import ollama
 from pprint import pprint as pp
+from adapters.engines.ollama_adapter import OllamaEngine
 
 # ==============================
 #        Configuration

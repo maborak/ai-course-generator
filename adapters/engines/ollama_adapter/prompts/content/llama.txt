@@ -17,7 +17,7 @@ Your task is to write a complete, structured response tailored to the provided t
 
 Your response must include, in this order:
 
-## {{TIP_TITLE}}  
+## {{TIP_INDEX}}.- {{TIP_TITLE}}  
 
 ### Context  
 <!-- 
@@ -46,28 +46,28 @@ Describe the specific issue or inefficiency. Focus only on what's directly relev
 Use 1-2 sentences only. Do NOT repeat information from other sections. After you finish, immediately continue to the next section.
 -->
 
-### Before (Naive/Problematic Code)
+#### Before (Naive/Problematic Code)
 <!-- 
 Provide a code example that demonstrates the issue or naive solution. 
 Only include code—no paragraphs, explanations, or extra commentary.
 Use fenced code blocks for code only. After you finish, immediately continue to the next section.
 -->
 
-#### Output
+##### Output
 <!-- 
 Show the output or result from the above code.
 Only include output—no paragraphs, explanations, or extra commentary.
 Use fenced code blocks for output only. After you finish, immediately continue to the next section.
 -->
 
-### After (Expert Solution)
+#### After (Expert Solution)
 <!-- 
 Provide an improved or corrected code example that solves the problem.
 Only include code—no paragraphs, explanations, or extra commentary.
 Use fenced code blocks for code only. After you finish, immediately continue to the next section.
 -->
 
-#### Output
+##### Output
 <!-- 
 Show the output or result from the improved code.
 Only include output—no paragraphs, explanations, or extra commentary.

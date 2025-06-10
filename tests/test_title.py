@@ -1,7 +1,7 @@
 import logging
 import pytest
 from ollama import Client  # Commented out for now
-from adapters.engines.ollama import OllamaEngine
+from adapters.engines.ollama_adapter import OllamaEngine
 
 logging.basicConfig(level=logging.DEBUG)
 
