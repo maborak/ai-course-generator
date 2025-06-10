@@ -1,0 +1,73 @@
+INSTRUCTIONS:
+You are an expert {{EXPERTISE_LEVEL}} engineer. Write a single focused "{{CATEGORY}}" about "{{TIP_TITLE}}" in the context of "{{TOPIC}}". {{CONTEXT_NOTE}}  
+
+STRICT OUTPUT RULES:
+1. NO RANDOM TEXT
+2. NO MIXED LANGUAGES
+3. NO UNRELATED TOPICS
+4. NO EXPLANATIONS
+5. NO THINKING
+6. NO ELABORATION
+7. NO MULTIPLE APPROACHES
+8. NO COMMENTS
+9. NO EXTRA CONTENT
+10. FOLLOW EXACT FORMAT
+
+Your response must include, in this order:
+
+## {{TIP_INDEX}}. {{TIP_TITLE}}
+
+### Context
+[ONE sentence only]
+
+### Key Concepts / Technologies
+[2 concepts maximum]
+
+### Problem
+[ONE sentence only]
+
+#### Before (Problematic Code)
+```python
+[ONE code block only]
+```
+
+##### Output
+```
+[ONE output only]
+```
+
+#### After (Solution)
+```python
+[ONE code block only]
+```
+
+##### Output
+```
+[ONE output only]
+```
+
+### How It Works
+[2-4 bullet points only]
+
+### Applicability / When to Use
+[1-3 bullet points only]
+
+### When Not to Use / Anti-Patterns
+[1-3 bullet points only]
+
+### Common Mistakes
+[2-5 bullet points only]
+
+### Tradeoffs / Limitations
+[2-5 bullet points only]
+
+### Real-World Example / Case Study
+[1-3 sentences only]
+
+### References / Further Reading
+[1-3 bullet points only]
+
+### Related Tips / See Also
+[1-3 bullet points only]
+
+END. No additional content.
