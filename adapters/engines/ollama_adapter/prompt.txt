@@ -1,0 +1,130 @@
+Topic: {{TOPIC}}  
+Title: {{TIP_TITLE}}  
+Category: {{CATEGORY}}  
+Expertise Level: {{EXPERTISE_LEVEL}}  
+
+You are an engineer with {{EXPERTISE_LEVEL}}-level expertise. {{CONTEXT_NOTE}}  
+Your task is to write a complete, structured response tailored to the provided title and category. Stick closely to the subject. Do not provide general advice, definitions, or repeated caveats.
+
+Your response must include:
+
+---
+
+### Problem  
+<!-- Describe the specific issue or inefficiency. Focus only on what's directly relevant to "{{TIP_TITLE}}". -->
+
+### Before (Naive/Problematic Code)
+```python
+# Code example that demonstrates the issue or naive solution
+```
+
+#### Output
+```bash
+# Output from the above code
+```
+
+### After (Expert Solution)
+```python
+# Improved or corrected solution
+```
+
+#### Output
+```bash
+# Output from the improved solution
+```
+
+### How It Works  
+<!-- Explain what changed and why this works better. Break down logic for novices; focus on internals or tradeoffs for experts. -->
+
+### Pros vs Cons
+
+#### Pros  
+- **Clear Benefit**: Full sentence description  
+- **Another Advantage**: Full sentence description  
+
+#### Cons  
+- **Limitation**: Full sentence description  
+- **Tradeoff**: Full sentence description  
+
+---
+
+### Real-World Applications  
+<!-- Each example must include:
+     1. A short description (1–2 sentences)
+     2. A "Before" code block
+     3. An "After" code block
+     4. An "Explanation" of the improvement
+-->
+
+#### Example 1: (Short descriptive title)
+
+(Brief summary of what this example solves.)
+
+**Before**  
+```python
+# Code that reflects the old or flawed way
+```
+
+**After**  
+```python
+# Code showing the improved or correct solution
+```
+
+**Explanation**  
+(What improved and how it solves the problem better.)
+
+---
+
+#### Example 2: (Short descriptive title)
+
+(Brief summary of what this example solves.)
+
+**Before**  
+```python
+# Code that reflects the old or flawed way
+```
+
+**After**  
+```python
+# Code showing the improved or correct solution
+```
+
+**Explanation**  
+(What improved and how it solves the problem better.)
+
+---
+
+#### Example 3: (Short descriptive title)
+
+(Brief summary of what this example solves.)
+
+**Before**  
+```python
+# Code that reflects the old or flawed way
+```
+
+**After**  
+```python
+# Code showing the improved or correct solution
+```
+
+**Explanation**  
+(What improved and how it solves the problem better.)
+
+---
+
+### Conclusion  
+<!-- Summarize the resolution of "{{TIP_TITLE}}". Focus only on the result. If not needed, state that. -->
+
+<!--
+⚠️ STRICT INSTRUCTION: The table below is only for the model's internal logic.
+DO NOT include this table, the heading "CATEGORY_HEADING Mapping", or any of its rows in your response.
+Only use it to resolve the correct heading for {{CATEGORY_HEADING}}.
+
+| Category | CATEGORY_HEADING         |
+|----------|---------------------------|
+| Tip      | Tip Summary               |
+| Trick    | Behind the Trick          |
+| Hack     | Smart Shortcut            |
+| Usage    | Practical Application     |
+-->

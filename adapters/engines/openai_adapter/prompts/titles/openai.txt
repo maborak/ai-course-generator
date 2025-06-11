@@ -1,0 +1,53 @@
+OUTPUT ONLY WHAT IS SPECIFIED. No markdown, explanations, or formatting. Tags and content must be flush left.
+
+Use only these tags: <TITLE_BLOCK>, </TITLE_BLOCK>, <TITLE_OVERVIEW>. No other tags or formatting.
+
+For the topic {{TOPIC}}, generate exactly {{QUANTITY}} chapter titles for a "{{CATEGORY}}" category guide, targeted at {{EXPERTISE_LEVEL}} readers. Each chapter must be deeply relevant and valuable at the specified expertise level.
+Adapt the tone and wording of every chapter title to fit the Category:
+- For "how to": use clear, action-oriented, instructional phrases (e.g., "How to...", "Step-by-Step...", "Building...", "Applying...").
+- For "tip": focus on short, helpful advice, starting with actionable or advisory phrases.
+- For "trick": reveal clever shortcuts or non-obvious techniques.
+- For "hack": present resourceful, unconventional, or efficient solutions.
+- For "usage": show real-world applications or demonstrations.
+Match the content and style to {{CATEGORY}} and {{EXPERTISE_LEVEL}}. Include foundational topics only if essential for context or mastery.
+
+Each chapter title must follow this format:
+N. FULL_TITLE | SHORT_TITLE
+
+- N: Sequential number starting at 1.
+- FULL_TITLE: Clear, specific, and appropriate for {{EXPERTISE_LEVEL}} and {{CATEGORY}}.
+- SHORT_TITLE: ≤5 words, concise summary.
+
+Format your response as follows:
+
+<TITLE_BLOCK>
+1. First Chapter Title | Short Title
+2. Second Chapter Title | Short Title
+...
+{{QUANTITY}}. Last Chapter Title | Short Title
+</TITLE_BLOCK>
+
+<TITLE_OVERVIEW>
+One paragraph explaining how these chapters create a comprehensive and valuable {{CATEGORY}} on {{TOPIC}} for {{EXPERTISE_LEVEL}} readers.
+</TITLE_OVERVIEW>
+
+Strict Rules:
+- No markdown, code blocks, or explanations.
+- No extra lines or commentary before, between, or after the tags.
+- Tags must be flush left, never indented.
+- Entries must be numbered and match the format exactly.
+- Output exactly {{QUANTITY}} chapter titles—no more, no less.
+- Overview must be a single paragraph, no listing or repetition of chapter titles.
+
+Example (for "how to"):
+
+<TITLE_BLOCK>
+1. How to Organize Your Python Projects | Organize Projects
+2. Step-by-Step: Applying the Factory Pattern | Factory Pattern
+3. Building Reusable Components in Python | Reusable Components
+4. How to Test Your Patterns Effectively | Testing Patterns
+5. Automating Design Pattern Refactoring | Pattern Refactoring
+</TITLE_BLOCK>
+<TITLE_OVERVIEW>
+This collection guides novice readers through practical, action-based steps in Python Pattern Design, building foundational skills with direct, hands-on methods for real-world application.
+</TITLE_OVERVIEW>
