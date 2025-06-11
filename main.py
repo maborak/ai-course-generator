@@ -18,6 +18,7 @@ import os
 import re
 import tempfile
 import subprocess
+import sys
 from adapters.engines.openai_adapter import OpenAIEngine
 from adapters.engines.ollama_adapter import OllamaEngine
 from adapters.file_converter import FileConverter
@@ -118,11 +119,12 @@ Monitoring:
     logger.debug("Arguments: %s", args)
 
     # Validate engine-specific arguments
+    provided_args = set(parser._option_string_actions.keys())
     if args.engine == 'openai':
-        if args.ollama_host or args.ollama_model or args.ollama_stream or args.ollama_no_think:
+        if any(arg.startswith('--ollama-') for arg in provided_args if arg in sys.argv):
             parser.error("Ollama-specific arguments cannot be used with OpenAI engine")
     elif args.engine == 'ollama':
-        if args.openai_model or args.openai_stream:
+        if any(arg.startswith('--openai-') for arg in provided_args if arg in sys.argv):
             parser.error("OpenAI-specific arguments cannot be used with Ollama engine")
 
     output_dir = "output"
