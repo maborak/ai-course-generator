@@ -40,6 +40,7 @@ def main():
     parser.add_argument('--ollama-model', default='llama3.2')
     parser.add_argument('--ollama-stream', action='store_true')
     parser.add_argument('--ollama-no-think', action='store_true', help='Disable thinking process in Ollama')
+    parser.add_argument('--openai-stream', action='store_true', help='Enable streaming for OpenAI responses')
     parser.add_argument(
         '--check',
         action='store_true',
@@ -131,7 +132,11 @@ More dummy content.
     )
 
     if args.engine == 'openai':
-        engine = OpenAIEngine()
+        engine = OpenAIEngine(
+            stream=args.openai_stream,
+            category=args.category,
+            expertise_level=args.expertise_level
+        )
     else:
         engine = OllamaEngine(
             args.ollama_model,

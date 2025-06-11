@@ -17,6 +17,7 @@ import re
 import logging
 from typing import Dict, List, Tuple
 from openai import OpenAI
+import tiktoken
 from core.ports import CompletionEnginePort
 
 # ANSI color codes
@@ -134,6 +135,9 @@ class OpenAIEngine(CompletionEnginePort):
 
         try:
             self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+            # Initialize tokenizer only if streaming is enabled
+            if self.stream:
+                self.encoding = tiktoken.encoding_for_model(model)
         except Exception as exc:
             raise OpenAIEngineError(
                 f"Failed to initialize OpenAI client. "
@@ -209,7 +213,20 @@ class OpenAIEngine(CompletionEnginePort):
                 f"{content_prompt_path}. Error: {str(exc)}"
             ) from exc
 
-        self.tokens_used = 0
+        self.tokens_used = {"input": 0, "output": 0}
+
+    def count_tokens(self, text: str) -> int:
+        """Count the number of tokens in a text string.
+
+        Args:
+            text: The text to count tokens for.
+
+        Returns:
+            The number of tokens in the text.
+        """
+        if not self.stream:
+            return 0  # Don't count tokens manually when not streaming
+        return len(self.encoding.encode(text))
 
     def build_titles_prompt(self, topic: str, quantity: int) -> str:
         """Build the prompt for generating chapter titles.
@@ -286,6 +303,11 @@ class OpenAIEngine(CompletionEnginePort):
             {"role": "user", "content": prompt}
         ]
 
+        # Count input tokens only if streaming
+        if self.stream:
+            for message in messages:
+                self.tokens_used["input"] += self.count_tokens(message["content"])
+
         content = ""
         try:
             response = self.client.chat.completions.create(
@@ -298,13 +320,20 @@ class OpenAIEngine(CompletionEnginePort):
 
             if self.stream:
                 for chunk in response:
-                    piece = chunk.choices[0].delta.content
-                    if piece:
-                        print(f"{GRAY}{piece}{RESET}", end="", flush=True)
-                        content += piece
+                    if hasattr(chunk.choices[0].delta, "content"):
+                        piece = chunk.choices[0].delta.content
+                        if piece:
+                            print(f"{GRAY}{piece}{RESET}", end="", flush=True)
+                            content += piece
+                            # Count output tokens in streaming mode
+                            self.tokens_used["output"] += self.count_tokens(piece)
             else:
                 content = response.choices[0].message.content
                 print(f"{GRAY}{content}{RESET}", end="", flush=True)
+                # Use native token counts when not streaming
+                if hasattr(response, "usage"):
+                    self.tokens_used["input"] += response.usage.prompt_tokens
+                    self.tokens_used["output"] += response.usage.completion_tokens
 
         except Exception as e:
             raise OpenAIResponseError(
@@ -396,6 +425,11 @@ class OpenAIEngine(CompletionEnginePort):
             f"{total_chapters} (Attempt 1)\n+-----"
         )
 
+        # Count input tokens only if streaming
+        if self.stream:
+            for message in messages:
+                self.tokens_used["input"] += self.count_tokens(message["content"])
+
         try:
             response = self.client.chat.completions.create(
                 model=self.model,
@@ -407,13 +441,20 @@ class OpenAIEngine(CompletionEnginePort):
 
             if self.stream:
                 for chunk in response:
-                    piece = chunk.choices[0].delta.content
-                    if piece:
-                        print(f"{GRAY}{piece}{RESET}", end="", flush=True)
-                        content += piece
+                    if hasattr(chunk.choices[0].delta, "content"):
+                        piece = chunk.choices[0].delta.content
+                        if piece:
+                            print(f"{GRAY}{piece}{RESET}", end="", flush=True)
+                            content += piece
+                            # Count output tokens in streaming mode
+                            self.tokens_used["output"] += self.count_tokens(piece)
             else:
                 content = response.choices[0].message.content
                 print(f"{GRAY}{content}{RESET}", end="", flush=True)
+                # Use native token counts when not streaming
+                if hasattr(response, "usage"):
+                    self.tokens_used["input"] += response.usage.prompt_tokens
+                    self.tokens_used["output"] += response.usage.completion_tokens
 
         except Exception as e:
             raise OpenAIResponseError(
@@ -422,6 +463,32 @@ class OpenAIEngine(CompletionEnginePort):
 
         print("\n[End of OpenAI Streaming Output]")
         return content
+
+    def calculate_costs(self) -> Dict[str, float]:
+        """Calculate the total cost of API usage.
+
+        Returns:
+            A dictionary containing:
+                - input_tokens: Number of input tokens used
+                - output_tokens: Number of output tokens used
+                - input_cost: Cost of input tokens
+                - output_cost: Cost of output tokens
+                - total_cost: Total cost of API usage
+        """
+        input_tokens = self.tokens_used.get("input", 0)
+        output_tokens = self.tokens_used.get("output", 0)
+        
+        input_cost = (input_tokens / 1000) * INPUT_COST_PER_1K
+        output_cost = (output_tokens / 1000) * OUTPUT_COST_PER_1K
+        total_cost = input_cost + output_cost
+
+        return {
+            "input_tokens": input_tokens,
+            "output_tokens": output_tokens,
+            "input_cost": round(input_cost, 4),
+            "output_cost": round(output_cost, 4),
+            "total_cost": round(total_cost, 4)
+        }
 
     def generate(
         self, topic: str, quantity: int
@@ -441,6 +508,9 @@ class OpenAIEngine(CompletionEnginePort):
             This method orchestrates the generation of chapter titles and
             their detailed content.
         """
+        # Reset token usage at the start of generation
+        self.tokens_used = {"input": 0, "output": 0}
+        
         chapters, overview = self.generate_chapters(topic, quantity)
         details = []
         for i, chapter in enumerate(chapters, 1):
@@ -451,4 +521,19 @@ class OpenAIEngine(CompletionEnginePort):
                 len(chapters)
             )
             details.append((i, chapter, detail))
+
+        # Calculate and log costs
+        costs = self.calculate_costs()
+        logger.info(
+            "OpenAI API Usage:\n"
+            "  Input tokens: %d (Cost: $%.4f)\n"
+            "  Output tokens: %d (Cost: $%.4f)\n"
+            "  Total cost: $%.4f",
+            costs["input_tokens"],
+            costs["input_cost"],
+            costs["output_tokens"],
+            costs["output_cost"],
+            costs["total_cost"]
+        )
+
         return details, overview
