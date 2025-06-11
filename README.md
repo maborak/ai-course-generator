@@ -60,9 +60,9 @@ You may also need system packages for WeasyPrint, such as `libpango`, `cairo`, a
 
 ## Usage
 
-### Basic Usage
+### OpenAI Examples
 
-Generate a comprehensive Python programming guide using OpenAI GPT-4:
+Generate a comprehensive Python programming guide using GPT-4:
 ```sh
 python main.py --topic "Python Programming" --category "Guide" --expertise-level "Intermediate" --engine openai --openai-model gpt-4
 ```
@@ -72,22 +72,26 @@ Create a Docker best practices tutorial with streaming:
 python main.py --topic "Docker Best Practices" --category "Tutorial" --quantity 3 --engine openai --openai-model gpt-3.5-turbo --openai-stream
 ```
 
-Generate a Kubernetes deployment guide using Ollama:
-```sh
-python main.py --topic "Kubernetes Deployment" --category "How-to" --quantity 4 --engine ollama --ollama-model llama2 --ollama-host http://localhost:11434
-```
-
-Create a Git workflow tutorial with Ollama:
-```sh
-python main.py --topic "Git Workflows" --category "Tutorial" --quantity 2 --engine ollama --ollama-model mistral --ollama-stream --ollama-no-think
-```
-
 Generate a Linux system administration guide:
 ```sh
 python main.py --topic "Linux Administration" --category "Guide" --expertise-level "Advanced" --engine openai --openai-model gpt-4
 ```
 
-Check if all output formats can be generated (monitoring):
+### Ollama Examples
+
+Generate a Kubernetes deployment guide using Llama2:
+```sh
+python main.py --topic "Kubernetes Deployment" --category "How-to" --quantity 4 --engine ollama --ollama-model llama2 --ollama-host http://localhost:11434
+```
+
+Create a Git workflow tutorial with Mistral:
+```sh
+python main.py --topic "Git Workflows" --category "Tutorial" --quantity 2 --engine ollama --ollama-model mistral --ollama-stream --ollama-no-think
+```
+
+### Monitoring
+
+Check if all output formats can be generated:
 ```sh
 python main.py --check
 ```
@@ -123,9 +127,38 @@ python main.py --check
 
 ## Prompt Structure
 
-The generator uses two types of prompts, stored in the `adapters/engines/openai_adapter/prompts/` directory:
+The generator uses a modular prompt system stored in the `adapters/engines/` directory. Here's the structure:
 
-### Titles Prompt
+```
+adapters/engines/
+├── openai_adapter/
+│   └── prompts/
+│       ├── titles/                    # Prompts for generating chapter titles
+│       │   ├── openai.txt            # Default OpenAI titles prompt
+│       │   ├── gpt-4.txt             # GPT-4 specific titles prompt
+│       │   └── gpt-3.5-turbo.txt     # GPT-3.5 specific titles prompt
+│       │
+│       └── content/                   # Prompts for generating chapter content
+│           ├── openai.txt            # Default OpenAI content prompt
+│           ├── gpt-4.txt             # GPT-4 specific content prompt
+│           └── gpt-3.5-turbo.txt     # GPT-3.5 specific content prompt
+│
+└── ollama_adapter/
+    └── prompts/
+        ├── titles/                    # Prompts for generating chapter titles
+        │   ├── llama.txt             # Default Ollama titles prompt
+        │   ├── llama2.txt            # Llama2 specific titles prompt
+        │   └── mistral.txt           # Mistral specific titles prompt
+        │
+        └── content/                   # Prompts for generating chapter content
+            ├── llama.txt             # Default Ollama content prompt
+            ├── llama2.txt            # Llama2 specific content prompt
+            └── mistral.txt           # Mistral specific content prompt
+```
+
+### Prompt Types
+
+#### 1. Titles Prompt
 Located in `prompts/titles/`, this prompt generates the chapter titles and overview. It includes:
 - Topic context
 - Expertise level requirements
@@ -133,7 +166,16 @@ Located in `prompts/titles/`, this prompt generates the chapter titles and overv
 - Quantity of tips needed
 - Format requirements
 
-### Content Prompt
+Example template variables:
+```
+{{TOPIC}}          # The main topic
+{{QUANTITY}}       # Number of chapters to generate
+{{CATEGORY}}       # Content category (Guide, Tutorial, etc.)
+{{EXPERTISE_LEVEL}} # Target expertise level
+{{CONTEXT_NOTE}}   # Context based on expertise level
+```
+
+#### 2. Content Prompt
 Located in `prompts/content/`, this prompt generates the detailed content for each tip. It includes:
 - Topic context
 - Chapter title
@@ -143,7 +185,74 @@ Located in `prompts/content/`, this prompt generates the detailed content for ea
 - Category specifications
 - Format requirements
 
-You can customize these prompts by editing the corresponding files in the prompts directory.
+Example template variables:
+```
+{{TOPIC}}          # The main topic
+{{CHAPTER_TITLE}}  # Title of the current chapter
+{{CHAPTER_INDEX}}  # Current chapter number
+{{TOTAL_CHAPTERS}} # Total number of chapters
+{{CATEGORY}}       # Content category
+{{EXPERTISE_LEVEL}} # Target expertise level
+{{CONTEXT_NOTE}}   # Context based on expertise level
+```
+
+### Customizing Prompts
+
+1. **System Template Variables:**
+   The following variables are automatically injected by the system and should NOT be modified:
+   ```
+   {{TOPIC}}          # The main topic
+   {{QUANTITY}}       # Number of chapters to generate
+   {{CATEGORY}}       # Content category (Guide, Tutorial, etc.)
+   {{EXPERTISE_LEVEL}} # Target expertise level
+   {{CONTEXT_NOTE}}   # Context based on expertise level
+   {{CHAPTER_TITLE}}  # Title of the current chapter
+   {{CHAPTER_INDEX}}  # Current chapter number
+   {{TOTAL_CHAPTERS}} # Total number of chapters
+   ```
+   These variables will be automatically replaced with actual values during generation.
+
+2. **Model-Specific Prompts:**
+   - For OpenAI:
+     - Create a new prompt file named after your model (e.g., `gpt-4.txt`)
+     - The generator will automatically use the model-specific prompt if available
+     - Falls back to `openai.txt` if no model-specific prompt exists
+   - For Ollama:
+     - Create a new prompt file named after your model (e.g., `llama2.txt`)
+     - The generator will automatically use the model-specific prompt if available
+     - Falls back to `llama.txt` if no model-specific prompt exists
+
+3. **Prompt Optimization Tips:**
+   - Use clear, specific instructions
+   - Include examples of desired output format
+   - Specify the tone and style
+   - Define any constraints or requirements
+   - Add context about the target audience
+   - You can move the template variables around in your prompt, but don't modify their names
+
+4. **Example Prompt Structure:**
+```markdown
+You are an expert in {{TOPIC}} writing for {{EXPERTISE_LEVEL}} level readers.
+Generate {{QUANTITY}} {{CATEGORY}} sections about {{TOPIC}}.
+
+Context: {{CONTEXT_NOTE}}
+
+Requirements:
+- Each section should be self-contained
+- Include practical examples
+- Use clear, concise language
+- Follow markdown formatting
+
+Format each section as:
+## Section Title
+[Content with examples and explanations]
+```
+
+5. **Testing Prompts:**
+   - Use the `--check` flag to test prompt changes
+   - Start with a small quantity to verify output
+   - Adjust based on the generated content quality
+   - Verify that all template variables are being properly replaced
 
 ---
 
@@ -215,3 +324,186 @@ MIT
 ## Contributions
 
 Pull requests and suggestions welcome!
+
+## For Developers
+
+### Project Structure
+
+```
+ai-knowledge-generator/
+├── adapters/                    # Engine and format adapters
+│   ├── engines/                # AI engine implementations
+│   │   ├── openai_adapter/     # OpenAI implementation
+│   │   │   ├── prompts/       # Prompt templates
+│   │   │   └── __init__.py    # OpenAI adapter implementation
+│   │   └── ollama_adapter/     # Ollama implementation
+│   │       ├── prompts/       # Prompt templates
+│   │       └── __init__.py    # Ollama adapter implementation
+│   └── file_converter.py       # File format conversion
+├── core/                       # Core business logic
+│   ├── generator.py           # Main generation logic
+│   └── ports.py              # Interface definitions
+├── tests/                     # Test suite
+├── output/                    # Generated content
+├── main.py                    # CLI entry point
+├── requirements.txt           # Python dependencies
+└── style.css                  # Output styling
+```
+
+### Architecture
+
+The project follows a hexagonal architecture (ports and adapters) pattern:
+
+1. **Core Layer**
+   - Contains business logic and interfaces
+   - Defines ports (interfaces) that adapters must implement
+   - Independent of external frameworks and libraries
+
+2. **Adapter Layer**
+   - Implements the ports defined in the core
+   - Handles external services (AI engines, file conversion)
+   - Isolated from core business logic
+
+3. **CLI Layer**
+   - Handles user interaction
+   - Coordinates between core and adapters
+   - Manages configuration and output
+
+### Adding a New Engine
+
+To add a new AI engine, follow these steps:
+
+1. **Create Engine Adapter**
+   ```python
+   # adapters/engines/new_engine_adapter/__init__.py
+   from core.ports import CompletionEnginePort
+   
+   class NewEngineAdapter(CompletionEnginePort):
+       def __init__(self, model: str, **kwargs):
+           # Initialize your engine
+           pass
+           
+       def generate(self, topic: str, quantity: int) -> Tuple[List[Tuple[int, Dict[str, str], str]], str]:
+           # Implement generation logic
+           pass
+   ```
+
+2. **Create Prompt Structure**
+   ```
+   adapters/engines/new_engine_adapter/
+   ├── prompts/
+   │   ├── titles/
+   │   │   ├── default.txt     # Default titles prompt
+   │   │   └── model.txt       # Model-specific prompt
+   │   └── content/
+   │       ├── default.txt     # Default content prompt
+   │       └── model.txt       # Model-specific prompt
+   ```
+
+3. **Implement Required Methods**
+   - `generate()`: Main generation method
+   - `build_titles_prompt()`: Build titles prompt
+   - `build_detail_prompt()`: Build content prompt
+   - `count_tokens()`: Token counting (if applicable)
+
+4. **Add CLI Support**
+   ```python
+   # In main.py
+   parser.add_argument('--new-engine-option', help='New engine specific option')
+   ```
+
+### Engine Requirements
+
+To be compatible with the system, an engine must:
+
+1. **Implement the Interface**
+   - Must implement `CompletionEnginePort`
+   - Must handle all required template variables
+   - Must support streaming (optional but recommended)
+
+2. **Prompt Structure**
+   - Must support the standard prompt template variables
+   - Must have both titles and content prompts
+   - Should support model-specific prompts
+
+3. **Error Handling**
+   - Must implement proper error handling
+   - Must raise appropriate exceptions
+   - Should include retry logic for network issues
+
+4. **Configuration**
+   - Must support model selection
+   - Should support streaming configuration
+   - Should support custom parameters
+
+### Development Guidelines
+
+1. **Code Style**
+   - Follow PEP 8 guidelines
+   - Use type hints
+   - Document all public methods
+   - Include docstrings
+
+2. **Testing**
+   - Write unit tests for all new code
+   - Include integration tests
+   - Test error conditions
+   - Test prompt variations
+
+3. **Error Handling**
+   - Use custom exceptions
+   - Include meaningful error messages
+   - Implement proper logging
+   - Handle edge cases
+
+4. **Documentation**
+   - Update README with new features
+   - Document new configuration options
+   - Include usage examples
+   - Document prompt structure
+
+### Adding New Features
+
+1. **Core Features**
+   - Add to core layer first
+   - Define interfaces in ports.py
+   - Implement in adapters
+   - Update CLI interface
+
+2. **Output Formats**
+   - Add to file_converter.py
+   - Update style.css if needed
+   - Add format-specific metadata
+   - Update documentation
+
+3. **Prompt Templates**
+   - Add new template variables to core
+   - Update all engine adapters
+   - Update documentation
+   - Add examples
+
+### Best Practices
+
+1. **Engine Development**
+   - Keep engine-specific code isolated
+   - Use dependency injection
+   - Implement proper error handling
+   - Support configuration via environment variables
+
+2. **Prompt Engineering**
+   - Keep prompts modular
+   - Use clear instructions
+   - Include examples
+   - Document template variables
+
+3. **Testing**
+   - Test with different models
+   - Test with different prompts
+   - Test error conditions
+   - Test performance
+
+4. **Documentation**
+   - Keep README up to date
+   - Document all options
+   - Include examples
+   - Document prompt structure
