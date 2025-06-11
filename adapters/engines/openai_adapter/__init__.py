@@ -522,7 +522,6 @@ class OpenAIEngine(CompletionEnginePort):
         # Reset token usage at the start of generation
         self.tokens_used = {"input": 0, "output": 0}
         chapters, overview = self.generate_chapters(topic, quantity)
-        exit(0)
         details = []
         for i, chapter in enumerate(chapters, 1):
             detail = self.generate_content(
