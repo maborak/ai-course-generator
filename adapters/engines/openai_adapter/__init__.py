@@ -15,6 +15,7 @@ The engine supports:
 import os
 import re
 import logging
+import time
 from typing import Dict, List, Tuple
 from openai import OpenAI
 import tiktoken
@@ -247,7 +248,8 @@ class OpenAIEngine(CompletionEnginePort):
         return prompt
 
     def build_detail_prompt(
-        self, topic: str, chapter_title: str, chapter_index: int
+        self, topic: str, chapter_title: str, chapter_index: int,
+        total_chapters: int
     ) -> str:
         """Build the prompt for generating chapter content.
 
@@ -255,6 +257,7 @@ class OpenAIEngine(CompletionEnginePort):
             topic: The topic to generate content for.
             chapter_title: The title of the chapter to generate content for.
             chapter_index: The index of the current chapter.
+            total_chapters: The total number of chapters being generated.
 
         Returns:
             The formatted prompt string.
@@ -266,6 +269,7 @@ class OpenAIEngine(CompletionEnginePort):
         prompt = prompt.replace("{{EXPERTISE_LEVEL}}", self.expertise_level)
         prompt = prompt.replace("{{CONTEXT_NOTE}}", self.context_note)
         prompt = prompt.replace("{{CHAPTER_INDEX}}", str(chapter_index))
+        prompt = prompt.replace("{{TOTAL_CHAPTERS}}", str(total_chapters))
         return prompt
 
     def generate_chapters(
@@ -392,77 +396,85 @@ class OpenAIEngine(CompletionEnginePort):
         self, topic: str, chapter_title: str, chapter_index: int,
         total_chapters: int
     ) -> str:
-        """Generate detailed content for a specific chapter.
+        """Generate detailed content for a chapter.
 
         Args:
-            topic: The topic to generate content for.
-            chapter_title: The title of the chapter to generate content for.
-            chapter_index: The index of the current chapter being generated.
-            total_chapters: The total number of chapters being generated.
+            topic: The main topic.
+            chapter_title: The title of the chapter.
+            chapter_index: The index of the chapter.
+            total_chapters: Total number of chapters.
 
         Returns:
-            The generated chapter content as a string.
+            The generated content as a string.
 
-        Note:
-            The content is generated in markdown format and includes sections
-            like introduction, main content, and conclusion.
+        Raises:
+            OpenAIResponseError: If there's an error generating content.
         """
         prompt = self.build_detail_prompt(
-            topic, chapter_title, chapter_index
+            topic, chapter_title, chapter_index, total_chapters
         )
-        logger.debug(
-            "----Prompt BEGIN----\n"
-            "%s%s%s\n"
-            "----Prompt END----",
-            ORANGE,
-            prompt,
-            RESET
+        max_retries = 3
+        retry_delay = 2  # seconds
+
+        for attempt in range(max_retries):
+            try:
+                if self.stream:
+                    response = self.client.chat.completions.create(
+                        model=self.model,
+                        messages=[{"role": "user", "content": prompt}],
+                        temperature=self.temperature,
+                        max_tokens=self.max_tokens,
+                        stream=True
+                    )
+                    
+                    collected_chunks = []
+                    try:
+                        for chunk in response:
+                            if chunk.choices[0].delta.content is not None:
+                                collected_chunks.append(chunk.choices[0].delta.content)
+                                # Count tokens for streaming response
+                                self.tokens_used["output"] += self.count_tokens(
+                                    chunk.choices[0].delta.content
+                                )
+                    except Exception as stream_error:
+                        if attempt < max_retries - 1:
+                            logger.warning(
+                                "Streaming error occurred, retrying... (Attempt %d/%d)",
+                                attempt + 1,
+                                max_retries
+                            )
+                            time.sleep(retry_delay)
+                            continue
+                        raise OpenAIResponseError(
+                            f"Failed to stream response. Error: {str(stream_error)}"
+                        ) from stream_error
+
+                    return "".join(collected_chunks)
+                else:
+                    response = self.client.chat.completions.create(
+                        model=self.model,
+                        messages=[{"role": "user", "content": prompt}],
+                        temperature=self.temperature,
+                        max_tokens=self.max_tokens
+                    )
+                    return response.choices[0].message.content
+
+            except Exception as exc:
+                if attempt < max_retries - 1:
+                    logger.warning(
+                        "Error occurred, retrying... (Attempt %d/%d)",
+                        attempt + 1,
+                        max_retries
+                    )
+                    time.sleep(retry_delay)
+                    continue
+                raise OpenAIResponseError(
+                    f"Failed to generate chapter content. Error: {str(exc)}"
+                ) from exc
+
+        raise OpenAIResponseError(
+            f"Failed to generate chapter content after {max_retries} attempts."
         )
-        messages = [{"role": "user", "content": prompt}]
-        content = ""
-        print(
-            f"+-----\n| Processing Chapter #{chapter_index} of "
-            f"{total_chapters} (Attempt 1)\n+-----"
-        )
-
-        # Count input tokens only if streaming
-        if self.stream:
-            for message in messages:
-                self.tokens_used["input"] += self.count_tokens(message["content"])
-
-        try:
-            response = self.client.chat.completions.create(
-                model=self.model,
-                messages=messages,
-                temperature=self.temperature,
-                max_tokens=self.max_tokens,
-                stream=self.stream
-            )
-
-            if self.stream:
-                for chunk in response:
-                    if hasattr(chunk.choices[0].delta, "content"):
-                        piece = chunk.choices[0].delta.content
-                        if piece:
-                            print(f"{GRAY}{piece}{RESET}", end="", flush=True)
-                            content += piece
-                            # Count output tokens in streaming mode
-                            self.tokens_used["output"] += self.count_tokens(piece)
-            else:
-                content = response.choices[0].message.content
-                print(f"{GRAY}{content}{RESET}", end="", flush=True)
-                # Use native token counts when not streaming
-                if hasattr(response, "usage"):
-                    self.tokens_used["input"] += response.usage.prompt_tokens
-                    self.tokens_used["output"] += response.usage.completion_tokens
-
-        except Exception as e:
-            raise OpenAIResponseError(
-                f"Failed to generate chapter content. Error: {str(e)}"
-            ) from e
-
-        print("\n[End of OpenAI Streaming Output]")
-        return content
 
     def calculate_costs(self) -> Dict[str, float]:
         """Calculate the total cost of API usage.
@@ -510,6 +522,7 @@ class OpenAIEngine(CompletionEnginePort):
         # Reset token usage at the start of generation
         self.tokens_used = {"input": 0, "output": 0}
         chapters, overview = self.generate_chapters(topic, quantity)
+        exit(0)
         details = []
         for i, chapter in enumerate(chapters, 1):
             detail = self.generate_content(

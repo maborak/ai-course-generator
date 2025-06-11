@@ -1,28 +1,39 @@
-# ai-tips-generator
-Using OpenAI generate PDF or Markdown files with tips and tricks
+# AI Knowledge Generator
 
-# AI Tips Generator
-
-Generate expert-level tips on any technical topic using OpenAI’s GPT API or Ollama, and automatically export the output in **Markdown, HTML, EPUB, and PDF** formats—with custom styling and syntax highlighting. Supports multi-engine selection for flexible AI backend usage.
+Generate comprehensive educational content on any technical topic using OpenAI's GPT API or Ollama. Create professional ebooks, guides, and tutorials with **Markdown, HTML, EPUB, and PDF** formats—complete with custom styling and syntax highlighting. Perfect for creating educational materials, technical documentation, and learning resources.
 
 ---
 
 ## Features
 
-- **Flexible Topic Selection:** Choose your topic, category, expertise level, and number of tips from the command line.
-- **Multi-Engine Support:** Use OpenAI GPT-4.1 or Ollama for tip generation.
-- **OpenAI GPT-4.1 Integration:** Automatically generates concise, high-quality tips.
-- **Ollama Integration:** Supports local or remote Ollama servers with customizable models.
-- **Automatic File Conversion:** 
-  - Markdown (`.md`)
-  - HTML (`.html`) with custom CSS
-  - EPUB (`.epub`) with embedded metadata
-  - PDF (`.pdf`) via [Pandoc](https://pandoc.org/) and [WeasyPrint](https://weasyprint.org/)
+- **Versatile Content Generation:** Create various types of educational content:
+  - Tips and Tricks
+  - How-to Guides
+  - Best Practices
+  - Tutorials
+  - Technical Documentation
+  - Learning Resources
+- **Flexible Topic Selection:** Choose your topic, category, expertise level, and content quantity from the command line.
+- **Multi-Engine Support:** Use OpenAI GPT-4/3.5 or Ollama for content generation.
+- **OpenAI Integration:** 
+  - Support for multiple models (GPT-4, GPT-3.5-turbo)
+  - Streaming responses with `--openai-stream`
+  - Automatic token counting and cost estimation
+- **Ollama Integration:** 
+  - Supports local or remote Ollama servers
+  - Customizable models (llama2, mistral, etc.)
+  - Streaming support with `--ollama-stream`
+  - Optional thinking process with `--ollama-no-think`
+- **Professional Output Formats:** 
+  - Markdown (`.md`) for easy editing and version control
+  - HTML (`.html`) with custom CSS for web viewing
+  - EPUB (`.epub`) with embedded metadata for e-readers
+  - PDF (`.pdf`) for professional printing and sharing
 - **Idempotent Output:** Will not overwrite existing files unless you specify `--force`.
 - **Configurable Output Filename:** All output files are named using your topic, category, expertise level, engine, and model.
-- **Ollama Streaming Output:** Enable live streaming of Ollama LLM responses for real-time progress with `--ollama-stream`.
 - **Embedded Metadata:** EPUB and other formats include metadata such as title, author, category, expertise level, model, and more.
 - **Overview Section:** Each generated document includes an AI-written overview/introduction tailored to the topic and expertise level.
+- **Monitoring Tools:** Use `--check` to verify all output formats can be generated correctly.
 
 ---
 
@@ -43,20 +54,47 @@ To install Python dependencies, simply run:
 pip install -r requirements.txt
 ```
 
-You may also need system packages for WeasyPrint, such as `libpango`, `cairo`, and `gdk-pixbuf` (see WeasyPrint’s docs).
+You may also need system packages for WeasyPrint, such as `libpango`, `cairo`, and `gdk-pixbuf` (see WeasyPrint's docs).
 
 ---
 
 ## Usage
 
-Basic usage (default topic: `linux`, default quantity: `5`, default engine: `openai`):
+### Basic Usage
 
+Generate a comprehensive Python programming guide using OpenAI GPT-4:
 ```sh
-python tool.py
+python main.py --topic "Python Programming" --category "Guide" --expertise-level "Intermediate" --engine openai --openai-model gpt-4
 ```
 
-#### Command Line Options
+Create a Docker best practices tutorial with streaming:
+```sh
+python main.py --topic "Docker Best Practices" --category "Tutorial" --quantity 3 --engine openai --openai-model gpt-3.5-turbo --openai-stream
+```
 
+Generate a Kubernetes deployment guide using Ollama:
+```sh
+python main.py --topic "Kubernetes Deployment" --category "How-to" --quantity 4 --engine ollama --ollama-model llama2 --ollama-host http://localhost:11434
+```
+
+Create a Git workflow tutorial with Ollama:
+```sh
+python main.py --topic "Git Workflows" --category "Tutorial" --quantity 2 --engine ollama --ollama-model mistral --ollama-stream --ollama-no-think
+```
+
+Generate a Linux system administration guide:
+```sh
+python main.py --topic "Linux Administration" --category "Guide" --expertise-level "Advanced" --engine openai --openai-model gpt-4
+```
+
+Check if all output formats can be generated (monitoring):
+```sh
+python main.py --check
+```
+
+### Command Line Options
+
+#### Common Arguments
 | Option              | Description                                                             | Default   |
 |---------------------|-------------------------------------------------------------------------|-----------|
 | `--topic`           | Topic for tips                                                          | `linux`   |
@@ -65,34 +103,47 @@ python tool.py
 | `--expertise-level` | Expertise level for the tips                                            | `Novice`  |
 | `--force`           | Overwrite existing output files                                         | *off*     |
 | `--engine`          | AI engine to use (`openai` or `ollama`)                                 | `openai`  |
-| `--ollama-host`     | Host URL for Ollama server (used if engine is `ollama`)                 | `http://localhost:11434` |
-| `--ollama-model`    | Ollama model name to use (used if engine is `ollama`)                   | `llama3.2`|
-| `--ollama-stream`   | Enable streaming progress for Ollama engine (default: off)              | *off*     |
+| `--check`           | Verify all output formats can be generated                              | *off*     |
 
-#### Examples
+#### OpenAI Arguments
+| Option              | Description                                                             | Default   |
+|---------------------|-------------------------------------------------------------------------|-----------|
+| `--openai-model`    | OpenAI model to use (e.g., gpt-4, gpt-3.5-turbo)                        | `gpt-4`   |
+| `--openai-stream`   | Enable streaming for OpenAI responses                                   | *off*     |
 
-Generate 10 Bash scripting tips, overwriting files if they exist, using OpenAI:
+#### Ollama Arguments
+| Option              | Description                                                             | Default   |
+|---------------------|-------------------------------------------------------------------------|-----------|
+| `--ollama-host`     | Host URL for Ollama server                                              | `None`    |
+| `--ollama-model`    | Ollama model name to use                                                | `llama3.2`|
+| `--ollama-stream`   | Enable streaming for Ollama responses                                   | *off*     |
+| `--ollama-no-think` | Disable thinking process in Ollama                                      | *off*     |
 
-```sh
-python tool.py --topic="Bash scripting" --quantity=10 --force
-```
+---
 
-Generate 7 tips on Docker using the Ollama engine with the default local host:
+## Prompt Structure
 
-```sh
-python tool.py --topic="Docker" --quantity=7 --engine=ollama
-```
+The generator uses two types of prompts, stored in the `adapters/engines/openai_adapter/prompts/` directory:
 
-Generate 5 Kubernetes tips using a remote Ollama server and a custom model:
+### Titles Prompt
+Located in `prompts/titles/`, this prompt generates the chapter titles and overview. It includes:
+- Topic context
+- Expertise level requirements
+- Category specifications
+- Quantity of tips needed
+- Format requirements
 
-```sh
-python tool.py --topic="Kubernetes" --quantity=5 --engine=ollama --ollama-host="http://remote-ollama-server:11434" --ollama-model="custom-k8s-model"
-```
+### Content Prompt
+Located in `prompts/content/`, this prompt generates the detailed content for each tip. It includes:
+- Topic context
+- Chapter title
+- Chapter index
+- Total chapters
+- Expertise level requirements
+- Category specifications
+- Format requirements
 
-Generate 10 tips on Python with live streaming from Ollama:
-```sh
-python tool.py --topic="Python" --quantity=10 --engine=ollama --ollama-stream
-```
+You can customize these prompts by editing the corresponding files in the prompts directory.
 
 ---
 
@@ -114,7 +165,7 @@ After generation, **four files** will be produced, all with your topic, category
 2. **Generation:**  
    Sends the prompt to the selected AI engine (`openai` or `ollama`).  
    For Ollama, the model and host can be specified to customize the request.  
-   If streaming is enabled with Ollama, the response is printed live as the model generates text.
+   If streaming is enabled, the response is printed live as the model generates text.
 3. **Markdown Output:**  
    Saves the generated content as a Markdown file, including a metadata section and an AI-generated overview.
 4. **Conversion:**  
@@ -137,6 +188,12 @@ After generation, **four files** will be produced, all with your topic, category
 - **Ollama errors:**  
   Ensure the Ollama server is running and accessible at the specified host URL.  
   Verify the Ollama Python package is installed.
+- **Connection errors:**  
+  If you encounter streaming connection errors, try:
+  - Running without streaming (`--openai-stream` or `--ollama-stream`)
+  - Checking your network stability
+  - Using a different model
+  - Reducing the quantity of tips
 
 ---
 
@@ -144,6 +201,8 @@ After generation, **four files** will be produced, all with your topic, category
 
 - **Style:**  
   Edit or replace `style.css` to change the appearance of the HTML/EPUB/PDF output.
+- **Prompts:**  
+  Customize the generation by editing the prompt templates in `adapters/engines/openai_adapter/prompts/`.
 
 ---
 

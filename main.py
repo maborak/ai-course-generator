@@ -59,38 +59,71 @@ def main():
     logger = logging.getLogger(__name__)
 
     parser = argparse.ArgumentParser(
-        description="AI Tips Generator (Hexagonal Architecture)"
+        description="AI Tips Generator (Hexagonal Architecture)",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  # Generate 5 Linux tips using OpenAI GPT-4
+  python main.py --topic linux --engine openai --openai-model gpt-4
+
+  # Generate 3 Python tips using OpenAI GPT-3.5 with streaming
+  python main.py --topic python --quantity 3 --engine openai --openai-model gpt-3.5-turbo --openai-stream
+
+  # Generate 4 Docker tips using Ollama with custom host
+  python main.py --topic docker --quantity 4 --engine ollama --ollama-model llama2 --ollama-host http://localhost:11434
+
+  # Generate 2 Git tips using Ollama with streaming and no thinking process
+  python main.py --topic git --quantity 2 --engine ollama --ollama-model mistral --ollama-stream --ollama-no-think
+
+  # Check if all output formats can be generated (monitoring)
+  python main.py --check
+
+Monitoring:
+  The --check flag helps verify that all output formats (markdown, HTML, PDF, EPUB)
+  can be generated correctly. It creates a test file with dummy content and attempts
+  to convert it to all supported formats. This is useful for:
+  - Verifying installation of required dependencies
+  - Testing file conversion capabilities
+  - Checking write permissions in the output directory
+"""
     )
-    parser.add_argument('--topic', default='linux')
-    parser.add_argument('--quantity', type=int, default=5)
-    parser.add_argument(
-        '--engine',
-        default='openai',
-        choices=['openai', 'ollama']
-    )
-    parser.add_argument('--force', action='store_true')
-    parser.add_argument('--ollama-host', default=None)
-    parser.add_argument('--ollama-model', default='llama3.2')
-    parser.add_argument('--ollama-stream', action='store_true')
-    parser.add_argument('--ollama-no-think', action='store_true', help='Disable thinking process in Ollama')
-    parser.add_argument('--openai-stream', action='store_true', help='Enable streaming for OpenAI responses')
-    parser.add_argument(
+    
+    # Common arguments
+    common_group = parser.add_argument_group('Common Arguments')
+    common_group.add_argument('--topic', default='linux', help='Topic to generate tips for')
+    common_group.add_argument('--quantity', type=int, default=5, help='Number of tips to generate')
+    common_group.add_argument('--engine', default='openai', choices=['openai', 'ollama'], help='AI engine to use')
+    common_group.add_argument('--force', action='store_true', help='Force overwrite existing files')
+    common_group.add_argument('--category', default='Tip', help='Category for the tips')
+    common_group.add_argument('--expertise-level', default='Novice', help='Expertise level for the tips')
+    common_group.add_argument(
         '--check',
         action='store_true',
         help='Check if output files can be generated with dummy content'
     )
-    parser.add_argument(
-        '--category',
-        default='Tip',
-        help='Category for the tips (used as CATEGORY)'
-    )
-    parser.add_argument(
-        '--expertise-level',
-        default='Novice',
-        help='Expertise level for the tips'
-    )
+
+    # OpenAI specific arguments
+    openai_group = parser.add_argument_group('OpenAI Arguments')
+    openai_group.add_argument('--openai-model', default='gpt-4', help='OpenAI model to use (e.g., gpt-4, gpt-3.5-turbo)')
+    openai_group.add_argument('--openai-stream', action='store_true', help='Enable streaming for OpenAI responses')
+
+    # Ollama specific arguments
+    ollama_group = parser.add_argument_group('Ollama Arguments')
+    ollama_group.add_argument('--ollama-host', default=None, help='Ollama host address')
+    ollama_group.add_argument('--ollama-model', default='llama3.2', help='Ollama model to use')
+    ollama_group.add_argument('--ollama-stream', action='store_true', help='Enable streaming for Ollama responses')
+    ollama_group.add_argument('--ollama-no-think', action='store_true', help='Disable thinking process in Ollama')
+
     args = parser.parse_args()
     logger.debug("Arguments: %s", args)
+
+    # Validate engine-specific arguments
+    if args.engine == 'openai':
+        if args.ollama_host or args.ollama_model or args.ollama_stream or args.ollama_no_think:
+            parser.error("Ollama-specific arguments cannot be used with OpenAI engine")
+    elif args.engine == 'ollama':
+        if args.openai_model or args.openai_stream:
+            parser.error("OpenAI-specific arguments cannot be used with Ollama engine")
 
     output_dir = "output"
     os.makedirs(output_dir, exist_ok=True)
@@ -162,11 +195,12 @@ More dummy content.
         f"{sanitize_filename(args.category)}_"
         f"{sanitize_filename(args.expertise_level)}_"
         f"{args.engine}_"
-        f"{sanitize_filename(args.ollama_model if args.engine == 'ollama' else 'gpt-4.1')}_tip.md"
+        f"{sanitize_filename(args.ollama_model if args.engine == 'ollama' else args.openai_model)}_tip.md"
     )
 
     if args.engine == 'openai':
         engine = OpenAIEngine(
+            model=args.openai_model,
             stream=args.openai_stream,
             category=args.category,
             expertise_level=args.expertise_level
