@@ -477,7 +477,6 @@ class OpenAIEngine(CompletionEnginePort):
         """
         input_tokens = self.tokens_used.get("input", 0)
         output_tokens = self.tokens_used.get("output", 0)
-        
         input_cost = (input_tokens / 1000) * INPUT_COST_PER_1K
         output_cost = (output_tokens / 1000) * OUTPUT_COST_PER_1K
         total_cost = input_cost + output_cost
@@ -510,7 +509,6 @@ class OpenAIEngine(CompletionEnginePort):
         """
         # Reset token usage at the start of generation
         self.tokens_used = {"input": 0, "output": 0}
-        
         chapters, overview = self.generate_chapters(topic, quantity)
         details = []
         for i, chapter in enumerate(chapters, 1):

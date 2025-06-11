@@ -1,13 +1,39 @@
+#!/usr/bin/env python3
+# pylint: disable=invalid-name,too-many-arguments,too-many-locals
+# pylint: disable=too-many-branches,too-many-statements,line-too-long
+"""
+AI Tips Generator - Main Module
+
+This module provides the main entry point for the AI Tips Generator application.
+It handles command-line arguments, initializes the appropriate AI engine,
+and coordinates the generation of tips in various formats.
+
+Example:
+    python main.py --topic linux --quantity 5 --engine openai
+"""
+
 import argparse
+import logging
+import os
+import re
+import tempfile
+import subprocess
 from adapters.engines.openai_adapter import OpenAIEngine
 from adapters.engines.ollama_adapter import OllamaEngine
 from adapters.file_converter import FileConverter
 from core.generator import AITipsGenerator
-import tempfile
 
 
 def sanitize_filename(s):
-    import re
+    """
+    Sanitize a string to be used as a filename.
+    
+    Args:
+        s (str): The string to sanitize
+        
+    Returns:
+        str: A sanitized string safe for use as a filename
+    """
     s = s.strip().lower()
     s = re.sub(r'[^\w\s-]', '', s)
     s = re.sub(r'[\s-]+', '_', s)
@@ -15,9 +41,16 @@ def sanitize_filename(s):
 
 
 def main():
-    import os
-    import logging
-
+    """
+    Main entry point for the AI Tips Generator application.
+    
+    This function:
+    1. Sets up logging
+    2. Parses command line arguments
+    3. Initializes the appropriate AI engine
+    4. Generates tips in the requested format
+    5. Handles the --check mode for testing output generation
+    """
     logging.basicConfig(
         level=logging.DEBUG,
         format="%(asctime)s [%(levelname)s] %(message)s",
@@ -57,7 +90,7 @@ def main():
         help='Expertise level for the tips'
     )
     args = parser.parse_args()
-    logger.debug(f"Arguments: {args}")
+    logger.debug("Arguments: %s", args)
 
     output_dir = "output"
     os.makedirs(output_dir, exist_ok=True)
@@ -83,13 +116,14 @@ Dummy tip content.
 More dummy content.
 '''
             tmp_md.write(dummy_content.encode("utf-8"))
-        logger.info(f"Dummy markdown saved as {output_md}")
+        logger.info("Dummy markdown saved as %s", output_md)
 
         converter = FileConverter()
         try:
             converter.convert(output_md)
-        except Exception as e:
-            print(f"{RED}FAILED{RESET} to convert files: {e}")
+        except (OSError, subprocess.SubprocessError) as exc:
+            print(f"{RED}FAILED{RESET} to convert files: {exc}")
+            logger.error("FAILED to convert files: %s", exc)
 
         base = os.path.splitext(output_md)[0]
         results = {}
@@ -159,7 +193,4 @@ More dummy content.
 
 
 if __name__ == "__main__":
-    import logging
-    logger = logging.getLogger(__name__)
-    logger.debug("Starting main execution")
     main()

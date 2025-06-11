@@ -297,7 +297,7 @@ class OllamaEngine(CompletionEnginePort):
                 color = RED if in_think_block else GRAY
                 print(f"{color}{piece}{RESET}", end="", flush=True)
                 content += piece
-        except Exception as e:
+        except ResponseError as e:
             if "does not support thinking" in str(e) and self.think:
                 logger.warning(
                     "Model %s does not support thinking feature. "
@@ -381,7 +381,7 @@ class OllamaEngine(CompletionEnginePort):
         return chapters, overview
 
     def generate_content(
-        self, topic: str, chapter_title: str, chapter_index: int, 
+        self, topic: str, chapter_title: str, chapter_index: int,
         total_chapters: int
     ) -> str:
         """Generate detailed content for a specific chapter.
@@ -438,7 +438,7 @@ class OllamaEngine(CompletionEnginePort):
                 color = RED if in_think_block else GRAY
                 print(f"{color}{piece}{RESET}", end="", flush=True)
                 content += piece
-        except Exception as e:
+        except ResponseError as e:
             if "does not support thinking" in str(e) and self.think:
                 logger.warning(
                     "Model %s does not support thinking feature. "
