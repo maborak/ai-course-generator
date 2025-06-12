@@ -133,21 +133,26 @@ class OpenAIEngine(CompletionEnginePort):
 
         self.expertise_level = normalized_level
         self.context_note = self.level_descriptions[self.expertise_level]
-
         try:
             self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
             # Initialize tokenizer only if streaming is enabled
             if self.stream:
-                self.encoding = tiktoken.encoding_for_model(model)
+                try:
+                    self.encoding = tiktoken.encoding_for_model(model)
+                except KeyError:
+                    logger.warning(
+                        "Could not find specific tokenizer for model %s, "
+                        "falling back to cl100k_base encoding",
+                        model
+                    )
+                    self.encoding = tiktoken.get_encoding("cl100k_base")
         except Exception as exc:
             raise OpenAIEngineError(
                 f"Failed to initialize OpenAI client. "
-                f"Please ensure OPENAI_API_KEY is set. "
                 f"Error: {str(exc)}"
             ) from exc
 
         here = os.path.dirname(__file__)
-
         # Load prompt templates based on model
         base_model = self.model.split(":")[0].split(".")[0].lower()
         # Load titles prompt template
@@ -413,8 +418,21 @@ class OpenAIEngine(CompletionEnginePort):
         prompt = self.build_detail_prompt(
             topic, chapter_title, chapter_index, total_chapters
         )
+        logger.debug(
+            "----Prompt BEGIN----\n"
+            "%s%s%s\n"
+            "----Prompt END----",
+            ORANGE,
+            prompt,
+            RESET
+        )
         max_retries = 3
         retry_delay = 2  # seconds
+
+        print(
+            f"+-----\n| Processing Chapter #{chapter_index} of "
+            f"{total_chapters} (Attempt 1)\n+-----"
+        )
 
         for attempt in range(max_retries):
             try:
@@ -426,16 +444,15 @@ class OpenAIEngine(CompletionEnginePort):
                         max_tokens=self.max_tokens,
                         stream=True
                     )
-                    
                     collected_chunks = []
                     try:
                         for chunk in response:
                             if chunk.choices[0].delta.content is not None:
-                                collected_chunks.append(chunk.choices[0].delta.content)
+                                piece = chunk.choices[0].delta.content
+                                print(f"{GRAY}{piece}{RESET}", end="", flush=True)
+                                collected_chunks.append(piece)
                                 # Count tokens for streaming response
-                                self.tokens_used["output"] += self.count_tokens(
-                                    chunk.choices[0].delta.content
-                                )
+                                self.tokens_used["output"] += self.count_tokens(piece)
                     except Exception as stream_error:
                         if attempt < max_retries - 1:
                             logger.warning(
@@ -449,6 +466,7 @@ class OpenAIEngine(CompletionEnginePort):
                             f"Failed to stream response. Error: {str(stream_error)}"
                         ) from stream_error
 
+                    print("\n[End of OpenAI Streaming Output]")
                     return "".join(collected_chunks)
                 else:
                     response = self.client.chat.completions.create(
@@ -457,7 +475,9 @@ class OpenAIEngine(CompletionEnginePort):
                         temperature=self.temperature,
                         max_tokens=self.max_tokens
                     )
-                    return response.choices[0].message.content
+                    content = response.choices[0].message.content
+                    print(f"{GRAY}{content}{RESET}")
+                    return content
 
             except Exception as exc:
                 if attempt < max_retries - 1:

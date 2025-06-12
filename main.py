@@ -41,6 +41,25 @@ def sanitize_filename(s):
     return s
 
 
+def str2bool(v):
+    """Convert string to boolean value.
+    
+    Args:
+        v: String value to convert
+        
+    Returns:
+        bool: True for 'true', '1', 'yes', 'y', 't', 'on'
+              False for 'false', '0', 'no', 'n', 'f', 'off'
+    """
+    if isinstance(v, bool):
+        return v
+    if v.lower() in ('yes', 'true', 't', 'y', '1', 'on'):
+        return True
+    if v.lower() in ('no', 'false', 'f', 'n', '0', 'off'):
+        return False
+    raise argparse.ArgumentTypeError('Boolean value expected.')
+
+
 def main():
     """
     Main entry point for the AI Tips Generator application.
@@ -106,7 +125,7 @@ Monitoring:
     # OpenAI specific arguments
     openai_group = parser.add_argument_group('OpenAI Arguments')
     openai_group.add_argument('--openai-model', default='gpt-4', help='OpenAI model to use (e.g., gpt-4, gpt-3.5-turbo)')
-    openai_group.add_argument('--openai-stream', action='store_true', help='Enable streaming for OpenAI responses')
+    openai_group.add_argument('--openai-stream', type=str2bool, default=True, help='Enable streaming for OpenAI responses (true/false, yes/no, 1/0)')
 
     # Ollama specific arguments
     ollama_group = parser.add_argument_group('Ollama Arguments')
