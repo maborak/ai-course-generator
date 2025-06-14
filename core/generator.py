@@ -65,7 +65,9 @@ class AITipsGenerator:
         """
         start_time = time.time()
         logger.info("Generating %d tips for topic '%s'", quantity, topic)
-        details, overview = self.engine.generate(topic, quantity)
+        # Set the quantity on the engine
+        self.engine.quantity = quantity
+        details, overview = self.engine.generate(topic)
         elapsed = time.time() - start_time
 
         # Add metadata to the markdown

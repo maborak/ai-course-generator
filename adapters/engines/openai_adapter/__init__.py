@@ -121,6 +121,7 @@ class OpenAIEngine(CompletionEnginePort):
         self.max_tokens = max_tokens
         self.stream = stream
         self.category = category
+        self.quantity = 5  # Default quantity
 
         # Normalize expertise_level to title case for matching
         normalized_level = expertise_level.strip().title()
@@ -236,19 +237,18 @@ class OpenAIEngine(CompletionEnginePort):
             return 0  # Don't count tokens manually when not streaming
         return len(self.encoding.encode(text))
 
-    def build_titles_prompt(self, topic: str, quantity: int) -> str:
+    def build_titles_prompt(self, topic: str) -> str:
         """Build the prompt for generating chapter titles.
 
         Args:
             topic: The topic to generate chapters for.
-            quantity: The number of chapters to generate.
 
         Returns:
             The formatted prompt string.
         """
         prompt = self._prompt_titles_template
         prompt = prompt.replace("{{TOPIC}}", topic)
-        prompt = prompt.replace("{{QUANTITY}}", str(quantity))
+        prompt = prompt.replace("{{QUANTITY}}", str(self.quantity))
         prompt = prompt.replace("{{CATEGORY}}", self.category)
         prompt = prompt.replace("{{EXPERTISE_LEVEL}}", self.expertise_level)
         prompt = prompt.replace("{{CONTEXT_NOTE}}", self.context_note)
@@ -256,7 +256,7 @@ class OpenAIEngine(CompletionEnginePort):
 
     def build_detail_prompt(
         self, topic: str, chapter_title: str, chapter_index: int,
-        total_chapters: int, chapter_short_title: str, quantity: int
+        total_chapters: int, chapter_short_title: str
     ) -> str:
         """Build the prompt for generating chapter content.
 
@@ -266,7 +266,6 @@ class OpenAIEngine(CompletionEnginePort):
             chapter_index: The index of the current chapter.
             total_chapters: The total number of chapters being generated.
             chapter_short_title: The short version of the chapter title.
-            quantity: The total number of chapters requested.
 
         Returns:
             The formatted prompt string.
@@ -279,17 +278,16 @@ class OpenAIEngine(CompletionEnginePort):
         prompt = prompt.replace("{{EXPERTISE_LEVEL}}", self.expertise_level)
         prompt = prompt.replace("{{CONTEXT_NOTE}}", self.context_note)
         prompt = prompt.replace("{{CHAPTER_INDEX}}", str(chapter_index))
-        prompt = prompt.replace("{{QUANTITY}}", str(quantity))
+        prompt = prompt.replace("{{QUANTITY}}", str(self.quantity))
         return prompt
 
     def generate_chapters(
-        self, topic: str, quantity: int
+        self, topic: str
     ) -> Tuple[List[Dict[str, str]], str]:
         """Generate a list of chapter titles for the given topic.
 
         Args:
             topic: The topic to generate chapters for.
-            quantity: The number of chapters to generate.
 
         Returns:
             A tuple containing:
@@ -300,7 +298,7 @@ class OpenAIEngine(CompletionEnginePort):
             The output is parsed from the model's response between
             <TITLE_BLOCK> and </TITLE_BLOCK> tags.
         """
-        prompt = self.build_titles_prompt(topic, quantity)
+        prompt = self.build_titles_prompt(topic)
         logger.debug(
             "----Prompt BEGIN----\n"
             "%s%s%s\n"
@@ -407,7 +405,7 @@ class OpenAIEngine(CompletionEnginePort):
 
     def generate_content(
         self, topic: str, chapter_title: str, chapter_index: int,
-        total_chapters: int, chapter_short_title: str, quantity: int
+        total_chapters: int, chapter_short_title: str
     ) -> str:
         """Generate detailed content for a chapter.
 
@@ -417,7 +415,6 @@ class OpenAIEngine(CompletionEnginePort):
             chapter_index: The index of the chapter.
             total_chapters: Total number of chapters.
             chapter_short_title: The short version of the chapter title.
-            quantity: The total number of chapters requested.
 
         Returns:
             The generated content as a string.
@@ -426,7 +423,7 @@ class OpenAIEngine(CompletionEnginePort):
             OpenAIResponseError: If there's an error generating content.
         """
         prompt = self.build_detail_prompt(
-            topic, chapter_title, chapter_index, total_chapters, chapter_short_title, quantity
+            topic, chapter_title, chapter_index, total_chapters, chapter_short_title
         )
         logger.debug(
             "----Prompt BEGIN----\n"
@@ -532,13 +529,12 @@ class OpenAIEngine(CompletionEnginePort):
         }
 
     def generate(
-        self, topic: str, quantity: int
+        self, topic: str
     ) -> Tuple[List[Tuple[int, Dict[str, str], str]], str]:
         """Generate a complete set of chapters with their content.
 
         Args:
             topic: The topic to generate chapters for.
-            quantity: The number of chapters to generate.
 
         Returns:
             A tuple containing:
@@ -551,7 +547,7 @@ class OpenAIEngine(CompletionEnginePort):
         """
         # Reset token usage at the start of generation
         self.tokens_used = {"input": 0, "output": 0}
-        chapters, overview = self.generate_chapters(topic, quantity)
+        chapters, overview = self.generate_chapters(topic)
         details = []
         for i, chapter in enumerate(chapters, 1):
             detail = self.generate_content(
@@ -559,8 +555,7 @@ class OpenAIEngine(CompletionEnginePort):
                 chapter["full"],
                 i,
                 len(chapters),
-                chapter["short"],
-                quantity
+                chapter["short"]
             )
             details.append((i, chapter, detail))
 

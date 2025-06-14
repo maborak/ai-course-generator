@@ -1,13 +1,18 @@
 Generate a {{QUANTITY}}-day {{TOPIC}} learning table of contents for a(n) {{EXPERTISE_LEVEL}} audience.
 
-Output only one line per day, formatted as:
+Output only one line per day, in order, formatted as:
 Day 1: [Full, descriptive lesson title] | [Short title]
 Day 2: [Full, descriptive lesson title] | [Short title]
 ...
 Day {{QUANTITY}}: [Full, descriptive lesson title] | [Short title]
+
+You must output **exactly one unique entry for each day number**, with no repeats. **Do not output multiple entries for the same day number.**  
+For example, if you are generating a 2-day course, your output must have only two lines inside <TITLE_BLOCK>: Day 1: ... and Day 2: ... Nothing else.
 
 Do not include explanations, bullet points, lists, introductions, or any extra text—just the {{QUANTITY}} lines as shown above.
 
 Strictly follow the format. Output the content only between the tags <TITLE_BLOCK></TITLE_BLOCK> and nothing outside these tags.
 
 At the end, provide a concise overview (2–4 sentences) about what the learner will achieve in this {{QUANTITY}}-day {{TOPIC}} course for a(n) {{EXPERTISE_LEVEL}} audience. Output this overview only within the tags <TITLE_OVERVIEW></TITLE_OVERVIEW> and nothing outside these tags.
+
+If you output more than one entry per day, or skip a day number, your answer is incorrect.
