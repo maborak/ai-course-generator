@@ -74,6 +74,15 @@ class AITipsGenerator:
         model = getattr(self.engine, "model", "Unknown")
         tokens_used = getattr(self.engine, "tokens_used", "Unknown")
         now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        # Calculate reading time from the content
+        content = ""
+        if overview:
+            content += overview + "\n"
+        for _, _, detail in details:
+            content += detail + "\n"
+        reading_time = self.calculate_reading_time(content)
+
         header = (
             f"# {topic} ({category})\n\n"
             f"---\n\n"
@@ -83,7 +92,8 @@ class AITipsGenerator:
             f"- **Model Used:** {model}\n"
             f"- **Total Tokens Used:** {tokens_used}\n"
             f"- **Generated on:** {now_str}\n"
-            f"- **Generated in:** {self.format_elapsed(elapsed)}\n\n"
+            f"- **Generated in:** {self.format_elapsed(elapsed)}\n"
+            f"- **Reading Time:** {reading_time}\n\n"
             "---\n\n"
         )
 
@@ -149,3 +159,17 @@ class AITipsGenerator:
         if seconds_int or not parts:
             parts.append(f"{seconds_int} second{'s' if seconds_int != 1 else ''}")
         return ", ".join(parts)
+
+    def calculate_reading_time(self, content: str) -> str:
+        """Calculate estimated reading time for the content.
+
+        Args:
+            content: The text content to calculate reading time for
+
+        Returns:
+            str: Formatted reading time string
+        """
+        # Average reading speed: 200-250 words per minute
+        words = len(content.split())
+        minutes = max(1, round(words / 200))  # Using 200 words per minute as baseline
+        return f"{minutes} minute{'s' if minutes != 1 else ''}"

@@ -139,9 +139,11 @@ class OllamaEngine(CompletionEnginePort):
 
         # Load prompt templates based on model
         base_model = self.model.split(":")[0].split(".")[0].lower()
+        # Determine prompt directory based on category
+        prompt_subdir = "course" if self.category.lower() == "course" else "common"
         # Load titles prompt template
         titles_prompt_dir = os.path.abspath(
-            os.path.join(here, "prompts/titles")
+            os.path.join(here, f"prompts/{prompt_subdir}/titles")
         )
         titles_prompt_path = os.path.join(
             titles_prompt_dir, f"{base_model}.txt"
@@ -171,7 +173,7 @@ class OllamaEngine(CompletionEnginePort):
 
         # Load content prompt template
         content_prompt_dir = os.path.abspath(
-            os.path.join(here, "prompts/content")
+            os.path.join(here, f"prompts/{prompt_subdir}/content")
         )
         content_prompt_path = os.path.join(
             content_prompt_dir, f"{base_model}.txt"
@@ -220,7 +222,8 @@ class OllamaEngine(CompletionEnginePort):
         return prompt
 
     def build_detail_prompt(
-        self, topic: str, chapter_title: str, chapter_index: int
+        self, topic: str, chapter_title: str, chapter_index: int,
+        chapter_short_title: str, quantity: int
     ) -> str:
         """Build the prompt for generating chapter content.
 
@@ -228,6 +231,8 @@ class OllamaEngine(CompletionEnginePort):
             topic: The topic to generate content for.
             chapter_title: The title of the chapter to generate content for.
             chapter_index: The index of the current chapter.
+            chapter_short_title: The short version of the chapter title.
+            quantity: The total number of chapters being generated.
 
         Returns:
             The formatted prompt string.
@@ -235,10 +240,12 @@ class OllamaEngine(CompletionEnginePort):
         prompt = self.prompt_detail_template
         prompt = prompt.replace("{{TOPIC}}", topic)
         prompt = prompt.replace("{{CHAPTER_TITLE}}", chapter_title)
+        prompt = prompt.replace("{{CHAPTER_SHORT_TITLE}}", chapter_short_title)
         prompt = prompt.replace("{{CATEGORY}}", self.category)
         prompt = prompt.replace("{{EXPERTISE_LEVEL}}", self.expertise_level)
         prompt = prompt.replace("{{CONTEXT_NOTE}}", self.context_note)
         prompt = prompt.replace("{{CHAPTER_INDEX}}", str(chapter_index))
+        prompt = prompt.replace("{{QUANTITY}}", str(quantity))
         return prompt
 
     def generate_chapters(
@@ -359,10 +366,13 @@ class OllamaEngine(CompletionEnginePort):
         for line in title_lines:
             # Match lines like: 1. Decorators for Advanced Functionality |
             # Decorators
-            match = re.match(r"\d+\.\s*(.*?)\s*\|\s*(.*)", line)
+            match = re.match(r"\s*(.*?)\s*\|\s*(.*)", line)
             if match:
                 full_title = match.group(1).strip()
                 short_title = match.group(2).strip()
+                # If short title is empty, use the full title
+                if not short_title:
+                    short_title = full_title
                 chapters.append({"full": full_title, "short": short_title})
 
         if not chapters:
@@ -382,7 +392,7 @@ class OllamaEngine(CompletionEnginePort):
 
     def generate_content(
         self, topic: str, chapter_title: str, chapter_index: int,
-        total_chapters: int
+        total_chapters: int, chapter_short_title: str, quantity: int
     ) -> str:
         """Generate detailed content for a specific chapter.
 
@@ -391,6 +401,8 @@ class OllamaEngine(CompletionEnginePort):
             chapter_title: The title of the chapter to generate content for.
             chapter_index: The index of the current chapter being generated.
             total_chapters: The total number of chapters being generated.
+            chapter_short_title: The short version of the chapter title.
+            quantity: The total number of chapters requested.
 
         Returns:
             The generated chapter content as a string.
@@ -399,7 +411,9 @@ class OllamaEngine(CompletionEnginePort):
             The content is generated in markdown format and includes sections
             like introduction, main content, and conclusion.
         """
-        prompt = self.build_detail_prompt(topic, chapter_title, chapter_index)
+        prompt = self.build_detail_prompt(
+            topic, chapter_title, chapter_index, chapter_short_title, quantity
+        )
         logger.debug(
             "----Prompt BEGIN----\n"
             "%s%s%s\n"
@@ -500,7 +514,9 @@ class OllamaEngine(CompletionEnginePort):
                 topic,
                 chapter["full"],
                 i,
-                len(chapters)
+                len(chapters),
+                chapter["short"],
+                quantity
             )
             details.append((i, chapter, detail))
         return details, overview
