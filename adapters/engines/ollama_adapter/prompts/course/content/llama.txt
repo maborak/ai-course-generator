@@ -2,23 +2,9 @@ Write a detailed lesson for "{{CHAPTER_TITLE}}" in a {{QUANTITY}}-day {{TOPIC}} 
 
 The short title for this chapter is {{CHAPTER_SHORT_TITLE}}.
 
-Structure the lesson using only Markdown headings. Use `##` for each main section (such as Introduction, Key Concepts, Summary), and `###` for any subsections under those main sections. Do not use a `###` heading unless it is directly under a `##` heading. Maintain a consistent and logical hierarchy—never skip levels.
-
-Include:
-- A brief introduction (1–2 paragraphs)
-- Key concepts and explanations in logical sections and subsections
-- Code examples (if relevant)
-- Practical exercises or questions
-- A summary or key takeaways section
-
-The lesson should focus on "{{CHAPTER_TITLE}}" and relate it to the theme "{{CHAPTER_SHORT_TITLE}}" where appropriate, tailored for a(n) {{EXPERTISE_LEVEL}} audience. Do not include meta-comments or structural explanations.
-Write a detailed lesson for "{{CHAPTER_TITLE}}" in a {{QUANTITY}}-day {{TOPIC}} course for a(n) {{EXPERTISE_LEVEL}} audience.
-
-The short title for this chapter is {{CHAPTER_SHORT_TITLE}}.
-
-Use Markdown headings for structure:
-- Use `##` for the main day title (e.g., ## Day 4: Functions and Modules – Reusable Code Blocks)
-- Use `###` for all main subtopics or sections (e.g., ### What are Functions?)
+All headings must use standard Markdown syntax:
+- Use `##` for each day title (e.g., ## Day 4: Functions and Modules – Reusable Code Blocks)
+- Use `###` for main sections within the day (e.g., ### Introduction, ### Key Concepts)
 - Use `####` for any sub-subtopics, exercises, examples, or further detail if needed
 
 Always nest each heading level logically under its parent. Do not skip levels.

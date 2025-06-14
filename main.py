@@ -138,13 +138,20 @@ Monitoring:
     logger.debug("Arguments: %s", args)
 
     # Validate engine-specific arguments
-    provided_args = set(parser._option_string_actions.keys())
     if args.engine == 'openai':
-        if any(arg.startswith('--ollama-') for arg in provided_args if arg in sys.argv):
-            parser.error("Ollama-specific arguments cannot be used with OpenAI engine")
+        # Check if any Ollama-specific arguments are being used
+        ollama_args = [arg for arg in sys.argv if arg.startswith('--ollama-')]
+        if ollama_args:
+            parser.error(
+                f"Ollama-specific arguments cannot be used with OpenAI engine: {', '.join(ollama_args)}"
+            )
     elif args.engine == 'ollama':
-        if any(arg.startswith('--openai-') for arg in provided_args if arg in sys.argv):
-            parser.error("OpenAI-specific arguments cannot be used with Ollama engine")
+        # Check if any OpenAI-specific arguments are being used
+        openai_args = [arg for arg in sys.argv if arg.startswith('--openai-')]
+        if openai_args:
+            parser.error(
+                f"OpenAI-specific arguments cannot be used with Ollama engine: {', '.join(openai_args)}"
+            )
 
     output_dir = "output"
     os.makedirs(output_dir, exist_ok=True)

@@ -379,7 +379,7 @@ class OpenAIEngine(CompletionEnginePort):
         for line in title_lines:
             # Match lines like: 1. Decorators for Advanced Functionality |
             # Decorators
-            match = re.match(r"\d+\.\s*(.*?)\s*\|\s*(.*)", line)
+            match = re.match(r"\s*(.*?)\s*\|\s*(.*)", line)
             if match:
                 full_title = match.group(1).strip()
                 short_title = match.group(2).strip()
