@@ -16,13 +16,12 @@ import argparse
 import logging
 import os
 import re
-import tempfile
-import subprocess
 import sys
 from adapters.engines.openai_adapter import OpenAIEngine
 from adapters.engines.ollama_adapter import OllamaEngine
 from adapters.file_converter import FileConverter
 from core.generator import AITipsGenerator
+from core.verifier import FileConversionVerifier
 
 
 def sanitize_filename(s):
@@ -160,55 +159,17 @@ Monitoring:
         RED = "\033[91m"
         RESET = "\033[0m"
 
-        # Use a temporary file prefix
-        with tempfile.NamedTemporaryFile(
-            dir=output_dir, prefix="check_", suffix="_tip.md", delete=False
-        ) as tmp_md:
-            output_md = tmp_md.name
-            dummy_content = '''# Dummy AI Tips Output
-
-This is a test file for --check mode.
-
-## Tip 1
-Dummy tip content.
-
-## Tip 2
-More dummy content.
-'''
-            tmp_md.write(dummy_content.encode("utf-8"))
-        logger.info("Dummy markdown saved as %s", output_md)
-
-        converter = FileConverter()
-        try:
-            converter.convert(output_md)
-        except (OSError, subprocess.SubprocessError) as exc:
-            print(f"{RED}FAILED{RESET} to convert files: {exc}")
-            logger.error("FAILED to convert files: %s", exc)
-
-        base = os.path.splitext(output_md)[0]
-        results = {}
-        for ext in [".md", ".html", ".pdf", ".epub"]:
-            file_path = base + ext
-            if os.path.exists(file_path):
-                results[ext] = True
-            else:
-                results[ext] = False
+        verifier = FileConversionVerifier()
+        results = verifier.verify()
 
         print("\nCheck results:")
         for ext in [".md", ".html", ".pdf", ".epub"]:
-            file_path = base + ext
             status = (
                 f"{GREEN}SUCCESS{RESET}"
                 if results[ext]
                 else f"{RED}FAILED{RESET}"
             )
-            print(f"  {file_path}: {status}")
-
-        # Cleanup
-        for ext in [".md", ".html", ".pdf", ".epub"]:
-            file_path = base + ext
-            if os.path.exists(file_path):
-                os.remove(file_path)
+            print(f"  {ext}: {status}")
 
         print("\nCleanup complete.")
         logger.info(
