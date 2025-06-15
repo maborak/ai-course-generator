@@ -70,13 +70,6 @@ def main():
     4. Generates tips in the requested format
     5. Handles the --check mode for testing output generation
     """
-    logging.basicConfig(
-        level=logging.DEBUG,
-        format="%(asctime)s [%(levelname)s] %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S"
-    )
-    logger = logging.getLogger(__name__)
-
     parser = argparse.ArgumentParser(
         description="AI Tips Generator (Hexagonal Architecture)",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -114,6 +107,7 @@ Monitoring:
     common_group.add_argument('--force', action='store_true', help='Force overwrite existing files')
     common_group.add_argument('--category', default='Tip', help='Category for the tips')
     common_group.add_argument('--expertise-level', default='Novice', help='Expertise level for the tips')
+    common_group.add_argument('--debug', action='store_true', help='Enable debug logging')
     common_group.add_argument(
         '--check',
         action='store_true',
@@ -133,6 +127,23 @@ Monitoring:
     ollama_group.add_argument('--ollama-no-think', action='store_true', help='Disable thinking process in Ollama')
 
     args = parser.parse_args()
+    
+    # Configure logging based on debug flag
+    logger = logging.getLogger(__name__)
+    if args.debug:
+        logging.basicConfig(level=logging.DEBUG)
+    else:
+        logging.basicConfig(level=logging.CRITICAL)
+    
+    # Create console handler with formatting
+    console_handler = logging.StreamHandler()
+    formatter = logging.Formatter(
+        "%(asctime)s [%(levelname)s] %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S"
+    )
+    console_handler.setFormatter(formatter)
+    logger.addHandler(console_handler)
+    
     logger.debug("Arguments: %s", args)
 
     # Validate engine-specific arguments
@@ -191,7 +202,8 @@ Monitoring:
             model=args.openai_model,
             stream=args.openai_stream,
             category=args.category,
-            expertise_level=args.expertise_level
+            expertise_level=args.expertise_level,
+            debug=args.debug
         )
     else:
         engine = OllamaEngine(
@@ -200,7 +212,8 @@ Monitoring:
             stream=args.ollama_stream,
             category=args.category,
             expertise_level=args.expertise_level,
-            think=not args.ollama_no_think
+            think=not args.ollama_no_think,
+            debug=args.debug
         )
     converter = FileConverter()
 

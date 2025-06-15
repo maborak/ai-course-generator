@@ -19,6 +19,7 @@ import time
 from typing import Dict, List, Tuple
 from openai import OpenAI
 import tiktoken
+from alive_progress import alive_bar
 from core.ports import CompletionEnginePort
 
 # ANSI color codes
@@ -92,48 +93,39 @@ class OpenAIEngine(CompletionEnginePort):
         max_tokens: int = MAX_TOKENS,
         stream: bool = True,
         category: str = "Tip",
-        expertise_level: str = "Novice"
+        expertise_level: str = "Novice",
+        debug: bool = False
     ) -> None:
-        """Initialize the OpenAIEngine.
+        """Initialize the OpenAI engine.
 
         Args:
-            model: The name of the OpenAI model to use.
-            temperature: The temperature for response generation.
-            max_tokens: Maximum tokens to generate.
-            stream: Whether to stream the responses.
-            category: The category of content to generate.
-            expertise_level: The expertise level for the generated content.
-
-        Raises:
-            OpenAIEngineError: If there's an error initializing the engine.
-            ValueError: If the expertise level is invalid.
+            model: The OpenAI model to use
+            temperature: The temperature for generation
+            max_tokens: Maximum tokens to generate
+            stream: Whether to stream the response
+            category: The category of content to generate
+            expertise_level: The expertise level for the content
+            debug: Whether to show debug output
         """
-        logger.debug(
-            "Initializing OpenAIEngine with model=%s, temperature=%s, "
-            "max_tokens=%s, stream=%s",
-            model,
-            temperature,
-            max_tokens,
-            stream
-        )
         self.model = model
         self.temperature = temperature
         self.max_tokens = max_tokens
         self.stream = stream
         self.category = category
-        self.quantity = 5  # Default quantity
-
-        # Normalize expertise_level to title case for matching
-        normalized_level = expertise_level.strip().title()
+        
+        # Normalize expertise level to title case
+        normalized_level = expertise_level.title()
         if normalized_level not in self.level_descriptions:
-            valid_levels = ", ".join(self.level_descriptions.keys())
             raise ValueError(
-                f"Invalid expertise level: '{expertise_level}'. "
-                f"Please choose from: {valid_levels}"
+                f"Invalid expertise level: {expertise_level}. "
+                f"Must be one of: {', '.join(self.level_descriptions.keys())}"
             )
-
         self.expertise_level = normalized_level
         self.context_note = self.level_descriptions[self.expertise_level]
+        
+        self.debug = debug
+        self.tokens_used = {"input": 0, "output": 0}
+        self.quantity = 5  # Default quantity
         try:
             self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
             # Initialize tokenizer only if streaming is enabled
@@ -221,8 +213,6 @@ class OpenAIEngine(CompletionEnginePort):
                 f"Failed to load content prompt template from "
                 f"{content_prompt_path}. Error: {str(exc)}"
             ) from exc
-
-        self.tokens_used = {"input": 0, "output": 0}
 
     def count_tokens(self, text: str) -> int:
         """Count the number of tokens in a text string.
@@ -334,17 +324,21 @@ class OpenAIEngine(CompletionEnginePort):
                     if hasattr(chunk.choices[0].delta, "content"):
                         piece = chunk.choices[0].delta.content
                         if piece:
-                            print(f"{GRAY}{piece}{RESET}", end="", flush=True)
+                            if self.debug:
+                                print(f"{GRAY}{piece}{RESET}", end="", flush=True)
                             content += piece
                             # Count output tokens in streaming mode
                             self.tokens_used["output"] += self.count_tokens(piece)
             else:
                 content = response.choices[0].message.content
-                print(f"{GRAY}{content}{RESET}", end="", flush=True)
+                if self.debug:
+                    print(f"{GRAY}{content}{RESET}", end="", flush=True)
                 # Use native token counts when not streaming
                 if hasattr(response, "usage"):
                     self.tokens_used["input"] += response.usage.prompt_tokens
                     self.tokens_used["output"] += response.usage.completion_tokens
+            if self.debug:
+                print("\n", end="", flush=True)
 
         except Exception as e:
             raise OpenAIResponseError(
@@ -364,7 +358,6 @@ class OpenAIEngine(CompletionEnginePort):
         )
 
         logger.debug("Content after all regex and tag fixes:\n%s", content)
-
         chapters = []
         overview = ""
         if not title_block_match:
@@ -435,10 +428,8 @@ class OpenAIEngine(CompletionEnginePort):
         max_retries = 3
         retry_delay = 2  # seconds
 
-        print(
-            f"+-----\n| Processing Chapter #{chapter_index} of "
-            f"{total_chapters} (Attempt 1)\n+-----"
-        )
+        logger.debug("Processing Chapter #%d of %d (Attempt 1)",
+                    chapter_index, total_chapters)
 
         for attempt in range(max_retries):
             try:
@@ -455,7 +446,8 @@ class OpenAIEngine(CompletionEnginePort):
                         for chunk in response:
                             if chunk.choices[0].delta.content is not None:
                                 piece = chunk.choices[0].delta.content
-                                print(f"{GRAY}{piece}{RESET}", end="", flush=True)
+                                if self.debug:
+                                    print(f"{GRAY}{piece}{RESET}", end="", flush=True)
                                 collected_chunks.append(piece)
                                 # Count tokens for streaming response
                                 self.tokens_used["output"] += self.count_tokens(piece)
@@ -471,8 +463,8 @@ class OpenAIEngine(CompletionEnginePort):
                         raise OpenAIResponseError(
                             f"Failed to stream response. Error: {str(stream_error)}"
                         ) from stream_error
-
-                    print("\n[End of OpenAI Streaming Output]")
+                    if self.debug:
+                        print("\n[End of OpenAI Streaming Output]")
                     return "".join(collected_chunks)
                 else:
                     response = self.client.chat.completions.create(
@@ -482,7 +474,8 @@ class OpenAIEngine(CompletionEnginePort):
                         max_tokens=self.max_tokens
                     )
                     content = response.choices[0].message.content
-                    print(f"{GRAY}{content}{RESET}")
+                    if self.debug:
+                        print(f"{GRAY}{content}{RESET}")
                     return content
 
             except Exception as exc:
@@ -546,17 +539,38 @@ class OpenAIEngine(CompletionEnginePort):
         """
         # Reset token usage at the start of generation
         self.tokens_used = {"input": 0, "output": 0}
-        chapters, overview = self.generate_chapters(topic)
+
+        # Generate chapters with fancy loading
+        with alive_bar(
+            1,
+            title="Generating Chapters",
+            bar="smooth",
+            spinner="waves",
+            enrich_print=False
+        ) as progress_bar:
+            chapters, overview = self.generate_chapters(topic)
+            progress_bar()
+
         details = []
-        for i, chapter in enumerate(chapters, 1):
-            detail = self.generate_content(
-                topic,
-                chapter["full"],
-                i,
-                len(chapters),
-                chapter["short"]
-            )
-            details.append((i, chapter, detail))
+        # Create progress bar for chapter generation
+        with alive_bar(
+            len(chapters),
+            title="Generating Content",
+            bar="smooth",
+            spinner="waves",
+            enrich_print=False
+        ) as progress_bar:
+            for i, chapter in enumerate(chapters, 1):
+                progress_bar.text(f"Processing chapter {i}/{len(chapters)}: {chapter['short']}")
+                progress_bar()
+                detail = self.generate_content(
+                    topic,
+                    chapter["full"],
+                    i,
+                    len(chapters),
+                    chapter["short"]
+                )
+                details.append((i, chapter, detail))
 
         # Calculate and log costs
         costs = self.calculate_costs()

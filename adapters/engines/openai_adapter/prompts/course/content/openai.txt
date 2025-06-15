@@ -33,7 +33,7 @@ Every lesson must end with a section titled "Tests", which contains at least 10 
 Each test item must:
 - Be under its own `####` heading (e.g., #### Test 1: ...).
 - Contain the question statement, the answer in bold (**Answer:**), and the explanation in bold (**Explanation:**), all grouped together directly under the heading—do not separate with horizontal lines or large blank spaces.
-- The explanation must reference the relevant lesson concept, detail why the answer is correct, clarify the logic, and note any caveats, exceptions, or common pitfalls. For tricky questions, also describe common misconceptions or errors.
+For each quiz-style test item (such as multiple choice or true/false), immediately after the answer, provide the explanation using `**Explanation:**` in bold (not as a heading), with the explanation text on the next line. Do not use Markdown heading syntax for explanations under quiz answers. The explanation should always be visually and structurally a child of the answer, not a sibling heading.
 
 For each practical, coding, or open-ended exercise (not quiz-style items), after the explanation, add a subsection titled "Resolution" (using bold or `#####` as appropriate), and provide a step-by-step solution detailing the reasoning or process needed to reach the correct answer. Make the resolution clear, logical, and easy to follow, breaking down each important step. Do not add a "Resolution" subsection for simple quiz items such as multiple choice or true/false.
 
@@ -46,7 +46,8 @@ Include:
 - Key concepts and explanations in logical sections and subsections
 - Code examples (if relevant)
 - A section titled "Tests" with at least 10 varied test items (e.g., multiple choice, coding, true/false, open-ended, tricky cases), each under its own `####` heading, with the answer and explanation immediately after, grouped together.
-- For each practical, coding, or open-ended test item, include a "Resolution" subsection with a detailed, step-by-step solution showing the reasoning or process required to solve the problem. Do not include a "Resolution" for simple quiz-style items.
+- For each quiz-style test item, place the explanation immediately after the answer using bold (**Explanation:**), never as a heading, to visually and structurally indicate it is dependent on the answer.
+- For each practical, coding, or open-ended test item, include a "Resolution" subsection with a detailed, step-by-step solution showing the reasoning or process required to solve the problem. Do not add a "Resolution" for simple quiz-style items.
 - A summary or key takeaways section
 
 Always place the summary or key takeaways section at the very end of the lesson, after all other sections including Tests.

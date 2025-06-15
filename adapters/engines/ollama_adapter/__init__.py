@@ -80,51 +80,43 @@ class OllamaEngine(CompletionEnginePort):
     def __init__(
         self,
         model: str,
-        host: Optional[str] = None,
-        stream: bool = False,
+        host: str = None,
+        stream: bool = True,
         category: str = "Tip",
         expertise_level: str = "Novice",
-        think: bool = True
+        think: bool = True,
+        debug: bool = False
     ) -> None:
-        """Initialize the OllamaEngine.
+        """Initialize the Ollama engine.
 
         Args:
-            model: The name of the Ollama model to use.
-            host: Optional host URL for the Ollama server.
-            stream: Whether to stream the responses.
-            category: The category of content to generate.
-            expertise_level: The expertise level for the generated content.
-            think: Whether to show thinking process in the output.
-
-        Raises:
-            OllamaEngineError: If there's an error initializing the engine.
-            ValueError: If the expertise level is invalid.
+            model: The Ollama model to use
+            host: The Ollama host address
+            stream: Whether to stream the response
+            category: The category of content to generate
+            expertise_level: The expertise level for the content
+            think: Whether to show thinking process
+            debug: Whether to show debug output
         """
-        logger.debug(
-            "Initializing OllamaEngine with model=%s, host=%s, stream=%s, "
-            "think=%s",
-            model,
-            host,
-            stream,
-            think
-        )
         self.model = model
+        self.host = host
         self.stream = stream
         self.category = category
-        self.think = think
-        self.quantity = 5  # Default quantity
-
-        # Normalize expertise_level to title case for matching
-        normalized_level = expertise_level.strip().title()
+        
+        # Normalize expertise level to title case
+        normalized_level = expertise_level.title()
         if normalized_level not in self.level_descriptions:
-            valid_levels = ", ".join(self.level_descriptions.keys())
             raise ValueError(
-                f"Invalid expertise level: '{expertise_level}'. "
-                f"Please choose from: {valid_levels}"
+                f"Invalid expertise level: {expertise_level}. "
+                f"Must be one of: {', '.join(self.level_descriptions.keys())}"
             )
-
         self.expertise_level = normalized_level
         self.context_note = self.level_descriptions[self.expertise_level]
+        
+        self.think = think
+        self.debug = debug
+        self.tokens_used = 0
+        self.quantity = 5  # Default quantity
 
         try:
             # Create a custom Ollama client with the specified host
@@ -201,8 +193,6 @@ class OllamaEngine(CompletionEnginePort):
                 f"Failed to load content prompt template from "
                 f"{content_prompt_path}. Error: {str(exc)}"
             ) from exc
-
-        self.tokens_used = 0
 
     def build_titles_prompt(self, topic: str) -> str:
         """Build the prompt for generating chapter titles.
@@ -300,7 +290,8 @@ class OllamaEngine(CompletionEnginePort):
 
                 # Print with appropriate color
                 color = RED if in_think_block else GRAY
-                print(f"{color}{piece}{RESET}", end="", flush=True)
+                if self.debug:
+                    print(f"{color}{piece}{RESET}", end="", flush=True)
                 content += piece
         except ResponseError as e:
             if "does not support thinking" in str(e) and self.think:
@@ -317,7 +308,8 @@ class OllamaEngine(CompletionEnginePort):
                 }
                 for msg in self.ollama.chat(**chat_kwargs):
                     piece = msg['message']['content']
-                    print(f"{GRAY}{piece}{RESET}", end="", flush=True)
+                    if self.debug:
+                        print(f"{GRAY}{piece}{RESET}", end="", flush=True)
                     content += piece
             else:
                 raise
@@ -447,7 +439,8 @@ class OllamaEngine(CompletionEnginePort):
 
                 # Print with appropriate color
                 color = RED if in_think_block else GRAY
-                print(f"{color}{piece}{RESET}", end="", flush=True)
+                if self.debug:
+                    print(f"{color}{piece}{RESET}", end="", flush=True)
                 content += piece
         except ResponseError as e:
             if "does not support thinking" in str(e) and self.think:
@@ -464,7 +457,8 @@ class OllamaEngine(CompletionEnginePort):
                 }
                 for msg in self.ollama.chat(**chat_kwargs):
                     piece = msg['message']['content']
-                    print(f"{GRAY}{piece}{RESET}", end="", flush=True)
+                    if self.debug:
+                        print(f"{GRAY}{piece}{RESET}", end="", flush=True)
                     content += piece
             else:
                 raise
