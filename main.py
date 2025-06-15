@@ -107,7 +107,6 @@ Monitoring:
   - Checking write permissions in the output directory
 """
     )
-    
     # Common arguments
     common_group = parser.add_argument_group('Common Arguments')
     common_group.add_argument('--topic', default='linux', help='Topic to generate tips for')

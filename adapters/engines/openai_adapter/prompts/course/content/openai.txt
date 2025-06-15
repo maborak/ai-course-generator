@@ -19,11 +19,16 @@ Use only standard Markdown features; do not use HTML tags or non-standard extens
 For code examples, always use triple backticks and specify the language (e.g., ```python).
 Provide thorough, detailed explanations and rich content in each section, including background, real-world applications, and deeper dives into complex concepts. Make each lesson as comprehensive and informative as possible.
 
+Every lesson must end with two separate sections:
+- **Exercises:** At least 5 practical exercises. Include some “trap” or tricky exercises designed to challenge common misconceptions or test deeper understanding. Each exercise must be immediately followed by a clearly labeled answer.
+- **Quiz:** At least 5 quiz questions, varied in format (e.g., multiple choice, true/false, short answer). Each quiz question must be immediately followed by its correct answer.
+
 Include:
 - A brief introduction (1–2 paragraphs)
 - Key concepts and explanations in logical sections and subsections
 - Code examples (if relevant)
-- Practical exercises or questions
+- A section titled "Exercises" with at least 5 exercises (including some tricky or commonly misunderstood cases), each followed by its answer
+- A section titled "Quiz" with at least 5 quiz questions, each followed by its answer
 - A summary or key takeaways section
 
 Do not include meta-comments or structural explanations. The lesson should focus on "{{CHAPTER_TITLE}}" and relate it to the theme "{{CHAPTER_SHORT_TITLE}}" where appropriate, tailored for a(n) {{EXPERTISE_LEVEL}} audience.

@@ -256,7 +256,7 @@ class OpenAIEngine(CompletionEnginePort):
 
     def build_detail_prompt(
         self, topic: str, chapter_title: str, chapter_index: int,
-        total_chapters: int, chapter_short_title: str
+        chapter_short_title: str
     ) -> str:
         """Build the prompt for generating chapter content.
 
@@ -264,7 +264,6 @@ class OpenAIEngine(CompletionEnginePort):
             topic: The topic to generate content for.
             chapter_title: The title of the chapter to generate content for.
             chapter_index: The index of the current chapter.
-            total_chapters: The total number of chapters being generated.
             chapter_short_title: The short version of the chapter title.
 
         Returns:
@@ -423,7 +422,7 @@ class OpenAIEngine(CompletionEnginePort):
             OpenAIResponseError: If there's an error generating content.
         """
         prompt = self.build_detail_prompt(
-            topic, chapter_title, chapter_index, total_chapters, chapter_short_title
+            topic, chapter_title, chapter_index, chapter_short_title
         )
         logger.debug(
             "----Prompt BEGIN----\n"

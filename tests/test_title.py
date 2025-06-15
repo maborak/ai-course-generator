@@ -25,7 +25,8 @@ def test_generate_chapters_all_models(model):
     engine.category = "course"
     engine.expertise_level = "Expert"
     engine.context_note = ""
-    chapters, overview = engine.generate_chapters("Python", 2)
+    engine.quantity = 2
+    chapters, overview = engine.generate_chapters("Python")
     print(f"TIPS: {chapters}", flush=True)
     print(f"OVERVIEW: {overview}", flush=True)
     assert len(chapters) >= 1, f"Model {model} did not return any tips!"
