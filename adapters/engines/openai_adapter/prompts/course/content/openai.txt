@@ -18,6 +18,11 @@ Only the phrase "Estimated reading time:" should be in italics. Do not italicize
 Do not use bold or any other formatting for the day title or section headings; only use standard Markdown heading syntax (##, ###, ####).
 Do not add extra blank lines between the day title and the reading time, or between the reading time and the first section.
 Always keep heading levels consistent for multi-day courses to preserve table of contents hierarchy.
+
+For every exercise and its Resolution, go far beyond a simple checklist. Break down each step into sub-steps if needed, and provide detailed reasoning for why it is done, potential problems, troubleshooting tips, and security/best practice guidance. Include code snippets and sample outputs where applicable. Add real-world scenarios, variations, alternatives, and implications of doing things differently. Link to official documentation or recommended resources for deeper learning. Aim to provide enough material that the reader gains a full, practical, and theoretical understanding—enough for at least 1 hour of engaged work.
+
+For every important action, explain what happens if you do it incorrectly, and how to recover or debug the problem. If possible, include a real-world anecdote, advanced use case, or common enterprise mistake and its resolution.
+
 Do not include images, diagrams, or external links.
 Use only standard Markdown features; do not use HTML tags or non-standard extensions.
 For code examples, always use triple backticks and specify the language (e.g., ```python).
@@ -30,6 +35,10 @@ Each test item must:
 - Contain the question statement, the answer in bold (**Answer:**), and the explanation in bold (**Explanation:**), all grouped together directly under the heading—do not separate with horizontal lines or large blank spaces.
 - The explanation must reference the relevant lesson concept, detail why the answer is correct, clarify the logic, and note any caveats, exceptions, or common pitfalls. For tricky questions, also describe common misconceptions or errors.
 
+For each practical, coding, or open-ended exercise (not quiz-style items), after the explanation, add a subsection titled "Resolution" (using bold or `#####` as appropriate), and provide a step-by-step solution detailing the reasoning or process needed to reach the correct answer. Make the resolution clear, logical, and easy to follow, breaking down each important step. Do not add a "Resolution" subsection for simple quiz items such as multiple choice or true/false.
+
+For coding or infrastructure exercises, always include a fully working code solution (such as a complete Terraform configuration, Python script, etc.) as part of the "Resolution" section. The code should be clear, commented, and ready to run or adapt. Provide context and explanations for each section of the code, including why choices were made, how variables are set, and what common mistakes to avoid. If possible, include example input and output, sample test cases, and troubleshooting for errors that may arise when running the code. The learner should be able to copy, run, and learn from the code with full understanding.
+
 If appropriate, mix different types of tests (multiple choice, coding, open-ended, true/false, etc.) to enhance learning variety and depth.
 
 Include:
@@ -37,6 +46,7 @@ Include:
 - Key concepts and explanations in logical sections and subsections
 - Code examples (if relevant)
 - A section titled "Tests" with at least 10 varied test items (e.g., multiple choice, coding, true/false, open-ended, tricky cases), each under its own `####` heading, with the answer and explanation immediately after, grouped together.
+- For each practical, coding, or open-ended test item, include a "Resolution" subsection with a detailed, step-by-step solution showing the reasoning or process required to solve the problem. Do not include a "Resolution" for simple quiz-style items.
 - A summary or key takeaways section
 
 Always place the summary or key takeaways section at the very end of the lesson, after all other sections including Tests.

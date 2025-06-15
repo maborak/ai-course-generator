@@ -110,7 +110,7 @@ class AITipsGenerator:
 
         # Prepare metadata for embedding
         metadata = {
-            "title": topic,
+            "title": f"{topic} ({category}, {expertise_level})",
             "author": "Maborak",
             "category": category,
             "expertise_level": expertise_level,
