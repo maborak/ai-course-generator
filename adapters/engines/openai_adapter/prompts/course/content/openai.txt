@@ -1,0 +1,55 @@
+Write a detailed lesson for "{{CHAPTER_TITLE}}" in a {{QUANTITY}}-day {{TOPIC}} course for a(n) {{EXPERTISE_LEVEL}} audience.
+
+The short title for this chapter is {{CHAPTER_SHORT_TITLE}}.
+
+
+- All headings must use standard Markdown syntax and consistent hierarchy:
+- Use `##` for the day title (e.g., ## Day 4: Functions and Modules – Reusable Code Blocks).
+- Immediately after the day title, on a new line, write *Estimated reading time:* 25 minutes (with only "Estimated reading time:" in italics, not the minutes).
+
+Each lesson must be detailed, comprehensive, and substantial enough that it would take an average learner at least 1 hour of focused reading to complete, not including additional practice or review time. When estimating the reading time, ensure that the content you provide is rich and in-depth enough to justify at least 60 minutes of reading per lesson.
+- Use `###` for all main sections within the day, such as Introduction, Key Concepts, Exercises, Quiz, and Summary.
+- Use `####` for each individual exercise and quiz question, if headings are used. Otherwise, list the exercises and quiz questions under the "Exercises" and "Quiz" sections using bold or numbered formatting as appropriate.
+
+For each exercise and quiz question, use a `####` heading (e.g., #### Exercise 1: ... or #### Question 1: ...).
+Directly under each question heading, include the question text, the answer in bold (e.g., **Answer:**), and the explanation in bold (e.g., **Explanation:**), all grouped together—do not separate with horizontal lines or large blank spaces.
+
+Only the phrase "Estimated reading time:" should be in italics. Do not italicize or bold the minutes value.
+Do not use bold or any other formatting for the day title or section headings; only use standard Markdown heading syntax (##, ###, ####).
+Do not add extra blank lines between the day title and the reading time, or between the reading time and the first section.
+Always keep heading levels consistent for multi-day courses to preserve table of contents hierarchy.
+
+For every exercise and its Resolution, go far beyond a simple checklist. Break down each step into sub-steps if needed, and provide detailed reasoning for why it is done, potential problems, troubleshooting tips, and security/best practice guidance. Include code snippets and sample outputs where applicable. Add real-world scenarios, variations, alternatives, and implications of doing things differently. Link to official documentation or recommended resources for deeper learning. Aim to provide enough material that the reader gains a full, practical, and theoretical understanding—enough for at least 1 hour of engaged work.
+
+For every important action, explain what happens if you do it incorrectly, and how to recover or debug the problem. If possible, include a real-world anecdote, advanced use case, or common enterprise mistake and its resolution.
+
+Do not include images, diagrams, or external links.
+Use only standard Markdown features; do not use HTML tags or non-standard extensions.
+For code examples, always use triple backticks and specify the language (e.g., ```python).
+Provide thorough, detailed explanations and rich content in each section, including background, real-world applications, and deeper dives into complex concepts. Make each lesson as comprehensive and informative as possible.
+
+Every lesson must end with a section titled "Tests", which contains at least 10 test items. These test items should be varied and can include multiple-choice questions, coding tasks, true/false questions, conceptual or open-ended questions, and “trap” or tricky items designed to reveal common misconceptions.
+
+Each test item must:
+- Be under its own `####` heading (e.g., #### Test 1: ...).
+- Contain the question statement, the answer in bold (**Answer:**), and the explanation in bold (**Explanation:**), all grouped together directly under the heading—do not separate with horizontal lines or large blank spaces.
+For each quiz-style test item (such as multiple choice or true/false), immediately after the answer, provide the explanation using `**Explanation:**` in bold (not as a heading), with the explanation text on the next line. Do not use Markdown heading syntax for explanations under quiz answers. The explanation should always be visually and structurally a child of the answer, not a sibling heading.
+
+For each practical, coding, or open-ended exercise (not quiz-style items), after the explanation, add a subsection titled "Resolution" (using bold or `#####` as appropriate), and provide a step-by-step solution detailing the reasoning or process needed to reach the correct answer. Make the resolution clear, logical, and easy to follow, breaking down each important step. Do not add a "Resolution" subsection for simple quiz items such as multiple choice or true/false.
+
+For coding or infrastructure exercises, always include a fully working code solution (such as a complete Terraform configuration, Python script, etc.) as part of the "Resolution" section. The code should be clear, commented, and ready to run or adapt. Provide context and explanations for each section of the code, including why choices were made, how variables are set, and what common mistakes to avoid. If possible, include example input and output, sample test cases, and troubleshooting for errors that may arise when running the code. The learner should be able to copy, run, and learn from the code with full understanding.
+
+If appropriate, mix different types of tests (multiple choice, coding, open-ended, true/false, etc.) to enhance learning variety and depth.
+
+Include:
+- A brief introduction (1–2 paragraphs)
+- Key concepts and explanations in logical sections and subsections
+- Code examples (if relevant)
+- A section titled "Tests" with at least 10 varied test items (e.g., multiple choice, coding, true/false, open-ended, tricky cases), each under its own `####` heading, with the answer and explanation immediately after, grouped together.
+- For each quiz-style test item, place the explanation immediately after the answer using bold (**Explanation:**), never as a heading, to visually and structurally indicate it is dependent on the answer.
+- For each practical, coding, or open-ended test item, include a "Resolution" subsection with a detailed, step-by-step solution showing the reasoning or process required to solve the problem. Do not add a "Resolution" for simple quiz-style items.
+- A summary or key takeaways section
+
+Always place the summary or key takeaways section at the very end of the lesson, after all other sections including Tests.
+
+Do not include meta-comments or structural explanations. The lesson should focus on "{{CHAPTER_TITLE}}" and relate it to the theme "{{CHAPTER_SHORT_TITLE}}" where appropriate, tailored for a(n) {{EXPERTISE_LEVEL}} audience.
