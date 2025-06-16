@@ -55,7 +55,7 @@ Your response must include, in this order:
 <!-- 
 Briefly describe a real-world scenario, domain, or use case where this advice, technique, or concept is relevant or valuable.
 State the conditions, project type, workflow, or common challenge that makes this chapter important, whether it's a trick, usage, hack, or mistake.
-Provide 10-20 sentences only. DO NOT add generic, filler, or hypothetical language. After you finish, immediately continue to the next section.
+Provide 10-30 sentences only. DO NOT add generic, filler, or hypothetical language. After you finish, immediately continue to the next section.
 **Examples:**  
 - Used in production systems where zero-downtime is required.  
 - Relevant when working with large datasets that exceed memory capacity.  
@@ -64,7 +64,7 @@ Provide 10-20 sentences only. DO NOT add generic, filler, or hypothetical langua
 ### Problem  
 <!-- 
 Describe the specific issue or inefficiency. Focus only on what's directly relevant to "{{CHAPTER_TITLE}}".
-Use 10-20 sentences only. Do NOT repeat information from other sections. After you finish, immediately continue to the next section.
+Use 10-30 sentences only. Do NOT repeat information from other sections. After you finish, immediately continue to the next section.
 -->
 
 #### Before (Naive/Problematic Code)
@@ -98,12 +98,12 @@ Use fenced code blocks for output only. After you finish, immediately continue t
 ### How It Works  
 <!-- 
 Explain what changed and why this works better.
-Provide 10-20 concise bullet points. Do NOT write paragraphs, summaries, or repeated information. After you finish, immediately continue to the next section.
+Provide 5-10 concise bullet points. Do NOT write paragraphs, summaries, or repeated information. After you finish, immediately continue to the next section.
 -->
 
 ### Applicability / When to Use
 <!-- 
-List 10 to 30 concise bullet points describing the scenarios, projects, or contexts where this chapter, trick, usage, hack, or approach is most appropriate or valuable.
+List 5 to 10 concise bullet points describing the scenarios, projects, or contexts where this chapter, trick, usage, hack, or approach is most appropriate or valuable.
 Be specific, avoid paragraphs or vague statements. After you finish, immediately continue to the next section.
 **Examples:**  
 - Ideal for high-traffic APIs requiring rapid response times  
@@ -113,7 +113,7 @@ Be specific, avoid paragraphs or vague statements. After you finish, immediately
 
 ### When Not to Use / Anti-Patterns
 <!-- 
-List 10 to 30 bullet points highlighting situations, project types, or contexts where this approach is not recommended, may cause issues, or is commonly misapplied.
+List 5 to 10 bullet points highlighting situations, project types, or contexts where this approach is not recommended, may cause issues, or is commonly misapplied.
 Do not write paragraphs or general advice; be direct and specific. After you finish, immediately continue to the next section.
 **Examples:**  
 - Not suitable for real-time data streams  
@@ -123,7 +123,7 @@ Do not write paragraphs or general advice; be direct and specific. After you fin
 
 ### Common Mistakes
 <!-- 
-List 2 to 15 specific, concise mistakes, pitfalls, or common errors users make when attempting this chapter, trick, usage, or hack.
+List 5 to 10 specific, concise mistakes, pitfalls, or common errors users make when attempting this chapter, trick, usage, or hack.
 Each mistake should be a short bullet point, not a paragraph, and should avoid general or vague language. After you finish, immediately continue to the next section.
 **Examples:**  
 - Forgetting to handle edge cases in user input  
@@ -134,7 +134,7 @@ Each mistake should be a short bullet point, not a paragraph, and should avoid g
 
 ### Tradeoffs / Limitations
 <!-- 
-List 2 to 15 specific drawbacks, tradeoffs, or limitations as concise bullet points.
+List 5 to 10 specific drawbacks, tradeoffs, or limitations as concise bullet points.
 DO NOT write paragraphs, summaries, or generic advice.
 DO NOT repeat ideas.
 After you finish, immediately continue to the next section.

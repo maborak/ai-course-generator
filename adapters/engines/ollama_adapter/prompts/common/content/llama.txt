@@ -8,6 +8,7 @@ STRICT OUTPUT RULES:
 - CRITICAL: The chapter title format "## {{CHAPTER_INDEX}}.- {{CHAPTER_TITLE}}" must be preserved exactly as shown, including the spacing and punctuation.
 - CRITICAL: The chapter title MUST use ".-" (dot hyphen) between the index and title, NOT just a single dot.
 - CRITICAL: In Related Chapters section, ONLY use plain text chapter names in quotes, NO markdown links or URLs.
+- CRITICAL: For any output section, if the content exceeds 500 words, only show the initial and final parts.
 - CORRECT format examples:
   ## 1.- Introduction
   ## 2.- Advanced Topics
@@ -55,7 +56,7 @@ Your response must include, in this order:
 <!-- 
 Briefly describe a real-world scenario, domain, or use case where this advice, technique, or concept is relevant or valuable.
 State the conditions, project type, workflow, or common challenge that makes this chapter important, whether it's a trick, usage, hack, or mistake.
-Provide 1-2 sentences only. DO NOT add generic, filler, or hypothetical language. After you finish, immediately continue to the next section.
+Provide 5-10 sentences only. DO NOT add generic, filler, or hypothetical language. After you finish, immediately continue to the next section.
 **Examples:**  
 - Used in production systems where zero-downtime is required.  
 - Relevant when working with large datasets that exceed memory capacity.  
@@ -98,12 +99,12 @@ Use fenced code blocks for output only. After you finish, immediately continue t
 ### How It Works  
 <!-- 
 Explain what changed and why this works better.
-Provide 2-4 concise bullet points. Do NOT write paragraphs, summaries, or repeated information. After you finish, immediately continue to the next section.
+Provide 5-10 concise bullet points. Do NOT write paragraphs, summaries, or repeated information. After you finish, immediately continue to the next section.
 -->
 
 ### Applicability / When to Use
 <!-- 
-List 1 to 3 concise bullet points describing the scenarios, projects, or contexts where this chapter, trick, usage, hack, or approach is most appropriate or valuable.
+List 5 to 10 concise bullet points describing the scenarios, projects, or contexts where this chapter, trick, usage, hack, or approach is most appropriate or valuable.
 Be specific, avoid paragraphs or vague statements. After you finish, immediately continue to the next section.
 **Examples:**  
 - Ideal for high-traffic APIs requiring rapid response times  
@@ -113,7 +114,7 @@ Be specific, avoid paragraphs or vague statements. After you finish, immediately
 
 ### When Not to Use / Anti-Patterns
 <!-- 
-List 1 to 3 bullet points highlighting situations, project types, or contexts where this approach is not recommended, may cause issues, or is commonly misapplied.
+List 5 to 10 bullet points highlighting situations, project types, or contexts where this approach is not recommended, may cause issues, or is commonly misapplied.
 Do not write paragraphs or general advice; be direct and specific. After you finish, immediately continue to the next section.
 **Examples:**  
 - Not suitable for real-time data streams  
@@ -123,7 +124,7 @@ Do not write paragraphs or general advice; be direct and specific. After you fin
 
 ### Common Mistakes
 <!-- 
-List 2 to 5 specific, concise mistakes, pitfalls, or common errors users make when attempting this chapter, trick, usage, or hack.
+List 5 to 10 specific, concise mistakes, pitfalls, or common errors users make when attempting this chapter, trick, usage, or hack.
 Each mistake should be a short bullet point, not a paragraph, and should avoid general or vague language. After you finish, immediately continue to the next section.
 **Examples:**  
 - Forgetting to handle edge cases in user input  
@@ -134,7 +135,7 @@ Each mistake should be a short bullet point, not a paragraph, and should avoid g
 
 ### Tradeoffs / Limitations
 <!-- 
-List 2 to 5 specific drawbacks, tradeoffs, or limitations as concise bullet points.
+List 5 to 10 specific drawbacks, tradeoffs, or limitations as concise bullet points.
 DO NOT write paragraphs, summaries, or generic advice.
 DO NOT repeat ideas.
 After you finish, immediately continue to the next section.
@@ -147,7 +148,7 @@ After you finish, immediately continue to the next section.
 ### Real-World Example / Case Study
 <!-- 
 Summarize a brief, specific real-world application, case study, or anecdote demonstrating the value of this chapter, usage, or hack.
-1-3 sentences only, focused on results or outcomes.
+10-30 sentences only, focused on results or outcomes.
 
 **Examples:**  
 - At CompanyX, adopting this approach reduced incident response times by 60%.  
@@ -157,7 +158,7 @@ Summarize a brief, specific real-world application, case study, or anecdote demo
 
 ### References / Further Reading
 <!-- 
-List 1 to 3 concise references, links, docs, papers, or official resources for readers to explore more.
+List 5 to 10 concise references, links, docs, papers, or official resources for readers to explore more.
 Do not add unrelated links or marketing. Use markdown links where appropriate. After you finish, immediately continue to the next section.
 **Examples:**  
 - [FastAPI Error Handling Docs](https://fastapi.tiangolo.com/tutorial/handling-errors/)  
@@ -167,7 +168,7 @@ Do not add unrelated links or marketing. Use markdown links where appropriate. A
 
 ### Related Chapters / See Also
 <!-- 
-List 1 to 3 related chapters, tricks, usages, hacks, or sections from your ebook that connect or add value to this entry.
+List 5 to 10 related chapters, tricks, usages, hacks, or sections from your ebook that connect or add value to this entry.
 CRITICAL: Use ONLY plain text chapter names in quotes, NO markdown links or URLs.
 Format each entry as: "- Chapter Name in Quotes"
 After you finish, immediately continue to the next section.

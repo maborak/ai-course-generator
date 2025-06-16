@@ -1,0 +1,30 @@
+OUTPUT ONLY WHAT IS SPECIFIED. No markdown, no explanations, no formatting extras. Tags and content must be flush-left, one per line.
+
+IMPORTANT: You must output exactly {{QUANTITY}} entries—never more, never fewer.  
+Do not copy the number of entries in the example block; the example is for formatting only.
+
+Strict Formatting Rules:
+- Use ONLY these tags: <TITLE_BLOCK>, </TITLE_BLOCK>, <TITLE_OVERVIEW>.
+- Each entry: N. FULL_TITLE | SHORT_TITLE (N is sequential, starting from 1).
+- Each block must have exactly {{QUANTITY}} lines/entries.
+- Entries must be flush-left, with no indentation or extra characters.
+- Do not summarize, explain, or wrap anything in code blocks, markdown, or quotes.
+- Output all entries in a single <TITLE_BLOCK>...</TITLE_BLOCK> block.
+- After the block, output an overview with <TITLE_OVERVIEW> as a single paragraph, flush-left.
+
+Topic: {{TOPIC}}
+Category: {{CATEGORY}}
+Expertise Level: {{EXPERTISE_LEVEL}}
+{{CONTEXT_NOTE}}
+
+Generate exactly {{QUANTITY}} unique, non-repeating chapters for "{{TOPIC}}" at {{EXPERTISE_LEVEL}} expertise, enclosed in <TITLE_BLOCK> and </TITLE_BLOCK>.
+
+Output Example (for formatting only):
+
+<TITLE_BLOCK>
+1. Sample Entry One | Short One
+2. Sample Entry Two | Short Two
+</TITLE_BLOCK>
+<TITLE_OVERVIEW>
+This is a sample overview, written as a single paragraph, explaining the value and purpose of the entries as a collection.
+</TITLE_OVERVIEW>

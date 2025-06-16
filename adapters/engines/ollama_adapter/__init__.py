@@ -80,50 +80,43 @@ class OllamaEngine(CompletionEnginePort):
     def __init__(
         self,
         model: str,
-        host: Optional[str] = None,
-        stream: bool = False,
+        host: str = None,
+        stream: bool = True,
         category: str = "Tip",
         expertise_level: str = "Novice",
-        think: bool = True
+        think: bool = True,
+        debug: bool = False
     ) -> None:
-        """Initialize the OllamaEngine.
+        """Initialize the Ollama engine.
 
         Args:
-            model: The name of the Ollama model to use.
-            host: Optional host URL for the Ollama server.
-            stream: Whether to stream the responses.
-            category: The category of content to generate.
-            expertise_level: The expertise level for the generated content.
-            think: Whether to show thinking process in the output.
-
-        Raises:
-            OllamaEngineError: If there's an error initializing the engine.
-            ValueError: If the expertise level is invalid.
+            model: The Ollama model to use
+            host: The Ollama host address
+            stream: Whether to stream the response
+            category: The category of content to generate
+            expertise_level: The expertise level for the content
+            think: Whether to show thinking process
+            debug: Whether to show debug output
         """
-        logger.debug(
-            "Initializing OllamaEngine with model=%s, host=%s, stream=%s, "
-            "think=%s",
-            model,
-            host,
-            stream,
-            think
-        )
         self.model = model
+        self.host = host
         self.stream = stream
         self.category = category
-        self.think = think
-
-        # Normalize expertise_level to title case for matching
-        normalized_level = expertise_level.strip().title()
+        
+        # Normalize expertise level to title case
+        normalized_level = expertise_level.title()
         if normalized_level not in self.level_descriptions:
-            valid_levels = ", ".join(self.level_descriptions.keys())
             raise ValueError(
-                f"Invalid expertise level: '{expertise_level}'. "
-                f"Please choose from: {valid_levels}"
+                f"Invalid expertise level: {expertise_level}. "
+                f"Must be one of: {', '.join(self.level_descriptions.keys())}"
             )
-
         self.expertise_level = normalized_level
         self.context_note = self.level_descriptions[self.expertise_level]
+        
+        self.think = think
+        self.debug = debug
+        self.tokens_used = 0
+        self.quantity = 5  # Default quantity
 
         try:
             # Create a custom Ollama client with the specified host
@@ -139,9 +132,11 @@ class OllamaEngine(CompletionEnginePort):
 
         # Load prompt templates based on model
         base_model = self.model.split(":")[0].split(".")[0].lower()
+        # Determine prompt directory based on category
+        prompt_subdir = "course" if self.category.lower() == "course" else "common"
         # Load titles prompt template
         titles_prompt_dir = os.path.abspath(
-            os.path.join(here, "prompts/titles")
+            os.path.join(here, f"prompts/{prompt_subdir}/titles")
         )
         titles_prompt_path = os.path.join(
             titles_prompt_dir, f"{base_model}.txt"
@@ -171,7 +166,7 @@ class OllamaEngine(CompletionEnginePort):
 
         # Load content prompt template
         content_prompt_dir = os.path.abspath(
-            os.path.join(here, "prompts/content")
+            os.path.join(here, f"prompts/{prompt_subdir}/content")
         )
         content_prompt_path = os.path.join(
             content_prompt_dir, f"{base_model}.txt"
@@ -199,28 +194,26 @@ class OllamaEngine(CompletionEnginePort):
                 f"{content_prompt_path}. Error: {str(exc)}"
             ) from exc
 
-        self.tokens_used = 0
-
-    def build_titles_prompt(self, topic: str, quantity: int) -> str:
+    def build_titles_prompt(self, topic: str) -> str:
         """Build the prompt for generating chapter titles.
 
         Args:
             topic: The topic to generate chapters for.
-            quantity: The number of chapters to generate.
 
         Returns:
             The formatted prompt string.
         """
         prompt = self._prompt_titles_template
         prompt = prompt.replace("{{TOPIC}}", topic)
-        prompt = prompt.replace("{{QUANTITY}}", str(quantity))
+        prompt = prompt.replace("{{QUANTITY}}", str(self.quantity))
         prompt = prompt.replace("{{CATEGORY}}", self.category)
         prompt = prompt.replace("{{EXPERTISE_LEVEL}}", self.expertise_level)
         prompt = prompt.replace("{{CONTEXT_NOTE}}", self.context_note)
         return prompt
 
     def build_detail_prompt(
-        self, topic: str, chapter_title: str, chapter_index: int
+        self, topic: str, chapter_title: str, chapter_index: int,
+        chapter_short_title: str
     ) -> str:
         """Build the prompt for generating chapter content.
 
@@ -228,6 +221,7 @@ class OllamaEngine(CompletionEnginePort):
             topic: The topic to generate content for.
             chapter_title: The title of the chapter to generate content for.
             chapter_index: The index of the current chapter.
+            chapter_short_title: The short version of the chapter title.
 
         Returns:
             The formatted prompt string.
@@ -235,20 +229,21 @@ class OllamaEngine(CompletionEnginePort):
         prompt = self.prompt_detail_template
         prompt = prompt.replace("{{TOPIC}}", topic)
         prompt = prompt.replace("{{CHAPTER_TITLE}}", chapter_title)
+        prompt = prompt.replace("{{CHAPTER_SHORT_TITLE}}", chapter_short_title)
         prompt = prompt.replace("{{CATEGORY}}", self.category)
         prompt = prompt.replace("{{EXPERTISE_LEVEL}}", self.expertise_level)
         prompt = prompt.replace("{{CONTEXT_NOTE}}", self.context_note)
         prompt = prompt.replace("{{CHAPTER_INDEX}}", str(chapter_index))
+        prompt = prompt.replace("{{QUANTITY}}", str(self.quantity))
         return prompt
 
     def generate_chapters(
-        self, topic: str, quantity: int
+        self, topic: str
     ) -> Tuple[List[Dict[str, str]], str]:
         """Generate a list of chapter titles for the given topic.
 
         Args:
             topic: The topic to generate chapters for.
-            quantity: The number of chapters to generate.
 
         Returns:
             A tuple containing:
@@ -259,7 +254,7 @@ class OllamaEngine(CompletionEnginePort):
             The output is parsed from the model's response between
             <TITLE_BLOCK> and </TITLE_BLOCK> tags.
         """
-        prompt = self.build_titles_prompt(topic, quantity)
+        prompt = self.build_titles_prompt(topic)
         logger.debug(
             "----Prompt BEGIN----\n"
             "%s%s%s\n"
@@ -295,7 +290,8 @@ class OllamaEngine(CompletionEnginePort):
 
                 # Print with appropriate color
                 color = RED if in_think_block else GRAY
-                print(f"{color}{piece}{RESET}", end="", flush=True)
+                if self.debug:
+                    print(f"{color}{piece}{RESET}", end="", flush=True)
                 content += piece
         except ResponseError as e:
             if "does not support thinking" in str(e) and self.think:
@@ -312,7 +308,8 @@ class OllamaEngine(CompletionEnginePort):
                 }
                 for msg in self.ollama.chat(**chat_kwargs):
                     piece = msg['message']['content']
-                    print(f"{GRAY}{piece}{RESET}", end="", flush=True)
+                    if self.debug:
+                        print(f"{GRAY}{piece}{RESET}", end="", flush=True)
                     content += piece
             else:
                 raise
@@ -359,10 +356,13 @@ class OllamaEngine(CompletionEnginePort):
         for line in title_lines:
             # Match lines like: 1. Decorators for Advanced Functionality |
             # Decorators
-            match = re.match(r"\d+\.\s*(.*?)\s*\|\s*(.*)", line)
+            match = re.match(r"\s*(.*?)\s*\|\s*(.*)", line)
             if match:
                 full_title = match.group(1).strip()
                 short_title = match.group(2).strip()
+                # If short title is empty, use the full title
+                if not short_title:
+                    short_title = full_title
                 chapters.append({"full": full_title, "short": short_title})
 
         if not chapters:
@@ -382,7 +382,7 @@ class OllamaEngine(CompletionEnginePort):
 
     def generate_content(
         self, topic: str, chapter_title: str, chapter_index: int,
-        total_chapters: int
+        total_chapters: int, chapter_short_title: str
     ) -> str:
         """Generate detailed content for a specific chapter.
 
@@ -391,6 +391,7 @@ class OllamaEngine(CompletionEnginePort):
             chapter_title: The title of the chapter to generate content for.
             chapter_index: The index of the current chapter being generated.
             total_chapters: The total number of chapters being generated.
+            chapter_short_title: The short version of the chapter title.
 
         Returns:
             The generated chapter content as a string.
@@ -399,7 +400,9 @@ class OllamaEngine(CompletionEnginePort):
             The content is generated in markdown format and includes sections
             like introduction, main content, and conclusion.
         """
-        prompt = self.build_detail_prompt(topic, chapter_title, chapter_index)
+        prompt = self.build_detail_prompt(
+            topic, chapter_title, chapter_index, chapter_short_title
+        )
         logger.debug(
             "----Prompt BEGIN----\n"
             "%s%s%s\n"
@@ -436,7 +439,8 @@ class OllamaEngine(CompletionEnginePort):
 
                 # Print with appropriate color
                 color = RED if in_think_block else GRAY
-                print(f"{color}{piece}{RESET}", end="", flush=True)
+                if self.debug:
+                    print(f"{color}{piece}{RESET}", end="", flush=True)
                 content += piece
         except ResponseError as e:
             if "does not support thinking" in str(e) and self.think:
@@ -453,7 +457,8 @@ class OllamaEngine(CompletionEnginePort):
                 }
                 for msg in self.ollama.chat(**chat_kwargs):
                     piece = msg['message']['content']
-                    print(f"{GRAY}{piece}{RESET}", end="", flush=True)
+                    if self.debug:
+                        print(f"{GRAY}{piece}{RESET}", end="", flush=True)
                     content += piece
             else:
                 raise
@@ -476,13 +481,12 @@ class OllamaEngine(CompletionEnginePort):
         return content
 
     def generate(
-        self, topic: str, quantity: int
+        self, topic: str
     ) -> Tuple[List[Tuple[int, Dict[str, str], str]], str]:
         """Generate a complete set of chapters with their content.
 
         Args:
             topic: The topic to generate chapters for.
-            quantity: The number of chapters to generate.
 
         Returns:
             A tuple containing:
@@ -493,14 +497,15 @@ class OllamaEngine(CompletionEnginePort):
             This method orchestrates the generation of chapter titles and
             their detailed content.
         """
-        chapters, overview = self.generate_chapters(topic, quantity)
+        chapters, overview = self.generate_chapters(topic)
         details = []
         for i, chapter in enumerate(chapters, 1):
             detail = self.generate_content(
                 topic,
                 chapter["full"],
                 i,
-                len(chapters)
+                len(chapters),
+                chapter["short"]
             )
             details.append((i, chapter, detail))
         return details, overview

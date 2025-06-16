@@ -1,5 +1,5 @@
 openai>=1.0.0
-tiktoken>=0.5.0
+tiktoken>=0.6.0
 python-dotenv>=1.0.0
 markdown>=3.5.0
 pdfkit>=1.0.0
@@ -7,3 +7,4 @@ reportlab>=4.0.0
 weasyprint>=60.1.0
 ollama
 pylint>=3.0.0
+alive-progress

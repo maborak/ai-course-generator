@@ -27,7 +27,7 @@ class FileConverter(FileConverterPort):
         logger.debug("Initializing FileConverter with css_file=%s", css_file)
         self.css_file = css_file
 
-    def convert(self, md_file: str, metadata: dict = None):
+    def convert(self, md_file: str, metadata: dict = None, force: bool = False) -> None:
         """Convert a markdown file to HTML, EPUB, and PDF formats.
 
         Args:
@@ -61,9 +61,9 @@ class FileConverter(FileConverterPort):
             ["weasyprint", html_file, pdf_file]
         ]
         for cmd in cmds:
-            logger.debug("Running command: %s", ' '.join(cmd))
+            print("Running command: %s", ' '.join(cmd))
             try:
                 subprocess.run(cmd, check=True)
-                logger.debug("Command succeeded: %s", ' '.join(cmd))
+                print("Command succeeded: %s", ' '.join(cmd))
             except subprocess.CalledProcessError as exc:
-                logger.error("Command failed: %s | Error: %s", ' '.join(cmd), exc)
+                print("Command failed: %s | Error: %s", ' '.join(cmd), exc)
