@@ -12,38 +12,17 @@ from typing import Tuple, List, Dict, Optional, Callable
 logger = logging.getLogger(__name__)
 
 
-class ProgressCallback:
-    """Class to handle progress updates."""
-    def __init__(self, total: int, title: str = "Processing"):
-        self.total = total
-        self.current = 0
-        self.title = title
-        self.callback: Optional[Callable[[int, str], None]] = None
-
-    def update(self, increment: int = 1, text: str = "") -> None:
-        """Update progress and call the callback if set."""
-        self.current += increment
-        if self.callback:
-            self.callback(self.current, text)
-
-    def set_callback(self, callback: Callable[[int, str], None]) -> None:
-        """Set the callback function for progress updates."""
-        self.callback = callback
-
-
 class CompletionEnginePort(ABC):
     """Abstract base class for completion engine implementations."""
     @abstractmethod
     def generate(
         self, 
-        topic: str,
-        progress_callback: Optional[ProgressCallback] = None
+        topic: str
     ) -> Tuple[List[Tuple[int, Dict[str, str], str]], str]:
         """Generate content for a given topic.
 
         Args:
             topic (str): The topic to generate content for.
-            progress_callback (Optional[ProgressCallback]): Callback for progress updates.
 
         Returns:
             Tuple[List[Tuple[int, Dict[str, str], str]], str]: A tuple containing:

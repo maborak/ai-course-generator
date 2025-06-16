@@ -1,143 +1,224 @@
-/* Nord Theme for Pandoc Output
- * Based on the Nord color palette: https://www.nordtheme.com/
- */
-
 :root {
-  /* Main colors */
-  --nord0: #2E3440;  /* Polar Night */
-  --nord1: #3B4252;
-  --nord2: #434C5E;
-  --nord3: #4C566A;
+  /* Nord Color Palette */
+  --nord0: #2e3440;  /* Polar Night */
+  --nord1: #3b4252;
+  --nord2: #434c5e;
+  --nord3: #4c566a;
+  --nord4: #d8dee9;  /* Snow Storm */
+  --nord5: #e5e9f0;
+  --nord6: #eceef4;
+  --nord7: #8fbcbb;  /* Frost */
+  --nord8: #88c0d0;
+  --nord9: #81a1c1;
+  --nord10: #5e81ac;
+  --nord11: #bf616a; /* Aurora */
+  --nord12: #d08770;
+  --nord13: #ebcb8b;
+  --nord14: #a3be8c;
+  --nord15: #b48ead;
+
+  /* Theme Colors */
+  --color-text: var(--nord4);
+  --color-heading: var(--nord6);
+  --color-border: var(--nord3);
+  --color-code-bg: var(--nord1);
+  --color-code-border: var(--nord3);
+  --color-link: var(--nord8);
+  --color-link-hover: var(--nord7);
+  --color-blockquote: var(--nord4);
   
-  /* Frost colors */
-  --nord4: #D8DEE9;
-  --nord5: #E5E9F0;
-  --nord6: #ECEFF4;
+  /* Typography */
+  --font-sans: "Segoe UI", "Helvetica Neue", Arial, "Liberation Sans", sans-serif;
+  --font-mono: "Fira Mono", "Consolas", "Menlo", "Monaco", monospace;
   
-  /* Aurora colors */
-  --nord7: #8FBCBB;
-  --nord8: #88C0D0;
-  --nord9: #81A1C1;
-  --nord10: #5E81AC;
+  /* Spacing */
+  --spacing-xs: 0.3em;
+  --spacing-sm: 0.7em;
+  --spacing-md: 1.1em;
+  --spacing-lg: 1.5em;
+  --spacing-xl: 2.5em;
   
-  /* Additional colors */
-  --nord11: #BF616A;  /* Red */
-  --nord12: #D08770;  /* Orange */
-  --nord13: #EBCB8B;  /* Yellow */
-  --nord14: #A3BE8C;  /* Green */
-  --nord15: #B48EAD;  /* Purple */
+  /* Container */
+  --container-width: 860px;
+  --container-padding: 1.5em;
 }
 
-/* --- BODY & TYPOGRAPHY --- */
+/* Base Styles */
 body {
-  font-family: "Segoe UI", "Helvetica Neue", Arial, "Liberation Sans", sans-serif;
-  font-size: 12px;
-  color: var(--nord4);
+  font-family: var(--font-sans);
+  font-size: 17px;
+  color: var(--color-text);
   line-height: 1.8;
   background: var(--nord0);
-  max-width: 860px;
-  margin: 2.5em auto 2.5em auto;
-  padding: 0 1.5em;
+  max-width: var(--container-width);
+  margin: var(--spacing-xl) auto;
+  padding: 0 var(--container-padding);
 }
 
+/* Typography */
 h1, h2, h3, h4, h5, h6 {
-  color: var(--nord6);
+  color: var(--color-heading);
   font-weight: 700;
   line-height: 1.2;
-  margin-top: 2em;
-  margin-bottom: 0.7em;
+  margin-top: var(--spacing-xl);
+  margin-bottom: var(--spacing-sm);
 }
 
-h1 { font-size: 2.1em; border-bottom: 2px solid var(--nord3); padding-bottom: 0.3em; }
-h2 { font-size: 1.7em; border-bottom: 1px solid var(--nord3); padding-bottom: 0.2em; }
+h1 { 
+  font-size: 2.1em; 
+  border-bottom: 2px solid var(--color-border); 
+  padding-bottom: var(--spacing-xs); 
+}
+
+h2 { 
+  font-size: 1.7em; 
+  border-bottom: 1px solid var(--color-border); 
+  padding-bottom: var(--spacing-xs); 
+}
+
 h3 { font-size: 1.25em; }
 h4, h5, h6 { font-size: 1.1em; }
 
-/* --- CODE BLOCKS & INLINE CODE --- */
+p, ul, ol {
+  margin: var(--spacing-md) 0;
+}
+
+ul, ol {
+  margin-left: 2em;
+}
+
+li { margin-bottom: var(--spacing-xs); }
+
+hr {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: var(--spacing-xl) 0;
+}
+
+/* Code Blocks */
+pre, code {
+  font-family: var(--font-mono);
+  font-size: 15px;
+}
+
 pre {
-  background: var(--nord1);
-  border: 1px solid var(--nord3);
+  background: var(--color-code-bg);
+  border: 1px solid var(--color-code-border);
   border-radius: 6px;
-  padding: 1em 1.1em;
+  padding: var(--spacing-md) var(--spacing-md);
   margin: 1.4em 0;
   overflow-x: auto;
-  color: var(--nord4);
+  color: var(--color-text);
   line-height: 1.6;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 code {
-  background: var(--nord1);
+  background: var(--color-code-bg);
   border-radius: 4px;
   padding: 0.18em 0.45em;
-  font-size: 11px;
-  color: var(--nord8);
+  font-size: 15px;
+  color: var(--nord11);
 }
 
-/* --- SYNTAX HIGHLIGHTING --- */
+pre > code {
+  background: none;
+  padding: 0;
+  color: inherit;
+  border-radius: 0;
+}
+
+/* Code Block Optimizations */
+pre > code.sourceCode > span {
+  display: inline !important;
+  line-height: inherit !important;
+  height: auto !important;
+  border: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  background: none !important;
+  vertical-align: baseline !important;
+}
+
+pre > code.sourceCode > span:empty {
+  display: none !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+pre > code.sourceCode > span > a {
+  display: none !important;
+}
+
+/* Syntax Highlighting */
 code span.al { color: var(--nord11); font-weight: bold; }    /* Alert */
 code span.an { color: var(--nord12); font-style: italic; }   /* Annotation */
 code span.at { color: var(--nord9); }                        /* Attribute */
-code span.bn { color: var(--nord15); }                       /* BaseN */
+code span.bn { color: var(--nord14); }                       /* BaseN */
 code span.bu { color: var(--nord12); }                       /* Builtin */
-code span.cf { color: var(--nord9); font-weight: bold; }     /* ControlFlow */
-code span.ch { color: var(--nord14); }                       /* Char */
+code span.cf { color: var(--nord11); font-weight: bold; }    /* ControlFlow */
+code span.ch { color: var(--nord8); }                        /* Char */
 code span.cn { color: var(--nord11); }                       /* Constant */
 code span.co { color: var(--nord3); font-style: italic; }    /* Comment */
 code span.cv { color: var(--nord12); font-style: italic; }   /* CommentVar */
 code span.do { color: var(--nord11); font-style: italic; }   /* Documentation */
-code span.dt { color: var(--nord9); }                        /* DataType */
-code span.dv { color: var(--nord15); }                       /* DecVal */
+code span.dt { color: var(--nord12); }                       /* DataType */
+code span.dv { color: var(--nord8); }                        /* DecVal */
 code span.er { color: var(--nord11); font-weight: bold; }    /* Error */
-code span.ex { color: var(--nord14); }                       /* Extension */
-code span.fl { color: var(--nord15); }                       /* Float */
-code span.fu { color: var(--nord8); }                        /* Function */
-code span.im { color: var(--nord9); font-weight: bold; }     /* Import */
+code span.ex { color: var(--nord8); }                        /* Extension */
+code span.fl { color: var(--nord8); }                        /* Float */
+code span.fu { color: var(--nord14); }                       /* Function */
+code span.im { color: var(--nord12); font-weight: bold; }    /* Import */
 code span.in { color: var(--nord12); font-style: italic; }   /* Information */
-code span.kw { color: var(--nord9); font-weight: bold; }     /* Keyword */
+code span.kw { color: var(--nord11); font-weight: bold; }    /* Keyword */
 code span.op { color: var(--nord9); }                        /* Operator */
-code span.ot { color: var(--nord14); }                       /* Other */
-code span.pp { color: var(--nord9); }                        /* Preprocessor */
-code span.sc { color: var(--nord14); }                       /* SpecialChar */
-code span.ss { color: var(--nord14); }                       /* SpecialString */
-code span.st { color: var(--nord14); }                       /* String */
+code span.ot { color: var(--nord8); }                        /* Other */
+code span.pp { color: var(--nord14); }                       /* Preprocessor */
+code span.sc { color: var(--nord8); }                        /* SpecialChar */
+code span.ss { color: var(--nord8); }                        /* SpecialString */
+code span.st { color: var(--nord8); }                        /* String */
 code span.va { color: var(--nord12); }                       /* Variable */
-code span.vs { color: var(--nord14); }                       /* VerbatimString */
+code span.vs { color: var(--nord8); }                        /* VerbatimString */
 code span.wa { color: var(--nord11); font-style: italic; }   /* Warning */
 
-/* --- TABLES --- */
+/* Tables */
 table {
   border-collapse: collapse;
   margin-bottom: 1.7em;
   width: 100%;
   background: var(--nord0);
 }
+
 th, td {
-  border: 1px solid var(--nord3);
-  padding: 0.55em 1em;
+  border: 1px solid var(--color-code-border);
+  padding: 0.55em var(--spacing-md);
   text-align: left;
 }
+
 th {
-  background: var(--nord1);
+  background: var(--color-code-bg);
   font-weight: 600;
 }
 
-/* --- BLOCKQUOTES --- */
+/* Blockquotes */
 blockquote {
-  color: var(--nord4);
-  border-left: 4px solid var(--nord9);
-  background: var(--nord1);
-  padding: 0.7em 1.2em;
-  margin: 1.5em 0;
+  color: var(--color-blockquote);
+  border-left: 4px solid var(--color-code-border);
+  background: var(--color-code-bg);
+  padding: var(--spacing-sm) var(--spacing-md);
+  margin: var(--spacing-lg) 0;
 }
 
-/* --- LINKS --- */
+/* Links */
 a {
-  color: var(--nord8);
+  color: var(--color-link);
   text-decoration: none;
-  transition: color 0.2s;
+  transition: color 0.2s ease;
 }
+
 a:hover {
   text-decoration: underline;
-  color: var(--nord7);
-} 
+  color: var(--color-link-hover);
+}

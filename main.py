@@ -155,7 +155,7 @@ Monitoring:
     ollama_group = parser.add_argument_group('Ollama Arguments')
     ollama_group.add_argument('--ollama-host', default=None, help='Ollama host address')
     ollama_group.add_argument('--ollama-model', default='llama3.2', help='Ollama model to use')
-    ollama_group.add_argument('--ollama-stream', action='store_true', help='Enable streaming for Ollama responses')
+    ollama_group.add_argument('--ollama-stream', type=str2bool, default=True, help='Enable streaming for Ollama responses')
     ollama_group.add_argument('--ollama-no-think', action='store_true', help='Disable thinking process in Ollama')
 
     args = parser.parse_args()
@@ -243,35 +243,12 @@ Monitoring:
 
     # Set up progress bar if enabled
     if args.progress_bar:
-        from core.ports import ProgressCallback
-        from alive_progress import alive_bar
-
-        # Create progress callback with total steps (chapters + 1 for titles)
-        progress = ProgressCallback(total=args.quantity + 1)
-
-        # Set up the progress bar
-        with alive_bar(
-            progress.total,
-            title=progress.title,
-            bar="smooth",
-            spinner="waves",
-            enrich_print=False
-        ) as bar:
-            # Set the callback to update the progress bar
-            def update_progress(current: int, text: str) -> None:
-                bar.text(text)
-                bar()
-            
-            progress.set_callback(update_progress)
-            
-            # Pass the progress callback to generate
-            generator.run(
-                args.topic,
-                args.quantity,
-                output_md,
-                force=args.force,
-                progress_callback=progress
-            )
+        generator.run(
+            args.topic,
+            args.quantity,
+            output_md,
+            force=args.force
+        )
     else:
         generator.run(
             args.topic,

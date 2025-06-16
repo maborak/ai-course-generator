@@ -18,7 +18,7 @@ import logging
 from typing import Dict, List, Tuple, Optional, Callable
 from ollama import Client
 from ollama._types import ResponseError
-from core.ports import CompletionEnginePort, ProgressCallback
+from core.ports import CompletionEnginePort
 
 # ANSI color codes
 GRAY = "\033[90m"
@@ -118,7 +118,6 @@ class OllamaEngine(CompletionEnginePort):
         self.debug = debug
         self.tokens_used = 0
         self.quantity = 5  # Default quantity
-        self.progress_callback: Optional[Callable[[int, str], None]] = None
 
         try:
             # Create a custom Ollama client with the specified host
@@ -195,10 +194,6 @@ class OllamaEngine(CompletionEnginePort):
                 f"Failed to load content prompt template from "
                 f"{content_prompt_path}. Error: {str(exc)}"
             ) from exc
-
-    def set_progress_callback(self, callback: Callable[[int, str], None]) -> None:
-        """Set the callback function for progress updates."""
-        self.progress_callback = callback
 
     def build_titles_prompt(self, topic: str) -> str:
         """Build the prompt for generating chapter titles.
@@ -419,10 +414,8 @@ class OllamaEngine(CompletionEnginePort):
         )
         messages = [{"role": "user", "content": prompt}]
         content = ""
-        print(
-            f"+-----\n| Processing Chapter #{chapter_index} of "
-            f"{total_chapters} (Attempt 1)\n+-----"
-        )
+        logger.debug("Processing Chapter #%d of %d (Attempt 1)",
+                    chapter_index, total_chapters)
 
         in_think_block = False
         try:
@@ -488,37 +481,35 @@ class OllamaEngine(CompletionEnginePort):
 
     def generate(
         self, 
-        topic: str,
-        progress_callback: Optional[ProgressCallback] = None
+        topic: str
     ) -> Tuple[List[Tuple[int, Dict[str, str], str]], str]:
         """Generate a complete set of chapters with their content."""
         # Reset token usage at the start of generation
         self.tokens_used = 0
 
         # Generate chapters
-        if progress_callback:
-            progress_callback.update(0, "Generating chapter titles...")
         chapters, overview = self.generate_chapters(topic)
-        if progress_callback:
-            progress_callback.update(1, "Chapter titles generated")
-
+        
         details = []
+        total_chapters = len(chapters)
         # Generate content for each chapter
         for i, chapter in enumerate(chapters, 1):
-            if progress_callback:
-                progress_callback.update(
-                    0, 
-                    f"Processing chapter {i}/{len(chapters)}: {chapter['short']}"
-                )
             detail = self.generate_content(
                 topic,
                 chapter["full"],
                 i,
-                len(chapters),
+                total_chapters,
                 chapter["short"]
             )
             details.append((i, chapter, detail))
-            if progress_callback:
-                progress_callback.update(1)
 
         return details, overview
+
+    def set_progress_callback(self, callback: Callable[[int, str], None]) -> None:
+        """Set the callback function for progress updates.
+        
+        Args:
+            callback (Callable[[int, str], None]): Function to call with progress updates.
+                Takes current progress (int) and status text (str) as arguments.
+        """
+        pass  # Progress callback is not used in this implementation

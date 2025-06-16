@@ -19,8 +19,7 @@ import time
 from typing import Dict, List, Tuple, Optional, Callable
 from openai import OpenAI
 import tiktoken
-from alive_progress import alive_bar
-from core.ports import CompletionEnginePort, ProgressCallback
+from core.ports import CompletionEnginePort
 
 # ANSI color codes
 GRAY = "\033[90m"
@@ -523,43 +522,37 @@ class OpenAIEngine(CompletionEnginePort):
         }
 
     def set_progress_callback(self, callback: Callable[[int, str], None]) -> None:
-        """Set the callback function for progress updates."""
-        self.progress_callback = callback
+        """Set the callback function for progress updates.
+        
+        Args:
+            callback (Callable[[int, str], None]): Function to call with progress updates.
+                Takes current progress (int) and status text (str) as arguments.
+        """
+        pass  # Progress callback is not used in this implementation
 
     def generate(
         self, 
-        topic: str,
-        progress_callback: Optional[ProgressCallback] = None
+        topic: str
     ) -> Tuple[List[Tuple[int, Dict[str, str], str]], str]:
         """Generate a complete set of chapters with their content."""
         # Reset token usage at the start of generation
         self.tokens_used = {"input": 0, "output": 0}
-
+        
         # Generate chapters
-        if progress_callback:
-            progress_callback.update(0, "Generating chapter titles...")
         chapters, overview = self.generate_chapters(topic)
-        if progress_callback:
-            progress_callback.update(1, "Chapter titles generated")
 
         details = []
+        total_chapters = len(chapters)
         # Generate content for each chapter
         for i, chapter in enumerate(chapters, 1):
-            if progress_callback:
-                progress_callback.update(
-                    0, 
-                    f"Processing chapter {i}/{len(chapters)}: {chapter['short']}"
-                )
             detail = self.generate_content(
                 topic,
                 chapter["full"],
                 i,
-                len(chapters),
+                total_chapters,
                 chapter["short"]
             )
             details.append((i, chapter, detail))
-            if progress_callback:
-                progress_callback.update(1)
 
         # Calculate and log costs
         costs = self.calculate_costs()

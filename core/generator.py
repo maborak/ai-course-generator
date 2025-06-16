@@ -54,7 +54,6 @@ class AIKnowledgeGenerator:
         quantity: int,
         output_md: str,
         force: bool = False,  # pylint: disable=unused-argument
-        progress_callback: Optional[Any] = None
     ) -> None:
         """Run the knowledge generation process.
 
@@ -66,7 +65,6 @@ class AIKnowledgeGenerator:
             quantity: Number of items to generate
             output_md: Path to save the markdown output
             force: Whether to force overwrite existing files
-            progress_callback: Optional progress callback for tracking generation progress
         """
         logger.debug(
             "Running generation process for %d items on topic '%s'",
@@ -92,7 +90,7 @@ class AIKnowledgeGenerator:
 
         # Generate content
         self.engine.quantity = quantity
-        details, overview = self.engine.generate(topic, progress_callback)
+        details, overview = self.engine.generate(topic)
         tokens_used = (
             self.engine.tokens_used
             if hasattr(self.engine, "tokens_used")
