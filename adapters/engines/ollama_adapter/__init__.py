@@ -15,10 +15,10 @@ The engine supports:
 import os
 import re
 import logging
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Tuple, Optional, Callable
 from ollama import Client
 from ollama._types import ResponseError
-from core.ports import CompletionEnginePort
+from core.ports import CompletionEnginePort, ProgressCallback
 
 # ANSI color codes
 GRAY = "\033[90m"
@@ -60,6 +60,7 @@ class OllamaEngine(CompletionEnginePort):
         expertise_level (str): The expertise level for the generated content.
         context_note (str): The context note based on expertise level.
         tokens_used (int): Counter for tokens used in generation.
+        progress_callback: Optional[Callable[[int, str], None]]: Callback function for progress updates.
     """
 
     level_descriptions: Dict[str, str] = {
@@ -117,6 +118,7 @@ class OllamaEngine(CompletionEnginePort):
         self.debug = debug
         self.tokens_used = 0
         self.quantity = 5  # Default quantity
+        self.progress_callback: Optional[Callable[[int, str], None]] = None
 
         try:
             # Create a custom Ollama client with the specified host
@@ -193,6 +195,10 @@ class OllamaEngine(CompletionEnginePort):
                 f"Failed to load content prompt template from "
                 f"{content_prompt_path}. Error: {str(exc)}"
             ) from exc
+
+    def set_progress_callback(self, callback: Callable[[int, str], None]) -> None:
+        """Set the callback function for progress updates."""
+        self.progress_callback = callback
 
     def build_titles_prompt(self, topic: str) -> str:
         """Build the prompt for generating chapter titles.
@@ -481,25 +487,29 @@ class OllamaEngine(CompletionEnginePort):
         return content
 
     def generate(
-        self, topic: str
+        self, 
+        topic: str,
+        progress_callback: Optional[ProgressCallback] = None
     ) -> Tuple[List[Tuple[int, Dict[str, str], str]], str]:
-        """Generate a complete set of chapters with their content.
+        """Generate a complete set of chapters with their content."""
+        # Reset token usage at the start of generation
+        self.tokens_used = 0
 
-        Args:
-            topic: The topic to generate chapters for.
-
-        Returns:
-            A tuple containing:
-                - List of tuples with (index, chapter_info, content)
-                - Overview string of the generated chapters
-
-        Note:
-            This method orchestrates the generation of chapter titles and
-            their detailed content.
-        """
+        # Generate chapters
+        if progress_callback:
+            progress_callback.update(0, "Generating chapter titles...")
         chapters, overview = self.generate_chapters(topic)
+        if progress_callback:
+            progress_callback.update(1, "Chapter titles generated")
+
         details = []
+        # Generate content for each chapter
         for i, chapter in enumerate(chapters, 1):
+            if progress_callback:
+                progress_callback.update(
+                    0, 
+                    f"Processing chapter {i}/{len(chapters)}: {chapter['short']}"
+                )
             detail = self.generate_content(
                 topic,
                 chapter["full"],
@@ -508,4 +518,7 @@ class OllamaEngine(CompletionEnginePort):
                 chapter["short"]
             )
             details.append((i, chapter, detail))
+            if progress_callback:
+                progress_callback.update(1)
+
         return details, overview

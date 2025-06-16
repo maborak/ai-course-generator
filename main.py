@@ -113,6 +113,12 @@ Monitoring:
         action='store_true',
         help='Check if output files can be generated with dummy content'
     )
+    common_group.add_argument(
+        '--progress-bar',
+        type=str2bool,
+        default=False,
+        help='Show progress bar during generation (true/false, yes/no, 1/0)'
+    )
 
     # OpenAI specific arguments
     openai_group = parser.add_argument_group('OpenAI Arguments')
@@ -208,12 +214,45 @@ Monitoring:
 
     generator = AIKnowledgeGenerator(engine, converter)
     logger.debug("Calling generator.run")
-    generator.run(
-        args.topic,
-        args.quantity,
-        output_md,
-        force=args.force
-    )
+
+    # Set up progress bar if enabled
+    if args.progress_bar:
+        from core.ports import ProgressCallback
+        from alive_progress import alive_bar
+
+        # Create progress callback with total steps (chapters + 1 for titles)
+        progress = ProgressCallback(total=args.quantity + 1)
+
+        # Set up the progress bar
+        with alive_bar(
+            progress.total,
+            title=progress.title,
+            bar="smooth",
+            spinner="waves",
+            enrich_print=False
+        ) as bar:
+            # Set the callback to update the progress bar
+            def update_progress(current: int, text: str) -> None:
+                bar.text(text)
+                bar()
+            
+            progress.set_callback(update_progress)
+            
+            # Pass the progress callback to generate
+            generator.run(
+                args.topic,
+                args.quantity,
+                output_md,
+                force=args.force,
+                progress_callback=progress
+            )
+    else:
+        generator.run(
+            args.topic,
+            args.quantity,
+            output_md,
+            force=args.force
+        )
 
 
 if __name__ == "__main__":
