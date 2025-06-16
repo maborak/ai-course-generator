@@ -74,6 +74,9 @@ class AIKnowledgeGenerator:
             topic
         )
 
+        # Start timing
+        start_time = time.time()
+
         # Get current timestamp
         now = datetime.now()
         now_str = now.strftime("%Y-%m-%d %H:%M:%S")
@@ -96,14 +99,8 @@ class AIKnowledgeGenerator:
             else 0
         )
 
-        # Create header with metadata
-        header = f"""# {topic} ({category}, {expertise_level})
-
-Generated on: {now_str}
-Model: {model}
-Tokens used: {tokens_used}
-
-"""
+        # Calculate elapsed time
+        elapsed = time.time() - start_time
 
         # Calculate reading time from the content
         content = ""
@@ -113,9 +110,19 @@ Tokens used: {tokens_used}
             content += detail + "\n"
         reading_time = self.calculate_reading_time(content)
 
-        header += f"- **Reading Time:** {reading_time}\n\n"
-        header += "---\n\n"
-
+        # Create header with metadata
+        header = (
+            f"# {topic} ({category})\n\n"
+            f"---\n\n"
+            f"## Document Info\n\n"
+            f"- **Expertise Level:** {expertise_level}\n"
+            f"- **Category:** {category}\n"
+            f"- **Model Used:** {model}\n"
+            f"- **Total Tokens Used:** {tokens_used}\n"
+            f"- **Generated on:** {now_str}\n"
+            f"- **Generated in:** {self.format_elapsed(elapsed)}\n"
+            f"- **Reading Time:** {reading_time}\n\n"
+            "---\n\n")
         # Write the content to the markdown file
         with open(output_md, "w", encoding="utf-8") as file:
             file.write(header)
@@ -127,6 +134,7 @@ Tokens used: {tokens_used}
         # Convert to other formats
         metadata = {
             "title": f"{topic} ({category}, {expertise_level})",
+            "category": category,
             "author": "AI Knowledge Generator",
             "date": now_str,
             "model": model,

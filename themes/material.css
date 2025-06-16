@@ -1,0 +1,137 @@
+/* Material Theme for Pandoc Output
+ * Based on Google's Material Design color palette
+ */
+
+:root {
+  /* Main colors */
+  --mat-bg: #263238;
+  --mat-bg-light: #37474f;
+  --mat-bg-lighter: #455a64;
+  --mat-fg: #eceff1;
+  --mat-fg-light: #ffffff;
+  --mat-fg-lighter: #ffffff;
+  
+  /* Syntax colors */
+  --mat-red: #ff5252;
+  --mat-orange: #ffab40;
+  --mat-yellow: #ffd740;
+  --mat-green: #69f0ae;
+  --mat-aqua: #64ffda;
+  --mat-blue: #40c4ff;
+  --mat-purple: #b388ff;
+  --mat-pink: #ff80ab;
+}
+
+body {
+  font-family: "Roboto", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-size: 12px;
+  color: var(--mat-fg);
+  line-height: 1.8;
+  background: var(--mat-bg);
+  max-width: 860px;
+  margin: 2.5em auto 2.5em auto;
+  padding: 0 1.5em;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--mat-fg-light);
+  font-weight: 500;
+  line-height: 1.2;
+  margin-top: 2em;
+  margin-bottom: 0.7em;
+  letter-spacing: -0.02em;
+}
+
+h1 { font-size: 2.1em; border-bottom: 2px solid var(--mat-bg-light); padding-bottom: 0.3em; }
+h2 { font-size: 1.7em; border-bottom: 1px solid var(--mat-bg-light); padding-bottom: 0.2em; }
+h3 { font-size: 1.25em; }
+h4, h5, h6 { font-size: 1.1em; }
+
+pre {
+  background: var(--mat-bg-light);
+  border: 1px solid var(--mat-bg-lighter);
+  border-radius: 4px;
+  padding: 1em 1.1em;
+  margin: 1.4em 0;
+  overflow-x: auto;
+  color: var(--mat-fg);
+  line-height: 1.6;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+code {
+  background: var(--mat-bg-light);
+  border-radius: 3px;
+  padding: 0.18em 0.45em;
+  font-size: 11px;
+  color: var(--mat-blue);
+  font-family: "Roboto Mono", "Consolas", monospace;
+}
+
+/* Syntax Highlighting */
+code span.al { color: var(--mat-red); font-weight: bold; }    /* Alert */
+code span.an { color: var(--mat-orange); font-style: italic; } /* Annotation */
+code span.at { color: var(--mat-blue); }                       /* Attribute */
+code span.bn { color: var(--mat-purple); }                     /* BaseN */
+code span.bu { color: var(--mat-orange); }                     /* Builtin */
+code span.cf { color: var(--mat-blue); font-weight: bold; }    /* ControlFlow */
+code span.ch { color: var(--mat-green); }                      /* Char */
+code span.cn { color: var(--mat-purple); }                     /* Constant */
+code span.co { color: var(--mat-fg); font-style: italic; }     /* Comment */
+code span.cv { color: var(--mat-orange); font-style: italic; } /* CommentVar */
+code span.do { color: var(--mat-red); font-style: italic; }    /* Documentation */
+code span.dt { color: var(--mat-blue); }                       /* DataType */
+code span.dv { color: var(--mat-purple); }                     /* DecVal */
+code span.er { color: var(--mat-red); font-weight: bold; }     /* Error */
+code span.ex { color: var(--mat-green); }                      /* Extension */
+code span.fl { color: var(--mat-purple); }                     /* Float */
+code span.fu { color: var(--mat-blue); }                       /* Function */
+code span.im { color: var(--mat-blue); font-weight: bold; }    /* Import */
+code span.in { color: var(--mat-orange); font-style: italic; } /* Information */
+code span.kw { color: var(--mat-blue); font-weight: bold; }    /* Keyword */
+code span.op { color: var(--mat-fg-light); }                   /* Operator */
+code span.ot { color: var(--mat-green); }                      /* Other */
+code span.pp { color: var(--mat-blue); }                       /* Preprocessor */
+code span.sc { color: var(--mat-yellow); }                     /* SpecialChar */
+code span.ss { color: var(--mat-yellow); }                     /* SpecialString */
+code span.st { color: var(--mat-yellow); }                     /* String */
+code span.va { color: var(--mat-blue); }                       /* Variable */
+code span.vs { color: var(--mat-yellow); }                     /* VerbatimString */
+code span.wa { color: var(--mat-red); font-style: italic; }    /* Warning */
+
+/* Tables */
+table {
+  border-collapse: collapse;
+  margin-bottom: 1.7em;
+  width: 100%;
+  background: var(--mat-bg);
+}
+th, td {
+  border: 1px solid var(--mat-bg-light);
+  padding: 0.55em 1em;
+  text-align: left;
+}
+th {
+  background: var(--mat-bg-light);
+  font-weight: 500;
+}
+
+/* Blockquotes */
+blockquote {
+  color: var(--mat-fg);
+  border-left: 4px solid var(--mat-bg-light);
+  background: var(--mat-bg-light);
+  padding: 0.7em 1.2em;
+  margin: 1.5em 0;
+}
+
+/* Links */
+a {
+  color: var(--mat-blue);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+a:hover {
+  text-decoration: underline;
+  color: var(--mat-aqua);
+} 

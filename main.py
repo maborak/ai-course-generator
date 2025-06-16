@@ -59,6 +59,23 @@ def str2bool(v):
     raise argparse.ArgumentTypeError('Boolean value expected.')
 
 
+def get_available_themes():
+    """Get list of available themes from the themes directory.
+    
+    Returns:
+        list: List of theme names (without .css extension)
+    """
+    themes_dir = os.path.join(os.path.dirname(__file__), 'themes')
+    if not os.path.exists(themes_dir):
+        return ['normal']
+    
+    themes = []
+    for file in os.listdir(themes_dir):
+        if file.endswith('.css'):
+            themes.append(file[:-4])  # Remove .css extension
+    return sorted(themes) if themes else ['normal']
+
+
 def main():
     """
     Main entry point for the AI Tips Generator application.
@@ -90,6 +107,9 @@ Examples:
   # Check if all output formats can be generated (monitoring)
   python main.py --check
 
+  # Generate tips with a specific theme
+  python main.py --topic python --theme dracula
+
 Monitoring:
   The --check flag helps verify that all output formats (markdown, HTML, PDF, EPUB)
   can be generated correctly. It creates a test file with dummy content and attempts
@@ -118,6 +138,12 @@ Monitoring:
         type=str2bool,
         default=False,
         help='Show progress bar during generation (true/false, yes/no, 1/0)'
+    )
+    common_group.add_argument(
+        '--theme',
+        default='normal',
+        choices=get_available_themes(),
+        help='Theme to use for HTML/PDF output'
     )
 
     # OpenAI specific arguments
@@ -210,7 +236,7 @@ Monitoring:
             think=not args.ollama_no_think,
             debug=args.debug
         )
-    converter = FileConverter()
+    converter = FileConverter(theme=args.theme)
 
     generator = AIKnowledgeGenerator(engine, converter)
     logger.debug("Calling generator.run")

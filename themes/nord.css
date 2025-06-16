@@ -1,0 +1,143 @@
+/* Nord Theme for Pandoc Output
+ * Based on the Nord color palette: https://www.nordtheme.com/
+ */
+
+:root {
+  /* Main colors */
+  --nord0: #2E3440;  /* Polar Night */
+  --nord1: #3B4252;
+  --nord2: #434C5E;
+  --nord3: #4C566A;
+  
+  /* Frost colors */
+  --nord4: #D8DEE9;
+  --nord5: #E5E9F0;
+  --nord6: #ECEFF4;
+  
+  /* Aurora colors */
+  --nord7: #8FBCBB;
+  --nord8: #88C0D0;
+  --nord9: #81A1C1;
+  --nord10: #5E81AC;
+  
+  /* Additional colors */
+  --nord11: #BF616A;  /* Red */
+  --nord12: #D08770;  /* Orange */
+  --nord13: #EBCB8B;  /* Yellow */
+  --nord14: #A3BE8C;  /* Green */
+  --nord15: #B48EAD;  /* Purple */
+}
+
+/* --- BODY & TYPOGRAPHY --- */
+body {
+  font-family: "Segoe UI", "Helvetica Neue", Arial, "Liberation Sans", sans-serif;
+  font-size: 12px;
+  color: var(--nord4);
+  line-height: 1.8;
+  background: var(--nord0);
+  max-width: 860px;
+  margin: 2.5em auto 2.5em auto;
+  padding: 0 1.5em;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--nord6);
+  font-weight: 700;
+  line-height: 1.2;
+  margin-top: 2em;
+  margin-bottom: 0.7em;
+}
+
+h1 { font-size: 2.1em; border-bottom: 2px solid var(--nord3); padding-bottom: 0.3em; }
+h2 { font-size: 1.7em; border-bottom: 1px solid var(--nord3); padding-bottom: 0.2em; }
+h3 { font-size: 1.25em; }
+h4, h5, h6 { font-size: 1.1em; }
+
+/* --- CODE BLOCKS & INLINE CODE --- */
+pre {
+  background: var(--nord1);
+  border: 1px solid var(--nord3);
+  border-radius: 6px;
+  padding: 1em 1.1em;
+  margin: 1.4em 0;
+  overflow-x: auto;
+  color: var(--nord4);
+  line-height: 1.6;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+code {
+  background: var(--nord1);
+  border-radius: 4px;
+  padding: 0.18em 0.45em;
+  font-size: 11px;
+  color: var(--nord8);
+}
+
+/* --- SYNTAX HIGHLIGHTING --- */
+code span.al { color: var(--nord11); font-weight: bold; }    /* Alert */
+code span.an { color: var(--nord12); font-style: italic; }   /* Annotation */
+code span.at { color: var(--nord9); }                        /* Attribute */
+code span.bn { color: var(--nord15); }                       /* BaseN */
+code span.bu { color: var(--nord12); }                       /* Builtin */
+code span.cf { color: var(--nord9); font-weight: bold; }     /* ControlFlow */
+code span.ch { color: var(--nord14); }                       /* Char */
+code span.cn { color: var(--nord11); }                       /* Constant */
+code span.co { color: var(--nord3); font-style: italic; }    /* Comment */
+code span.cv { color: var(--nord12); font-style: italic; }   /* CommentVar */
+code span.do { color: var(--nord11); font-style: italic; }   /* Documentation */
+code span.dt { color: var(--nord9); }                        /* DataType */
+code span.dv { color: var(--nord15); }                       /* DecVal */
+code span.er { color: var(--nord11); font-weight: bold; }    /* Error */
+code span.ex { color: var(--nord14); }                       /* Extension */
+code span.fl { color: var(--nord15); }                       /* Float */
+code span.fu { color: var(--nord8); }                        /* Function */
+code span.im { color: var(--nord9); font-weight: bold; }     /* Import */
+code span.in { color: var(--nord12); font-style: italic; }   /* Information */
+code span.kw { color: var(--nord9); font-weight: bold; }     /* Keyword */
+code span.op { color: var(--nord9); }                        /* Operator */
+code span.ot { color: var(--nord14); }                       /* Other */
+code span.pp { color: var(--nord9); }                        /* Preprocessor */
+code span.sc { color: var(--nord14); }                       /* SpecialChar */
+code span.ss { color: var(--nord14); }                       /* SpecialString */
+code span.st { color: var(--nord14); }                       /* String */
+code span.va { color: var(--nord12); }                       /* Variable */
+code span.vs { color: var(--nord14); }                       /* VerbatimString */
+code span.wa { color: var(--nord11); font-style: italic; }   /* Warning */
+
+/* --- TABLES --- */
+table {
+  border-collapse: collapse;
+  margin-bottom: 1.7em;
+  width: 100%;
+  background: var(--nord0);
+}
+th, td {
+  border: 1px solid var(--nord3);
+  padding: 0.55em 1em;
+  text-align: left;
+}
+th {
+  background: var(--nord1);
+  font-weight: 600;
+}
+
+/* --- BLOCKQUOTES --- */
+blockquote {
+  color: var(--nord4);
+  border-left: 4px solid var(--nord9);
+  background: var(--nord1);
+  padding: 0.7em 1.2em;
+  margin: 1.5em 0;
+}
+
+/* --- LINKS --- */
+a {
+  color: var(--nord8);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+a:hover {
+  text-decoration: underline;
+  color: var(--nord7);
+} 

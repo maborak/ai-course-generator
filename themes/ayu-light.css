@@ -1,0 +1,135 @@
+/* Ayu Light Theme for Pandoc Output
+ * Based on the Ayu color palette: https://github.com/ayu-theme/ayu-colors
+ */
+
+:root {
+  /* Main colors */
+  --ayu-bg: #fafafa;
+  --ayu-bg-light: #f3f4f5;
+  --ayu-bg-lighter: #e6e8eb;
+  --ayu-fg: #5c6773;
+  --ayu-fg-light: #24292e;
+  --ayu-fg-lighter: #1a1f24;
+  
+  /* Syntax colors */
+  --ayu-red: #f51818;
+  --ayu-orange: #ff7733;
+  --ayu-yellow: #ffb454;
+  --ayu-green: #86b300;
+  --ayu-aqua: #4cbf99;
+  --ayu-blue: #0083be;
+  --ayu-purple: #a37acc;
+  --ayu-pink: #f29e74;
+}
+
+body {
+  font-family: "Segoe UI", "Helvetica Neue", Arial, "Liberation Sans", sans-serif;
+  font-size: 12px;
+  color: var(--ayu-fg);
+  line-height: 1.8;
+  background: var(--ayu-bg);
+  max-width: 860px;
+  margin: 2.5em auto 2.5em auto;
+  padding: 0 1.5em;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--ayu-fg-light);
+  font-weight: 700;
+  line-height: 1.2;
+  margin-top: 2em;
+  margin-bottom: 0.7em;
+}
+
+h1 { font-size: 2.1em; border-bottom: 2px solid var(--ayu-bg-lighter); padding-bottom: 0.3em; }
+h2 { font-size: 1.7em; border-bottom: 1px solid var(--ayu-bg-lighter); padding-bottom: 0.2em; }
+h3 { font-size: 1.25em; }
+h4, h5, h6 { font-size: 1.1em; }
+
+pre {
+  background: var(--ayu-bg-light);
+  border: 1px solid var(--ayu-bg-lighter);
+  border-radius: 6px;
+  padding: 1em 1.1em;
+  margin: 1.4em 0;
+  overflow-x: auto;
+  color: var(--ayu-fg);
+  line-height: 1.6;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+code {
+  background: var(--ayu-bg-light);
+  border-radius: 4px;
+  padding: 0.18em 0.45em;
+  font-size: 11px;
+  color: var(--ayu-blue);
+}
+
+/* Syntax Highlighting */
+code span.al { color: var(--ayu-red); font-weight: bold; }    /* Alert */
+code span.an { color: var(--ayu-orange); font-style: italic; } /* Annotation */
+code span.at { color: var(--ayu-blue); }                       /* Attribute */
+code span.bn { color: var(--ayu-purple); }                     /* BaseN */
+code span.bu { color: var(--ayu-orange); }                     /* Builtin */
+code span.cf { color: var(--ayu-blue); font-weight: bold; }    /* ControlFlow */
+code span.ch { color: var(--ayu-green); }                      /* Char */
+code span.cn { color: var(--ayu-purple); }                     /* Constant */
+code span.co { color: var(--ayu-fg); font-style: italic; }     /* Comment */
+code span.cv { color: var(--ayu-orange); font-style: italic; } /* CommentVar */
+code span.do { color: var(--ayu-red); font-style: italic; }    /* Documentation */
+code span.dt { color: var(--ayu-blue); }                       /* DataType */
+code span.dv { color: var(--ayu-purple); }                     /* DecVal */
+code span.er { color: var(--ayu-red); font-weight: bold; }     /* Error */
+code span.ex { color: var(--ayu-green); }                      /* Extension */
+code span.fl { color: var(--ayu-purple); }                     /* Float */
+code span.fu { color: var(--ayu-blue); }                       /* Function */
+code span.im { color: var(--ayu-blue); font-weight: bold; }    /* Import */
+code span.in { color: var(--ayu-orange); font-style: italic; } /* Information */
+code span.kw { color: var(--ayu-blue); font-weight: bold; }    /* Keyword */
+code span.op { color: var(--ayu-fg-light); }                   /* Operator */
+code span.ot { color: var(--ayu-green); }                      /* Other */
+code span.pp { color: var(--ayu-blue); }                       /* Preprocessor */
+code span.sc { color: var(--ayu-yellow); }                     /* SpecialChar */
+code span.ss { color: var(--ayu-yellow); }                     /* SpecialString */
+code span.st { color: var(--ayu-yellow); }                     /* String */
+code span.va { color: var(--ayu-blue); }                       /* Variable */
+code span.vs { color: var(--ayu-yellow); }                     /* VerbatimString */
+code span.wa { color: var(--ayu-red); font-style: italic; }    /* Warning */
+
+/* Tables */
+table {
+  border-collapse: collapse;
+  margin-bottom: 1.7em;
+  width: 100%;
+  background: var(--ayu-bg);
+}
+th, td {
+  border: 1px solid var(--ayu-bg-lighter);
+  padding: 0.55em 1em;
+  text-align: left;
+}
+th {
+  background: var(--ayu-bg-light);
+  font-weight: 600;
+}
+
+/* Blockquotes */
+blockquote {
+  color: var(--ayu-fg);
+  border-left: 4px solid var(--ayu-bg-lighter);
+  background: var(--ayu-bg-light);
+  padding: 0.7em 1.2em;
+  margin: 1.5em 0;
+}
+
+/* Links */
+a {
+  color: var(--ayu-blue);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+a:hover {
+  text-decoration: underline;
+  color: var(--ayu-aqua);
+} 

@@ -1,0 +1,132 @@
+/* Monokai Theme for Pandoc Output
+ * Based on the Monokai color palette: https://monokai.pro/
+ */
+
+:root {
+  /* Main colors */
+  --mono-bg: #272822;
+  --mono-fg: #f8f8f2;
+  --mono-comment: #75715e;
+  
+  /* Syntax colors */
+  --mono-red: #f92672;
+  --mono-orange: #fd971f;
+  --mono-yellow: #e6db74;
+  --mono-green: #a6e22e;
+  --mono-blue: #66d9ef;
+  --mono-purple: #ae81ff;
+  --mono-pink: #f92672;
+  --mono-cyan: #66d9ef;
+}
+
+body {
+  font-family: "Segoe UI", "Helvetica Neue", Arial, "Liberation Sans", sans-serif;
+  font-size: 12px;
+  color: var(--mono-fg);
+  line-height: 1.8;
+  background: var(--mono-bg);
+  max-width: 860px;
+  margin: 2.5em auto 2.5em auto;
+  padding: 0 1.5em;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--mono-fg);
+  font-weight: 700;
+  line-height: 1.2;
+  margin-top: 2em;
+  margin-bottom: 0.7em;
+}
+
+h1 { font-size: 2.1em; border-bottom: 2px solid var(--mono-comment); padding-bottom: 0.3em; }
+h2 { font-size: 1.7em; border-bottom: 1px solid var(--mono-comment); padding-bottom: 0.2em; }
+h3 { font-size: 1.25em; }
+h4, h5, h6 { font-size: 1.1em; }
+
+pre {
+  background: var(--mono-bg);
+  border: 1px solid var(--mono-comment);
+  border-radius: 6px;
+  padding: 1em 1.1em;
+  margin: 1.4em 0;
+  overflow-x: auto;
+  color: var(--mono-fg);
+  line-height: 1.6;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+code {
+  background: var(--mono-bg);
+  border-radius: 4px;
+  padding: 0.18em 0.45em;
+  font-size: 11px;
+  color: var(--mono-pink);
+}
+
+/* Syntax Highlighting */
+code span.al { color: var(--mono-red); font-weight: bold; }    /* Alert */
+code span.an { color: var(--mono-orange); font-style: italic; } /* Annotation */
+code span.at { color: var(--mono-blue); }                       /* Attribute */
+code span.bn { color: var(--mono-purple); }                     /* BaseN */
+code span.bu { color: var(--mono-orange); }                     /* Builtin */
+code span.cf { color: var(--mono-pink); font-weight: bold; }    /* ControlFlow */
+code span.ch { color: var(--mono-green); }                      /* Char */
+code span.cn { color: var(--mono-purple); }                     /* Constant */
+code span.co { color: var(--mono-comment); font-style: italic; } /* Comment */
+code span.cv { color: var(--mono-orange); font-style: italic; } /* CommentVar */
+code span.do { color: var(--mono-red); font-style: italic; }    /* Documentation */
+code span.dt { color: var(--mono-blue); }                       /* DataType */
+code span.dv { color: var(--mono-purple); }                     /* DecVal */
+code span.er { color: var(--mono-red); font-weight: bold; }     /* Error */
+code span.ex { color: var(--mono-green); }                      /* Extension */
+code span.fl { color: var(--mono-purple); }                     /* Float */
+code span.fu { color: var(--mono-green); }                      /* Function */
+code span.im { color: var(--mono-pink); font-weight: bold; }    /* Import */
+code span.in { color: var(--mono-orange); font-style: italic; } /* Information */
+code span.kw { color: var(--mono-pink); font-weight: bold; }    /* Keyword */
+code span.op { color: var(--mono-fg); }                         /* Operator */
+code span.ot { color: var(--mono-green); }                      /* Other */
+code span.pp { color: var(--mono-pink); }                       /* Preprocessor */
+code span.sc { color: var(--mono-yellow); }                     /* SpecialChar */
+code span.ss { color: var(--mono-yellow); }                     /* SpecialString */
+code span.st { color: var(--mono-yellow); }                     /* String */
+code span.va { color: var(--mono-blue); }                       /* Variable */
+code span.vs { color: var(--mono-yellow); }                     /* VerbatimString */
+code span.wa { color: var(--mono-red); font-style: italic; }    /* Warning */
+
+/* Tables */
+table {
+  border-collapse: collapse;
+  margin-bottom: 1.7em;
+  width: 100%;
+  background: var(--mono-bg);
+}
+th, td {
+  border: 1px solid var(--mono-comment);
+  padding: 0.55em 1em;
+  text-align: left;
+}
+th {
+  background: var(--mono-bg);
+  font-weight: 600;
+}
+
+/* Blockquotes */
+blockquote {
+  color: var(--mono-comment);
+  border-left: 4px solid var(--mono-comment);
+  background: var(--mono-bg);
+  padding: 0.7em 1.2em;
+  margin: 1.5em 0;
+}
+
+/* Links */
+a {
+  color: var(--mono-blue);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+a:hover {
+  text-decoration: underline;
+  color: var(--mono-cyan);
+} 

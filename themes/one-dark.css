@@ -1,0 +1,135 @@
+/* One Dark Theme for Pandoc Output
+ * Based on the One Dark color palette: https://github.com/atom/atom/tree/master/packages/one-dark-syntax
+ */
+
+:root {
+  /* Main colors */
+  --one-bg: #282c34;
+  --one-bg-light: #353b45;
+  --one-bg-lighter: #3e4451;
+  --one-fg: #abb2bf;
+  --one-fg-light: #c8ccd4;
+  --one-fg-lighter: #d7dae0;
+  
+  /* Syntax colors */
+  --one-red: #e06c75;
+  --one-orange: #d19a66;
+  --one-yellow: #e5c07b;
+  --one-green: #98c379;
+  --one-cyan: #56b6c2;
+  --one-blue: #61afef;
+  --one-purple: #c678dd;
+  --one-pink: #e06c75;
+}
+
+body {
+  font-family: "Segoe UI", "Helvetica Neue", Arial, "Liberation Sans", sans-serif;
+  font-size: 12px;
+  color: var(--one-fg);
+  line-height: 1.8;
+  background: var(--one-bg);
+  max-width: 860px;
+  margin: 2.5em auto 2.5em auto;
+  padding: 0 1.5em;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--one-fg-light);
+  font-weight: 700;
+  line-height: 1.2;
+  margin-top: 2em;
+  margin-bottom: 0.7em;
+}
+
+h1 { font-size: 2.1em; border-bottom: 2px solid var(--one-bg-light); padding-bottom: 0.3em; }
+h2 { font-size: 1.7em; border-bottom: 1px solid var(--one-bg-light); padding-bottom: 0.2em; }
+h3 { font-size: 1.25em; }
+h4, h5, h6 { font-size: 1.1em; }
+
+pre {
+  background: var(--one-bg-light);
+  border: 1px solid var(--one-bg-lighter);
+  border-radius: 6px;
+  padding: 1em 1.1em;
+  margin: 1.4em 0;
+  overflow-x: auto;
+  color: var(--one-fg);
+  line-height: 1.6;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+code {
+  background: var(--one-bg-light);
+  border-radius: 4px;
+  padding: 0.18em 0.45em;
+  font-size: 11px;
+  color: var(--one-pink);
+}
+
+/* Syntax Highlighting */
+code span.al { color: var(--one-red); font-weight: bold; }    /* Alert */
+code span.an { color: var(--one-orange); font-style: italic; } /* Annotation */
+code span.at { color: var(--one-blue); }                       /* Attribute */
+code span.bn { color: var(--one-purple); }                     /* BaseN */
+code span.bu { color: var(--one-orange); }                     /* Builtin */
+code span.cf { color: var(--one-pink); font-weight: bold; }    /* ControlFlow */
+code span.ch { color: var(--one-green); }                      /* Char */
+code span.cn { color: var(--one-purple); }                     /* Constant */
+code span.co { color: var(--one-fg); font-style: italic; }     /* Comment */
+code span.cv { color: var(--one-orange); font-style: italic; } /* CommentVar */
+code span.do { color: var(--one-red); font-style: italic; }    /* Documentation */
+code span.dt { color: var(--one-blue); }                       /* DataType */
+code span.dv { color: var(--one-purple); }                     /* DecVal */
+code span.er { color: var(--one-red); font-weight: bold; }     /* Error */
+code span.ex { color: var(--one-green); }                      /* Extension */
+code span.fl { color: var(--one-purple); }                     /* Float */
+code span.fu { color: var(--one-blue); }                       /* Function */
+code span.im { color: var(--one-pink); font-weight: bold; }    /* Import */
+code span.in { color: var(--one-orange); font-style: italic; } /* Information */
+code span.kw { color: var(--one-pink); font-weight: bold; }    /* Keyword */
+code span.op { color: var(--one-fg-light); }                   /* Operator */
+code span.ot { color: var(--one-green); }                      /* Other */
+code span.pp { color: var(--one-pink); }                       /* Preprocessor */
+code span.sc { color: var(--one-yellow); }                     /* SpecialChar */
+code span.ss { color: var(--one-yellow); }                     /* SpecialString */
+code span.st { color: var(--one-yellow); }                     /* String */
+code span.va { color: var(--one-blue); }                       /* Variable */
+code span.vs { color: var(--one-yellow); }                     /* VerbatimString */
+code span.wa { color: var(--one-red); font-style: italic; }    /* Warning */
+
+/* Tables */
+table {
+  border-collapse: collapse;
+  margin-bottom: 1.7em;
+  width: 100%;
+  background: var(--one-bg);
+}
+th, td {
+  border: 1px solid var(--one-bg-light);
+  padding: 0.55em 1em;
+  text-align: left;
+}
+th {
+  background: var(--one-bg-light);
+  font-weight: 600;
+}
+
+/* Blockquotes */
+blockquote {
+  color: var(--one-fg);
+  border-left: 4px solid var(--one-bg-light);
+  background: var(--one-bg-light);
+  padding: 0.7em 1.2em;
+  margin: 1.5em 0;
+}
+
+/* Links */
+a {
+  color: var(--one-blue);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+a:hover {
+  text-decoration: underline;
+  color: var(--one-cyan);
+} 
