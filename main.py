@@ -20,7 +20,7 @@ import sys
 from adapters.engines.openai_adapter import OpenAIEngine
 from adapters.engines.ollama_adapter import OllamaEngine
 from adapters.file_converter import FileConverter
-from core.generator import AITipsGenerator
+from core.generator import AIKnowledgeGenerator
 from core.verifier import FileConversionVerifier
 
 
@@ -133,7 +133,7 @@ Monitoring:
     if args.debug:
         logging.basicConfig(level=logging.DEBUG)
     else:
-        logging.basicConfig(level=logging.CRITICAL)
+        logging.basicConfig(level=logging.ERROR)
     
     # Create console handler with formatting
     console_handler = logging.StreamHandler()
@@ -166,26 +166,9 @@ Monitoring:
     os.makedirs(output_dir, exist_ok=True)
 
     if args.check:
-        GREEN = "\033[92m"
-        RED = "\033[91m"
-        RESET = "\033[0m"
-
         verifier = FileConversionVerifier()
         results = verifier.verify()
-
-        print("\nCheck results:")
-        for ext in [".md", ".html", ".pdf", ".epub"]:
-            status = (
-                f"{GREEN}SUCCESS{RESET}"
-                if results[ext]
-                else f"{RED}FAILED{RESET}"
-            )
-            print(f"  {ext}: {status}")
-
-        print("\nCleanup complete.")
-        logger.info(
-            "Check complete: All output files generated and cleaned up successfully."
-        )
+        verifier.display_results(results)
         return
 
     output_md = os.path.join(
@@ -194,8 +177,14 @@ Monitoring:
         f"{sanitize_filename(args.category)}_"
         f"{sanitize_filename(args.expertise_level)}_"
         f"{args.engine}_"
-        f"{sanitize_filename(args.ollama_model if args.engine == 'ollama' else args.openai_model)}_tip.md"
+        f"{sanitize_filename(args.ollama_model if args.engine == 'ollama' else args.openai_model)}.md"
     )
+
+    # Check if output file exists and handle force flag
+    if os.path.exists(output_md) and not args.force:
+        logger.error("Output file already exists: %s", output_md)
+        logger.error("Use --force to overwrite existing file")
+        sys.exit(1)
 
     if args.engine == 'openai':
         engine = OpenAIEngine(
@@ -217,9 +206,9 @@ Monitoring:
         )
     converter = FileConverter()
 
-    generator = AITipsGenerator(engine, converter)
-    logger.debug("Calling generator.generate_tips")
-    generator.generate_tips(
+    generator = AIKnowledgeGenerator(engine, converter)
+    logger.debug("Calling generator.run")
+    generator.run(
         args.topic,
         args.quantity,
         output_md,

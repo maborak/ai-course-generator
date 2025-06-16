@@ -75,3 +75,27 @@ More dummy content.
                 os.remove(file_path)
 
         return results
+
+    def display_results(self, results: Dict[str, bool]) -> None:
+        """Display verification results with colored output.
+        
+        Args:
+            results (Dict[str, bool]): Dictionary mapping file extensions to success status
+        """
+        GREEN = "\033[92m"
+        RED = "\033[91m"
+        RESET = "\033[0m"
+
+        print("\nCheck results:")
+        for ext in [".md", ".html", ".pdf", ".epub"]:
+            status = (
+                f"{GREEN}SUCCESS{RESET}"
+                if results[ext]
+                else f"{RED}FAILED{RESET}"
+            )
+            print(f"  {ext}: {status}")
+
+        print("\nCleanup complete.")
+        logger.info(
+            "Check complete: All output files generated and cleaned up successfully."
+        )
