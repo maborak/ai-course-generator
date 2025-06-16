@@ -3,3 +3,25 @@ output/*
 __pycache__/
 **/__pycache__/
 .DS_Store
+
+# Python compiled files
+*.pyc
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Virtual environment
+venv/
+env/
+.env/
+
+# IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
