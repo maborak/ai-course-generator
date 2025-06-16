@@ -139,20 +139,31 @@ python main.py --check
 | `--force`           | Overwrite existing output files                                         | *off*     |
 | `--engine`          | AI engine to use (`openai` or `ollama`)                                 | `openai`  |
 | `--check`           | Verify all output formats can be generated                              | *off*     |
+| `--debug`           | Enable debug logging (shows all log levels)                             | *off*     |
 
 #### OpenAI Arguments
 | Option              | Description                                                             | Default   |
 |---------------------|-------------------------------------------------------------------------|-----------|
 | `--openai-model`    | OpenAI model to use (e.g., gpt-4, gpt-3.5-turbo)                        | `gpt-4`   |
-| `--openai-stream`   | Enable streaming for OpenAI responses                                   | *off*     |
+| `--openai-stream`   | Enable streaming for OpenAI responses (true/false, yes/no, 1/0)          | `true`    |
 
 #### Ollama Arguments
 | Option              | Description                                                             | Default   |
 |---------------------|-------------------------------------------------------------------------|-----------|
 | `--ollama-host`     | Host URL for Ollama server                                              | `None`    |
-| `--ollama-model`    | Ollama model name to use                                                | `llama3.2`|
+| `--ollama-model`    | Ollama model name to use                                                | `llama2`  |
 | `--ollama-stream`   | Enable streaming for Ollama responses                                   | *off*     |
 | `--ollama-no-think` | Disable thinking process in Ollama                                      | *off*     |
+
+### Logging Levels
+
+The application uses Python's standard logging levels. By default, only ERROR and CRITICAL messages are shown. When `--debug` is enabled, all log levels are shown:
+
+- `DEBUG` (10): Detailed information for debugging
+- `INFO` (20): General information about program execution
+- `WARNING` (30): Indication of potential issues
+- `ERROR` (40): Serious problems that need attention
+- `CRITICAL` (50): Critical errors that may prevent program execution
 
 ---
 
@@ -163,87 +174,69 @@ The generator uses a modular prompt system stored in the `adapters/engines/` dir
 ```
 adapters/engines/
 ├── openai_adapter/
-│   └── prompts/
-│       ├── titles/                    # Prompts for generating chapter titles
-│       │   ├── openai.txt            # Default OpenAI titles prompt
-│       │   ├── gpt-4.txt             # GPT-4 specific titles prompt
-│       │   └── gpt-3.5-turbo.txt     # GPT-3.5 specific titles prompt
-│       │
-│       └── content/                   # Prompts for generating chapter content
-│           ├── openai.txt            # Default OpenAI content prompt
-│           ├── gpt-4.txt             # GPT-4 specific content prompt
-│           └── gpt-3.5-turbo.txt     # GPT-3.5 specific content prompt
+│   ├── prompts/
+│   │   ├── common/                    # Common prompts used across different models
+│   │   │   ├── openai.txt            # Default OpenAI common prompt
+│   │   │   ├── gpt-4.txt             # GPT-4 specific common prompt
+│   │   │   └── gpt-3.5-turbo.txt     # GPT-3.5 specific common prompt
+│   │   │
+│   │   └── course/                   # Course-specific prompts
+│   │       ├── openai.txt            # Default OpenAI course prompt
+│   │       ├── gpt-4.txt             # GPT-4 specific course prompt
+│   │       └── gpt-3.5-turbo.txt     # GPT-3.5 specific course prompt
+│   │
+│   └── __init__.py                   # OpenAI adapter implementation
 │
 └── ollama_adapter/
-    └── prompts/
-        ├── titles/                    # Prompts for generating chapter titles
-        │   ├── llama.txt             # Default Ollama titles prompt
-        │   ├── llama2.txt            # Llama2 specific titles prompt
-        │   └── mistral.txt           # Mistral specific titles prompt
-        │
-        └── content/                   # Prompts for generating chapter content
-            ├── llama.txt             # Default Ollama content prompt
-            ├── llama2.txt            # Llama2 specific content prompt
-            └── mistral.txt           # Mistral specific content prompt
+    ├── prompts/
+    │   ├── common/                    # Common prompts used across different models
+    │   │   ├── llama.txt             # Default Ollama common prompt
+    │   │   ├── llama2.txt            # Llama2 specific common prompt
+    │   │   └── mistral.txt           # Mistral specific common prompt
+    │   │
+    │   └── course/                   # Course-specific prompts
+    │       ├── llama.txt             # Default Ollama course prompt
+    │       ├── llama2.txt            # Llama2 specific course prompt
+    │       └── mistral.txt           # Mistral specific course prompt
+    │
+    └── __init__.py                   # Ollama adapter implementation
 ```
 
 ### Prompt Types
 
-#### 1. Titles Prompt
-Located in `prompts/titles/`, this prompt generates the chapter titles and overview. It includes:
-- Topic context
-- Expertise level requirements
-- Category specifications
-- Quantity of tips needed
-- Format requirements
+The prompt system is organized into two main categories:
 
-Example template variables:
+1. **Common Prompts** (`prompts/common/`)
+   - Shared templates used across different models
+   - Contains base prompt structures and common variables
+   - Model-agnostic content that works with both OpenAI and Ollama
+   - Model-specific optimizations available (e.g., `gpt-4.txt`, `llama2.txt`)
+
+2. **Course Prompts** (`prompts/course/`)
+   - Specific templates for course content generation
+   - Contains specialized prompts for different types of educational content
+   - Model-specific optimizations available (e.g., `gpt-4.txt`, `llama2.txt`)
+   - Falls back to default model prompt if specific version not found
+
+### Template Variables
+
+The following variables are automatically injected by the system and should NOT be modified:
 ```
 {{TOPIC}}          # The main topic
 {{QUANTITY}}       # Number of chapters to generate
 {{CATEGORY}}       # Content category (Guide, Tutorial, etc.)
 {{EXPERTISE_LEVEL}} # Target expertise level
 {{CONTEXT_NOTE}}   # Context based on expertise level
-```
-
-#### 2. Content Prompt
-Located in `prompts/content/`, this prompt generates the detailed content for each tip. It includes:
-- Topic context
-- Chapter title
-- Chapter index
-- Total chapters
-- Expertise level requirements
-- Category specifications
-- Format requirements
-
-Example template variables:
-```
-{{TOPIC}}          # The main topic
 {{CHAPTER_TITLE}}  # Title of the current chapter
 {{CHAPTER_INDEX}}  # Current chapter number
 {{TOTAL_CHAPTERS}} # Total number of chapters
-{{CATEGORY}}       # Content category
-{{EXPERTISE_LEVEL}} # Target expertise level
-{{CONTEXT_NOTE}}   # Context based on expertise level
 ```
+
+These variables will be automatically replaced with actual values during generation.
 
 ### Customizing Prompts
 
-1. **System Template Variables:**
-   The following variables are automatically injected by the system and should NOT be modified:
-   ```
-   {{TOPIC}}          # The main topic
-   {{QUANTITY}}       # Number of chapters to generate
-   {{CATEGORY}}       # Content category (Guide, Tutorial, etc.)
-   {{EXPERTISE_LEVEL}} # Target expertise level
-   {{CONTEXT_NOTE}}   # Context based on expertise level
-   {{CHAPTER_TITLE}}  # Title of the current chapter
-   {{CHAPTER_INDEX}}  # Current chapter number
-   {{TOTAL_CHAPTERS}} # Total number of chapters
-   ```
-   These variables will be automatically replaced with actual values during generation.
-
-2. **Model-Specific Prompts:**
+1. **Model-Specific Prompts:**
    - For OpenAI:
      - Create a new prompt file named after your model (e.g., `gpt-4.txt`)
      - The generator will automatically use the model-specific prompt if available
@@ -253,7 +246,7 @@ Example template variables:
      - The generator will automatically use the model-specific prompt if available
      - Falls back to `llama.txt` if no model-specific prompt exists
 
-3. **Prompt Optimization Tips:**
+2. **Prompt Optimization Tips:**
    - Use clear, specific instructions
    - Include examples of desired output format
    - Specify the tone and style
@@ -261,7 +254,7 @@ Example template variables:
    - Add context about the target audience
    - You can move the template variables around in your prompt, but don't modify their names
 
-4. **Example Prompt Structure:**
+3. **Example Prompt Structure:**
 ```markdown
 You are an expert in {{TOPIC}} writing for {{EXPERTISE_LEVEL}} level readers.
 Generate {{QUANTITY}} {{CATEGORY}} sections about {{TOPIC}}.
@@ -279,7 +272,7 @@ Format each section as:
 [Content with examples and explanations]
 ```
 
-5. **Testing Prompts:**
+4. **Testing Prompts:**
    - Use the `--check` flag to test prompt changes
    - Start with a small quantity to verify output
    - Adjust based on the generated content quality
