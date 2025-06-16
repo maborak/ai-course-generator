@@ -15,10 +15,12 @@ The engine supports:
 import os
 import re
 import logging
+import time
 from typing import Dict, List, Tuple, Optional, Callable
 from ollama import Client
 from ollama._types import ResponseError
 from core.ports import CompletionEnginePort
+from alive_progress import alive_bar
 
 # ANSI color codes
 GRAY = "\033[90m"
@@ -86,7 +88,8 @@ class OllamaEngine(CompletionEnginePort):
         category: str = "Tip",
         expertise_level: str = "Novice",
         think: bool = True,
-        debug: bool = False
+        debug: bool = False,
+        progress_bar: bool = False
     ) -> None:
         """Initialize the Ollama engine.
 
@@ -98,11 +101,13 @@ class OllamaEngine(CompletionEnginePort):
             expertise_level: The expertise level for the content
             think: Whether to show thinking process
             debug: Whether to show debug output
+            progress_bar: Whether to show progress bar
         """
         self.model = model
         self.host = host
         self.stream = stream
         self.category = category
+        self.progress_bar = progress_bar
         
         # Normalize expertise level to title case
         normalized_level = expertise_level.title()
@@ -472,7 +477,7 @@ class OllamaEngine(CompletionEnginePort):
             content,
             flags=re.DOTALL | re.IGNORECASE
         )
-        print("\n[End of Ollama Streaming Output]")
+        logger.debug("\n[End of Ollama Streaming Output]")
 
         # Estimate and log the token usage using the original content
         self.tokens_used += int(len(original_content.split()) * 0.75)
@@ -484,24 +489,44 @@ class OllamaEngine(CompletionEnginePort):
         topic: str
     ) -> Tuple[List[Tuple[int, Dict[str, str], str]], str]:
         """Generate a complete set of chapters with their content."""
-        # Reset token usage at the start of generation
-        self.tokens_used = 0
-
         # Generate chapters
+        if self.progress_bar:
+            print("Generating chapter titles...")
         chapters, overview = self.generate_chapters(topic)
-        
+
         details = []
         total_chapters = len(chapters)
+
         # Generate content for each chapter
-        for i, chapter in enumerate(chapters, 1):
-            detail = self.generate_content(
-                topic,
-                chapter["full"],
-                i,
+        if self.progress_bar:
+            with alive_bar(
                 total_chapters,
-                chapter["short"]
-            )
-            details.append((i, chapter, detail))
+                title="Generating content",
+                bar="smooth",
+                spinner="waves",
+                enrich_print=False
+            ) as progress:
+                for i, chapter in enumerate(chapters, 1):
+                    progress.text(f"Processing: {chapter['short']}")
+                    detail = self.generate_content(
+                        topic,
+                        chapter["full"],
+                        i,
+                        total_chapters,
+                        chapter["short"]
+                    )
+                    details.append((i, chapter, detail))
+                    progress()   # pylint: disable=not-callable
+        else:
+            for i, chapter in enumerate(chapters, 1):
+                detail = self.generate_content(
+                    topic,
+                    chapter["full"],
+                    i,
+                    total_chapters,
+                    chapter["short"]
+                )
+                details.append((i, chapter, detail))
 
         return details, overview
 

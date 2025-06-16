@@ -218,23 +218,25 @@ Monitoring:
         logger.error("Use --force to overwrite existing file")
         sys.exit(1)
 
-    if args.engine == 'openai':
+    # Initialize the appropriate engine
+    if args.engine == "openai":
         engine = OpenAIEngine(
             model=args.openai_model,
             stream=args.openai_stream,
             category=args.category,
             expertise_level=args.expertise_level,
-            debug=args.debug
+            debug=args.debug,
+            progress_bar=args.progress_bar
         )
-    else:
+    else:  # ollama
         engine = OllamaEngine(
-            args.ollama_model,
+            model=args.ollama_model,
             host=args.ollama_host,
             stream=args.ollama_stream,
             category=args.category,
             expertise_level=args.expertise_level,
-            think=not args.ollama_no_think,
-            debug=args.debug
+            debug=args.debug,
+            progress_bar=args.progress_bar
         )
     converter = FileConverter(theme=args.theme)
 

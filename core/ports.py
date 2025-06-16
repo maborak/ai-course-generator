@@ -31,17 +31,6 @@ class CompletionEnginePort(ABC):
         """
         # Abstract method, do not implement
 
-    @abstractmethod
-    def set_progress_callback(self, callback: Callable[[int, str], None]) -> None:
-        """Set the callback function for progress updates.
-        
-        Args:
-            callback (Callable[[int, str], None]): Function to call with progress updates.
-                Takes current progress (int) and status text (str) as arguments.
-        """
-        # Abstract method, do not implement
-
-
 class FileConverterPort(ABC):
     """Abstract base class for file converter implementations."""
     @abstractmethod

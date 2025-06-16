@@ -20,6 +20,7 @@ from typing import Dict, List, Tuple, Optional, Callable
 from openai import OpenAI
 import tiktoken
 from core.ports import CompletionEnginePort
+from alive_progress import alive_bar
 
 # ANSI color codes
 GRAY = "\033[90m"
@@ -94,7 +95,8 @@ class OpenAIEngine(CompletionEnginePort):
         stream: bool = True,
         category: str = "Tip",
         expertise_level: str = "Novice",
-        debug: bool = False
+        debug: bool = False,
+        progress_bar: bool = False
     ) -> None:
         """Initialize the OpenAI engine.
 
@@ -106,12 +108,14 @@ class OpenAIEngine(CompletionEnginePort):
             category: The category of content to generate
             expertise_level: The expertise level for the content
             debug: Whether to show debug output
+            progress_bar: Whether to show progress bar
         """
         self.model = model
         self.temperature = temperature
         self.max_tokens = max_tokens
         self.stream = stream
         self.category = category
+        self.progress_bar = progress_bar
         
         # Normalize expertise level to title case
         normalized_level = expertise_level.title()
@@ -539,20 +543,43 @@ class OpenAIEngine(CompletionEnginePort):
         self.tokens_used = {"input": 0, "output": 0}
         
         # Generate chapters
+        if self.progress_bar:
+            print("Generating chapter titles...")
         chapters, overview = self.generate_chapters(topic)
 
         details = []
         total_chapters = len(chapters)
+
         # Generate content for each chapter
-        for i, chapter in enumerate(chapters, 1):
-            detail = self.generate_content(
-                topic,
-                chapter["full"],
-                i,
+        if self.progress_bar:
+            with alive_bar(
                 total_chapters,
-                chapter["short"]
-            )
-            details.append((i, chapter, detail))
+                title="Generating content",
+                bar="smooth",
+                spinner="waves",
+                enrich_print=False
+            ) as progress:
+                for i, chapter in enumerate(chapters, 1):
+                    progress.text(f"Processing: {chapter['short']}")
+                    detail = self.generate_content(
+                        topic,
+                        chapter["full"],
+                        i,
+                        total_chapters,
+                        chapter["short"]
+                    )
+                    details.append((i, chapter, detail))
+                    progress()   # pylint: disable=not-callable
+        else:
+            for i, chapter in enumerate(chapters, 1):
+                detail = self.generate_content(
+                    topic,
+                    chapter["full"],
+                    i,
+                    total_chapters,
+                    chapter["short"]
+                )
+                details.append((i, chapter, detail))
 
         # Calculate and log costs
         costs = self.calculate_costs()
