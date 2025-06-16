@@ -54,7 +54,38 @@ To install Python dependencies, simply run:
 pip install -r requirements.txt
 ```
 
+### Windows Installation
+
+1. Install Pandoc using Chocolatey:
+```sh
+choco install pandoc
+```
+
+2. Install GTK3 Runtime (required for WeasyPrint):
+   - Download the GTK3 runtime installer from: https://github.com/tschoonj/GTK-for-Windows-Runtime-Environment-Installer/releases
+   - Download the latest version (e.g., `gtk3-runtime-3.24.31-2022-01-04-ts-win64.exe`)
+   - Run the installer as administrator
+   - Restart your terminal after installation
+
+Note: WeasyPrint is included in `requirements.txt` and will be installed automatically when you run `pip install -r requirements.txt`. However, it requires GTK3 Runtime to be installed separately on Windows.
+
 You may also need system packages for WeasyPrint, such as `libpango`, `cairo`, and `gdk-pixbuf` (see WeasyPrint's docs).
+
+To verify that all requirements are properly installed and the system is ready to run, use:
+```sh
+python main.py --check
+```
+This will test if all output formats (Markdown, HTML, EPUB, and PDF) can be generated correctly.
+
+Example output:
+```
+Check results:
+  .md: SUCCESS
+  .html: SUCCESS
+  .pdf: FAILED
+  .epub: SUCCESS
+```
+If any format shows as FAILED, check the corresponding installation requirements for that format.
 
 ---
 
