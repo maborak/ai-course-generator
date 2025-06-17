@@ -1,0 +1,188 @@
+/* Ayu Light Theme for Pandoc Output
+ * Based on the Ayu color palette: https://github.com/ayu-theme/ayu-colors
+ */
+
+:root {
+  /* Main colors */
+  --ayu-bg: #fafafa;
+  --ayu-bg-light: #f3f4f5;
+  --ayu-bg-lighter: #e6e8eb;
+  --ayu-fg: #5c6773;
+  --ayu-fg-light: #24292e;
+  --ayu-fg-lighter: #1a1f24;
+  
+  /* Syntax colors */
+  --ayu-red: #f51818;
+  --ayu-orange: #ff7733;
+  --ayu-yellow: #ffb454;
+  --ayu-green: #86b300;
+  --ayu-aqua: #4cbf99;
+  --ayu-blue: #0083be;
+  --ayu-purple: #a37acc;
+  --ayu-pink: #f29e74;
+}
+
+body {
+  font-family: "Segoe UI", "Helvetica Neue", Arial, "Liberation Sans", sans-serif;
+  font-size: 17px;
+  color: #5c6773;
+  line-height: 1.8;
+  background: #fafafa;
+  max-width: 860px;
+  margin: 2.5em auto 2.5em auto;
+  padding: 0 1.5em;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: #253340;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-top: 2em;
+  margin-bottom: 0.7em;
+}
+
+h1 { font-size: 2.1em; border-bottom: 2px solid #e6e6e6; padding-bottom: 0.3em; }
+h2 { font-size: 1.7em; border-bottom: 1px solid #e6e6e6; padding-bottom: 0.2em; }
+h3 { font-size: 1.25em; }
+h4, h5, h6 { font-size: 1.1em; }
+
+p {
+  margin: 1.1em 0;
+}
+
+ul, ol {
+  margin: 1.1em 0 1.1em 2em;
+}
+
+li { margin-bottom: 0.3em; }
+
+hr {
+  border: none;
+  border-top: 1px solid #e6e6e6;
+  margin: 2.5em 0;
+}
+
+/* --- CODE BLOCKS & INLINE CODE --- */
+pre, code {
+  font-family: "Fira Mono", "Consolas", "Menlo", "Monaco", monospace;
+  font-size: 15px;
+}
+
+pre {
+  background: #f3f4f5;
+  border: 1px solid #d4d4d4;
+  border-radius: 6px;
+  padding: 1em 1.1em;
+  margin: 1.4em 0;
+  overflow-x: auto;
+  color: #5c6773;
+  line-height: 1.6;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+code {
+  background: #f3f4f5;
+  border-radius: 4px;
+  padding: 0.18em 0.45em;
+  font-size: 15px;
+  color: #f07178;
+}
+
+pre > code {
+  background: none;
+  padding: 0;
+  color: inherit;
+  border-radius: 0;
+}
+
+/* Remove Pandoc's per-line inline-block for code spans (avoid lines/artifacts) */
+pre > code.sourceCode > span {
+  display: inline !important;
+  line-height: inherit !important;
+  height: auto !important;
+  border: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  background: none !important;
+  vertical-align: baseline !important;
+}
+
+pre > code.sourceCode > span:empty {
+  display: none !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+pre > code.sourceCode > span > a {
+  display: none !important;
+}
+
+/* --- SYNTAX HIGHLIGHTING (override/boost "kate" a bit) --- */
+code span.al { color: #f07178; font-weight: bold; }    /* Alert */
+code span.an { color: #ff7733; font-style: italic; }   /* Annotation */
+code span.at { color: #36a3d9; }                       /* Attribute */
+code span.bn { color: #86b300; }                       /* BaseN */
+code span.bu { color: #ff7733; }                       /* Builtin */
+code span.cf { color: #f07178; font-weight: bold; }    /* ControlFlow */
+code span.ch { color: #4cbf99; }                       /* Char */
+code span.cn { color: #f07178; }                       /* Constant */
+code span.co { color: #787b80; font-style: italic; }   /* Comment */
+code span.cv { color: #ff7733; font-style: italic; }   /* CommentVar */
+code span.do { color: #f07178; font-style: italic; }   /* Documentation */
+code span.dt { color: #ff7733; }                       /* DataType */
+code span.dv { color: #4cbf99; }                       /* DecVal */
+code span.er { color: #f07178; font-weight: bold; }    /* Error */
+code span.ex { color: #4cbf99; }                       /* Extension */
+code span.fl { color: #4cbf99; }                       /* Float */
+code span.fu { color: #86b300; }                       /* Function */
+code span.im { color: #ff7733; font-weight: bold; }    /* Import */
+code span.in { color: #ff7733; font-style: italic; }   /* Information */
+code span.kw { color: #f07178; font-weight: bold; }    /* Keyword */
+code span.op { color: #253340; }                       /* Operator */
+code span.ot { color: #4cbf99; }                       /* Other */
+code span.pp { color: #86b300; }                       /* Preprocessor */
+code span.sc { color: #4cbf99; }                       /* SpecialChar */
+code span.ss { color: #4cbf99; }                       /* SpecialString */
+code span.st { color: #4cbf99; }                       /* String */
+code span.va { color: #ff7733; }                       /* Variable */
+code span.vs { color: #4cbf99; }                       /* VerbatimString */
+code span.wa { color: #f07178; font-style: italic; }   /* Warning */
+
+/* --- TABLES --- */
+table {
+  border-collapse: collapse;
+  margin-bottom: 1.7em;
+  width: 100%;
+  background: #fafafa;
+}
+th, td {
+  border: 1px solid #d4d4d4;
+  padding: 0.55em 1em;
+  text-align: left;
+}
+th {
+  background: #f3f4f5;
+  font-weight: 600;
+}
+
+/* --- BLOCKQUOTES --- */
+blockquote {
+  color: #5c6773;
+  border-left: 4px solid #d4d4d4;
+  background: #f3f4f5;
+  padding: 0.7em 1.2em;
+  margin: 1.5em 0;
+}
+
+/* --- LINKS --- */
+a {
+  color: #36a3d9;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+a:hover {
+  text-decoration: underline;
+  color: #4cbf99;
+} 

@@ -1,0 +1,228 @@
+/* Material Light Theme for Pandoc Output
+ * Based on Google's Material Design color palette
+ */
+
+/* --- CSS Variables --- */
+:root {
+  /* Font Sizes */
+  --font-size-base: 15px;
+  --font-size-code: 12px;
+  --font-size-h1: 2.1em;
+  --font-size-h2: 1.7em;
+  --font-size-h3: 1.25em;
+  --font-size-h4: 1.1em;
+
+  /* Spacing */
+  --spacing-base: 1.1em;
+  --spacing-large: 1.4em;
+  --spacing-xlarge: 1.7em;
+  --spacing-xxlarge: 2.5em;
+  --spacing-list: 0.3em;
+
+  /* Colors */
+  --color-text: #546e7a;
+  --color-background: #fafafa;
+  --color-heading: #263238;
+  --color-border: #eceff1;
+  --color-code-bg: #eceff1;
+  --color-code: #e53935;
+  --color-link: #1e88e5;
+  --color-link-hover: #00acc1;
+
+  /* Syntax Highlighting Colors */
+  --sh-alert: #e53935; /* Alert */
+  --sh-annotation: #fb8c00; /* Annotation */
+  --sh-attribute: #42a5f5; /* Attribute */
+  --sh-basen: #43a047; /* BaseN */
+  --sh-builtin: #fb8c00; /* Builtin */
+  --sh-controlflow: #8e24aa; /* ControlFlow */
+  --sh-char: #43a047; /* Char */
+  --sh-constant: #fb8c00; /* Constant */
+  --sh-comment: #90a4ae; /* Comment */
+  --sh-commentvar: #fb8c00; /* CommentVar */
+  --sh-documentation: #e53935; /* Documentation */
+  --sh-datatype: #e53935; /* DataType */
+  --sh-decval: #fb8c00; /* DecVal */
+  --sh-error: #e53935; /* Error */
+  --sh-extension: #43a047; /* Extension */
+  --sh-float: #fb8c00; /* Float */
+  --sh-function: #42a5f5; /* Function */
+  --sh-import: #fb8c00; /* Import */
+  --sh-information: #fb8c00; /* Information */
+  --sh-keyword: #8e24aa; /* Keyword */
+  --sh-operator: #263238; /* Operator */
+  --sh-other: #43a047; /* Other */
+  --sh-preprocessor: #8e24aa; /* Preprocessor */
+  --sh-specialchar: #43a047; /* SpecialChar */
+  --sh-specialstring: #43a047; /* SpecialString */
+  --sh-string: #43a047; /* String */
+  --sh-variable: #42a5f5; /* Variable */
+  --sh-verbatimstring: #43a047; /* VerbatimString */
+  --sh-warning: #e53935; /* Warning */
+}
+
+/* --- BODY & TYPOGRAPHY --- */
+body {
+  font-family: "Segoe UI", "Helvetica Neue", Arial, "Liberation Sans", sans-serif;
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+  line-height: 1.8;
+  background: var(--color-background);
+  max-width: 860px;
+  margin: var(--spacing-xxlarge) auto;
+  padding: 0 var(--spacing-large);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--color-heading);
+  font-weight: 700;
+  line-height: 1.2;
+  margin-top: 2em;
+  margin-bottom: 0.7em;
+}
+
+h1 { font-size: var(--font-size-h1); border-bottom: 2px solid var(--color-border); padding-bottom: 0.3em; }
+h2 { font-size: var(--font-size-h2); border-bottom: 1px solid var(--color-border); padding-bottom: 0.2em; }
+h3 { font-size: var(--font-size-h3); }
+h4, h5, h6 { font-size: var(--font-size-h4); }
+
+p {
+  margin: var(--spacing-base) 0;
+}
+
+ul, ol {
+  margin: var(--spacing-base) 0 var(--spacing-base) 0.1em;
+}
+
+li { margin-bottom: var(--spacing-list); }
+
+hr {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: var(--spacing-xxlarge) 0;
+}
+
+/* --- CODE BLOCKS & INLINE CODE --- */
+pre, code {
+  font-family: "Fira Mono", "Consolas", "Menlo", "Monaco", monospace;
+  font-size: var(--font-size-code);
+}
+
+pre {
+  background: var(--color-code-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: var(--spacing-base) var(--spacing-large);
+  margin: var(--spacing-large) 0;
+  overflow-x: auto;
+  color: var(--color-text);
+  line-height: 1.6;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+code {
+  background: var(--color-code-bg);
+  border-radius: 4px;
+  padding: 0.18em 0.45em;
+  font-size: var(--font-size-code);
+  color: var(--color-code);
+}
+
+pre > code {
+  background: none;
+  padding: 0;
+  color: inherit;
+  border-radius: 0;
+}
+
+/* Remove Pandoc's per-line inline-block for code spans (avoid lines/artifacts) */
+pre > code.sourceCode > span {
+  display: inline !important;
+  line-height: inherit !important;
+  height: auto !important;
+  border: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  background: none !important;
+  vertical-align: baseline !important;
+}
+
+pre > code.sourceCode > span:empty {
+  display: none !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+pre > code.sourceCode > span > a {
+  display: none !important;
+}
+
+/* --- SYNTAX HIGHLIGHTING (override/boost "kate" a bit) --- */
+code span.al { color: var(--sh-alert); font-weight: bold; }    /* Alert */
+code span.an { color: var(--sh-annotation); font-style: italic; }   /* Annotation */
+code span.at { color: var(--sh-attribute); }                       /* Attribute */
+code span.bn { color: var(--sh-basen); }                       /* BaseN */
+code span.bu { color: var(--sh-builtin); }                       /* Builtin */
+code span.cf { color: var(--sh-controlflow); font-weight: bold; }    /* ControlFlow */
+code span.ch { color: var(--sh-char); }                       /* Char */
+code span.cn { color: var(--sh-constant); }                       /* Constant */
+code span.co { color: var(--sh-comment); font-style: italic; }   /* Comment */
+code span.cv { color: var(--sh-commentvar); font-style: italic; }   /* CommentVar */
+code span.do { color: var(--sh-documentation); font-style: italic; }   /* Documentation */
+code span.dt { color: var(--sh-datatype); }                       /* DataType */
+code span.dv { color: var(--sh-decval); }                       /* DecVal */
+code span.er { color: var(--sh-error); font-weight: bold; }    /* Error */
+code span.ex { color: var(--sh-extension); }                       /* Extension */
+code span.fl { color: var(--sh-float); }                       /* Float */
+code span.fu { color: var(--sh-function); }                       /* Function */
+code span.im { color: var(--sh-import); font-weight: bold; }    /* Import */
+code span.in { color: var(--sh-information); font-style: italic; }   /* Information */
+code span.kw { color: var(--sh-keyword); font-weight: bold; }    /* Keyword */
+code span.op { color: var(--sh-operator); }                       /* Operator */
+code span.ot { color: var(--sh-other); }                       /* Other */
+code span.pp { color: var(--sh-preprocessor); }                       /* Preprocessor */
+code span.sc { color: var(--sh-specialchar); }                       /* SpecialChar */
+code span.ss { color: var(--sh-specialstring); }                       /* SpecialString */
+code span.st { color: var(--sh-string); }                       /* String */
+code span.va { color: var(--sh-variable); }                       /* Variable */
+code span.vs { color: var(--sh-verbatimstring); }                       /* VerbatimString */
+code span.wa { color: var(--sh-warning); font-style: italic; }   /* Warning */
+
+/* --- TABLES --- */
+table {
+  border-collapse: collapse;
+  margin-bottom: var(--spacing-xlarge);
+  width: 100%;
+  background: var(--color-background);
+}
+th, td {
+  border: 1px solid var(--color-border);
+  padding: 0.55em var(--spacing-base);
+  text-align: left;
+}
+th {
+  background: var(--color-code-bg);
+  font-weight: 600;
+}
+
+/* --- BLOCKQUOTES --- */
+blockquote {
+  color: var(--color-text);
+  border-left: 4px solid var(--color-border);
+  background: var(--color-code-bg);
+  padding: 0.7em var(--spacing-large);
+  margin: var(--spacing-xlarge) 0;
+}
+
+/* --- LINKS --- */
+a {
+  color: var(--color-link);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+a:hover {
+  text-decoration: underline;
+  color: var(--color-link-hover);
+} 

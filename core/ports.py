@@ -15,7 +15,10 @@ logger = logging.getLogger(__name__)
 class CompletionEnginePort(ABC):
     """Abstract base class for completion engine implementations."""
     @abstractmethod
-    def generate(self, topic: str) -> Tuple[List[Tuple[int, Dict[str, str], str]], str]:
+    def generate(
+        self,
+        topic: str
+    ) -> Tuple[List[Tuple[int, Dict[str, str], str]], str]:
         """Generate content for a given topic.
 
         Args:
@@ -27,7 +30,6 @@ class CompletionEnginePort(ABC):
                 - Overview string of the generated chapters
         """
         # Abstract method, do not implement
-
 
 class FileConverterPort(ABC):
     """Abstract base class for file converter implementations."""

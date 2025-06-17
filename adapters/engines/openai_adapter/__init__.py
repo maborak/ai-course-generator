@@ -16,10 +16,10 @@ import os
 import re
 import logging
 import time
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Optional, Callable
 from openai import OpenAI
-import tiktoken
 from alive_progress import alive_bar
+import tiktoken
 from core.ports import CompletionEnginePort
 
 # ANSI color codes
@@ -94,7 +94,8 @@ class OpenAIEngine(CompletionEnginePort):
         stream: bool = True,
         category: str = "Tip",
         expertise_level: str = "Novice",
-        debug: bool = False
+        debug: bool = False,
+        progress_bar: bool = False
     ) -> None:
         """Initialize the OpenAI engine.
 
@@ -106,13 +107,15 @@ class OpenAIEngine(CompletionEnginePort):
             category: The category of content to generate
             expertise_level: The expertise level for the content
             debug: Whether to show debug output
+            progress_bar: Whether to show progress bar
         """
         self.model = model
         self.temperature = temperature
         self.max_tokens = max_tokens
         self.stream = stream
         self.category = category
-        
+        self.progress_bar = progress_bar
+
         # Normalize expertise level to title case
         normalized_level = expertise_level.title()
         if normalized_level not in self.level_descriptions:
@@ -122,10 +125,11 @@ class OpenAIEngine(CompletionEnginePort):
             )
         self.expertise_level = normalized_level
         self.context_note = self.level_descriptions[self.expertise_level]
-        
+
         self.debug = debug
         self.tokens_used = {"input": 0, "output": 0}
         self.quantity = 5  # Default quantity
+        self.progress_callback: Optional[Callable[[int, str], None]] = None
         try:
             self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
             # Initialize tokenizer only if streaming is enabled
@@ -521,53 +525,48 @@ class OpenAIEngine(CompletionEnginePort):
         }
 
     def generate(
-        self, topic: str
+        self,
+        topic: str
     ) -> Tuple[List[Tuple[int, Dict[str, str], str]], str]:
-        """Generate a complete set of chapters with their content.
-
-        Args:
-            topic: The topic to generate chapters for.
-
-        Returns:
-            A tuple containing:
-                - List of tuples with (index, chapter_info, content)
-                - Overview string of the generated chapters
-
-        Note:
-            This method orchestrates the generation of chapter titles and
-            their detailed content.
-        """
+        """Generate a complete set of chapters with their content."""
         # Reset token usage at the start of generation
         self.tokens_used = {"input": 0, "output": 0}
 
-        # Generate chapters with fancy loading
-        with alive_bar(
-            1,
-            title="Generating Chapters",
-            bar="smooth",
-            spinner="waves",
-            enrich_print=False
-        ) as progress_bar:
-            chapters, overview = self.generate_chapters(topic)
-            progress_bar()
+        # Generate chapters
+        if self.progress_bar:
+            print("Generating chapter titles...")
+        chapters, overview = self.generate_chapters(topic)
 
         details = []
-        # Create progress bar for chapter generation
-        with alive_bar(
-            len(chapters),
-            title="Generating Content",
-            bar="smooth",
-            spinner="waves",
-            enrich_print=False
-        ) as progress_bar:
+        total_chapters = len(chapters)
+
+        # Generate content for each chapter
+        if self.progress_bar:
+            with alive_bar(
+                total_chapters,
+                title="Generating content",
+                bar="smooth",
+                spinner="waves",
+                enrich_print=False
+            ) as progress:
+                for i, chapter in enumerate(chapters, 1):
+                    progress.text(f"Processing: {chapter['short']}")
+                    detail = self.generate_content(
+                        topic,
+                        chapter["full"],
+                        i,
+                        total_chapters,
+                        chapter["short"]
+                    )
+                    details.append((i, chapter, detail))
+                    progress()   # pylint: disable=not-callable
+        else:
             for i, chapter in enumerate(chapters, 1):
-                progress_bar.text(f"Processing chapter {i}/{len(chapters)}: {chapter['short']}")
-                progress_bar()
                 detail = self.generate_content(
                     topic,
                     chapter["full"],
                     i,
-                    len(chapters),
+                    total_chapters,
                     chapter["short"]
                 )
                 details.append((i, chapter, detail))

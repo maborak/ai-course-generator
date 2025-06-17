@@ -15,7 +15,7 @@ Example:
 import logging
 import time
 from datetime import datetime
-from typing import Any, List, Tuple
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +53,7 @@ class AIKnowledgeGenerator:
         topic: str,
         quantity: int,
         output_md: str,
-        force: bool = False  # pylint: disable=unused-argument
+        force: bool = False,  # pylint: disable=unused-argument
     ) -> None:
         """Run the knowledge generation process.
 
@@ -71,6 +71,9 @@ class AIKnowledgeGenerator:
             quantity,
             topic
         )
+
+        # Start timing
+        start_time = time.time()
 
         # Get current timestamp
         now = datetime.now()
@@ -94,14 +97,8 @@ class AIKnowledgeGenerator:
             else 0
         )
 
-        # Create header with metadata
-        header = f"""# {topic} ({category}, {expertise_level})
-
-Generated on: {now_str}
-Model: {model}
-Tokens used: {tokens_used}
-
-"""
+        # Calculate elapsed time
+        elapsed = time.time() - start_time
 
         # Calculate reading time from the content
         content = ""
@@ -111,36 +108,38 @@ Tokens used: {tokens_used}
             content += detail + "\n"
         reading_time = self.calculate_reading_time(content)
 
-        header += f"- **Reading Time:** {reading_time}\n\n"
-        header += "---\n\n"
-
+        # Create header with metadata
+        header = (
+            f"# {topic} ({category})\n\n"
+            f"---\n\n"
+            f"## Document Info\n\n"
+            f"- **Expertise Level:** {expertise_level}\n"
+            f"- **Category:** {category}\n"
+            f"- **Model Used:** {model}\n"
+            f"- **Total Tokens Used:** {tokens_used}\n"
+            f"- **Generated on:** {now_str}\n"
+            f"- **Generated in:** {self.format_elapsed(elapsed)}\n"
+            f"- **Reading Time:** {reading_time}\n\n"
+            "---\n\n")
+        # Write the content to the markdown file
         with open(output_md, "w", encoding="utf-8") as file:
             file.write(header)
             if overview:
-                file.write(f"## Overview\n\n{overview}\n\n---\n\n")
-            for _, _, detail in details:  # pylint: disable=unused-variable
-                file.write(detail.strip() + "\n\n---\n\n")
-        logger.info("Markdown saved as %s", output_md)
-        logger.info("Total tokens used: %s", tokens_used)
+                file.write(overview + "\n\n")
+            for _, _, detail in details:
+                file.write(detail + "\n\n")
 
-        # Prepare metadata for embedding
+        # Convert to other formats
         metadata = {
             "title": f"{topic} ({category}, {expertise_level})",
-            "author": "Maborak",
             "category": category,
-            "expertise_level": expertise_level,
-            "model": model,
-            "tokens_used": tokens_used,
-            "generated_on": now_str,
-            "language": "en",
+            "author": "AI Knowledge Generator",
             "date": now_str,
-            "description": f"{topic} ({category}, {expertise_level})",
+            "model": model,
+            "tokens": str(tokens_used),
+            "reading-time": reading_time
         }
-        # Add short title from first tip if available
-        if details:
-            metadata["shorttitle"] = details[0][1]["short"]
-
-        self.converter.convert(output_md, metadata=metadata, force=force)
+        self.converter.convert(output_md, metadata, force)
 
     def format_elapsed(self, seconds: float) -> str:
         """Format elapsed time into a human-readable string.

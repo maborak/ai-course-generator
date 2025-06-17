@@ -59,6 +59,76 @@ def str2bool(v):
     raise argparse.ArgumentTypeError('Boolean value expected.')
 
 
+def get_available_themes():
+    """Get list of available themes from the themes directory.
+    
+    Returns:
+        list: List of theme names (without .css extension)
+    """
+    themes_dir = os.path.join(os.path.dirname(__file__), 'themes')
+    if not os.path.exists(themes_dir):
+        return ['normal']
+
+    themes = []
+    for file in os.listdir(themes_dir):
+        if file.endswith('.css'):
+            themes.append(file[:-4])  # Remove .css extension
+    return sorted(themes) if themes else ['normal']
+
+
+def re_export_markdown_files(output_dir: str, theme: str, force: bool = False) -> None:
+    """Re-export all markdown files in the output directory to HTML, EPUB, and PDF.
+    
+    Args:
+        output_dir (str): Directory containing markdown files
+        theme (str): Theme to use for styling
+        force (bool): Whether to force overwrite existing files
+    """
+    logger = logging.getLogger(__name__)
+    converter = FileConverter(theme=theme)
+
+    # Find all markdown files
+    md_files = [f for f in os.listdir(output_dir) if f.endswith('.md')]
+
+    if not md_files:
+        logger.info("No markdown files found in %s", output_dir)
+        return
+
+    logger.info("Found %d markdown files to re-export", len(md_files))
+
+    for md_file in md_files:
+        md_path = os.path.join(output_dir, md_file)
+        logger.info("Re-exporting %s", md_file)
+
+        # Extract metadata from the markdown file
+        metadata = {}
+        try:
+            with open(md_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+                # Extract title from first line
+                title_match = re.match(r'^# (.*?)(?:\s*\(.*?\))?\s*$', content.split('\n')[0])
+                if title_match:
+                    metadata['title'] = title_match.group(1)
+
+                # Extract metadata from the document info section
+                doc_info_match = re.search(r'## Document Info\n\n(.*?)\n\n---', content, re.DOTALL)
+                if doc_info_match:
+                    doc_info = doc_info_match.group(1)
+                    for line in doc_info.split('\n'):
+                        if ':' in line:
+                            key, value = line.split(':', 1)
+                            key = key.strip('-* ').lower().replace(' ', '-')
+                            value = value.replace("*", "").strip()
+                            metadata[key] = value
+        except (IOError, UnicodeDecodeError, ValueError) as e:
+            logger.warning("Failed to extract metadata from %s: %s", md_file, e)
+        metadata['title'] = f"{metadata.get('title','Re exported')} ({metadata.get('category', 'Tip')}, {metadata.get('expertise-level', 'Novice')})"
+        metadata['author'] = "Maborak"
+
+        # Convert the file with extracted metadata
+        converter.convert(md_path, metadata=metadata, force=force)
+
+
 def main():
     """
     Main entry point for the AI Tips Generator application.
@@ -69,6 +139,7 @@ def main():
     3. Initializes the appropriate AI engine
     4. Generates tips in the requested format
     5. Handles the --check mode for testing output generation
+    6. Handles the --re-export mode for re-exporting existing markdown files
     """
     parser = argparse.ArgumentParser(
         description="AI Tips Generator (Hexagonal Architecture)",
@@ -89,6 +160,12 @@ Examples:
 
   # Check if all output formats can be generated (monitoring)
   python main.py --check
+
+  # Generate tips with a specific theme
+  python main.py --topic python --theme dracula
+
+  # Re-export all markdown files in the output directory
+  python main.py --re-export --theme dracula
 
 Monitoring:
   The --check flag helps verify that all output formats (markdown, HTML, PDF, EPUB)
@@ -113,6 +190,23 @@ Monitoring:
         action='store_true',
         help='Check if output files can be generated with dummy content'
     )
+    common_group.add_argument(
+        '--re-export',
+        action='store_true',
+        help='Re-export all markdown files in the output directory to HTML, EPUB, and PDF'
+    )
+    common_group.add_argument(
+        '--progress-bar',
+        type=str2bool,
+        default=False,
+        help='Show progress bar during generation (true/false, yes/no, 1/0)'
+    )
+    common_group.add_argument(
+        '--theme',
+        default='normal',
+        choices=get_available_themes(),
+        help='Theme to use for HTML/PDF output'
+    )
 
     # OpenAI specific arguments
     openai_group = parser.add_argument_group('OpenAI Arguments')
@@ -123,18 +217,18 @@ Monitoring:
     ollama_group = parser.add_argument_group('Ollama Arguments')
     ollama_group.add_argument('--ollama-host', default=None, help='Ollama host address')
     ollama_group.add_argument('--ollama-model', default='llama3.2', help='Ollama model to use')
-    ollama_group.add_argument('--ollama-stream', action='store_true', help='Enable streaming for Ollama responses')
+    ollama_group.add_argument('--ollama-stream', type=str2bool, default=True, help='Enable streaming for Ollama responses')
     ollama_group.add_argument('--ollama-no-think', action='store_true', help='Disable thinking process in Ollama')
 
     args = parser.parse_args()
-    
+
     # Configure logging based on debug flag
     logger = logging.getLogger(__name__)
     if args.debug:
         logging.basicConfig(level=logging.DEBUG)
     else:
         logging.basicConfig(level=logging.ERROR)
-    
+
     # Create console handler with formatting
     console_handler = logging.StreamHandler()
     formatter = logging.Formatter(
@@ -143,7 +237,7 @@ Monitoring:
     )
     console_handler.setFormatter(formatter)
     logger.addHandler(console_handler)
-    
+
     logger.debug("Arguments: %s", args)
 
     # Validate engine-specific arguments
@@ -171,6 +265,10 @@ Monitoring:
         verifier.display_results(results)
         return
 
+    if args.re_export:
+        re_export_markdown_files(output_dir, args.theme, args.force)
+        return
+
     output_md = os.path.join(
         output_dir,
         f"{sanitize_filename(args.topic)}_"
@@ -186,34 +284,46 @@ Monitoring:
         logger.error("Use --force to overwrite existing file")
         sys.exit(1)
 
-    if args.engine == 'openai':
+    # Initialize the appropriate engine
+    if args.engine == "openai":
         engine = OpenAIEngine(
             model=args.openai_model,
             stream=args.openai_stream,
             category=args.category,
             expertise_level=args.expertise_level,
-            debug=args.debug
+            debug=args.debug,
+            progress_bar=args.progress_bar
         )
-    else:
+    else:  # ollama
         engine = OllamaEngine(
-            args.ollama_model,
+            model=args.ollama_model,
             host=args.ollama_host,
             stream=args.ollama_stream,
             category=args.category,
             expertise_level=args.expertise_level,
-            think=not args.ollama_no_think,
-            debug=args.debug
+            debug=args.debug,
+            progress_bar=args.progress_bar
         )
-    converter = FileConverter()
+    converter = FileConverter(theme=args.theme)
 
     generator = AIKnowledgeGenerator(engine, converter)
     logger.debug("Calling generator.run")
-    generator.run(
-        args.topic,
-        args.quantity,
-        output_md,
-        force=args.force
-    )
+
+    # Set up progress bar if enabled
+    if args.progress_bar:
+        generator.run(
+            args.topic,
+            args.quantity,
+            output_md,
+            force=args.force
+        )
+    else:
+        generator.run(
+            args.topic,
+            args.quantity,
+            output_md,
+            force=args.force
+        )
 
 
 if __name__ == "__main__":

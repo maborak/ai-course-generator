@@ -15,9 +15,10 @@ The engine supports:
 import os
 import re
 import logging
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Tuple, Optional, Callable
 from ollama import Client
 from ollama._types import ResponseError
+from alive_progress import alive_bar
 from core.ports import CompletionEnginePort
 
 # ANSI color codes
@@ -85,7 +86,8 @@ class OllamaEngine(CompletionEnginePort):
         category: str = "Tip",
         expertise_level: str = "Novice",
         think: bool = True,
-        debug: bool = False
+        debug: bool = False,
+        progress_bar: bool = False
     ) -> None:
         """Initialize the Ollama engine.
 
@@ -97,12 +99,14 @@ class OllamaEngine(CompletionEnginePort):
             expertise_level: The expertise level for the content
             think: Whether to show thinking process
             debug: Whether to show debug output
+            progress_bar: Whether to show progress bar
         """
         self.model = model
         self.host = host
         self.stream = stream
         self.category = category
-        
+        self.progress_bar = progress_bar
+
         # Normalize expertise level to title case
         normalized_level = expertise_level.title()
         if normalized_level not in self.level_descriptions:
@@ -112,7 +116,7 @@ class OllamaEngine(CompletionEnginePort):
             )
         self.expertise_level = normalized_level
         self.context_note = self.level_descriptions[self.expertise_level]
-        
+
         self.think = think
         self.debug = debug
         self.tokens_used = 0
@@ -413,10 +417,8 @@ class OllamaEngine(CompletionEnginePort):
         )
         messages = [{"role": "user", "content": prompt}]
         content = ""
-        print(
-            f"+-----\n| Processing Chapter #{chapter_index} of "
-            f"{total_chapters} (Attempt 1)\n+-----"
-        )
+        logger.debug("Processing Chapter #%d of %d (Attempt 1)",
+                    chapter_index, total_chapters)
 
         in_think_block = False
         try:
@@ -473,7 +475,7 @@ class OllamaEngine(CompletionEnginePort):
             content,
             flags=re.DOTALL | re.IGNORECASE
         )
-        print("\n[End of Ollama Streaming Output]")
+        logger.debug("\n[End of Ollama Streaming Output]")
 
         # Estimate and log the token usage using the original content
         self.tokens_used += int(len(original_content.split()) * 0.75)
@@ -481,31 +483,47 @@ class OllamaEngine(CompletionEnginePort):
         return content
 
     def generate(
-        self, topic: str
+        self,
+        topic: str
     ) -> Tuple[List[Tuple[int, Dict[str, str], str]], str]:
-        """Generate a complete set of chapters with their content.
-
-        Args:
-            topic: The topic to generate chapters for.
-
-        Returns:
-            A tuple containing:
-                - List of tuples with (index, chapter_info, content)
-                - Overview string of the generated chapters
-
-        Note:
-            This method orchestrates the generation of chapter titles and
-            their detailed content.
-        """
+        """Generate a complete set of chapters with their content."""
+        # Generate chapters
+        if self.progress_bar:
+            print("Generating chapter titles...")
         chapters, overview = self.generate_chapters(topic)
+
         details = []
-        for i, chapter in enumerate(chapters, 1):
-            detail = self.generate_content(
-                topic,
-                chapter["full"],
-                i,
-                len(chapters),
-                chapter["short"]
-            )
-            details.append((i, chapter, detail))
+        total_chapters = len(chapters)
+
+        # Generate content for each chapter
+        if self.progress_bar:
+            with alive_bar(
+                total_chapters,
+                title="Generating content",
+                bar="smooth",
+                spinner="waves",
+                enrich_print=False
+            ) as progress:
+                for i, chapter in enumerate(chapters, 1):
+                    progress.text(f"Processing: {chapter['short']}")
+                    detail = self.generate_content(
+                        topic,
+                        chapter["full"],
+                        i,
+                        total_chapters,
+                        chapter["short"]
+                    )
+                    details.append((i, chapter, detail))
+                    progress()   # pylint: disable=not-callable
+        else:
+            for i, chapter in enumerate(chapters, 1):
+                detail = self.generate_content(
+                    topic,
+                    chapter["full"],
+                    i,
+                    total_chapters,
+                    chapter["short"]
+                )
+                details.append((i, chapter, detail))
+
         return details, overview
