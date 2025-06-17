@@ -76,6 +76,57 @@ def get_available_themes():
     return sorted(themes) if themes else ['normal']
 
 
+def re_export_markdown_files(output_dir: str, theme: str, force: bool = False) -> None:
+    """Re-export all markdown files in the output directory to HTML, EPUB, and PDF.
+    
+    Args:
+        output_dir (str): Directory containing markdown files
+        theme (str): Theme to use for styling
+        force (bool): Whether to force overwrite existing files
+    """
+    logger = logging.getLogger(__name__)
+    converter = FileConverter(theme=theme)
+    
+    # Find all markdown files
+    md_files = [f for f in os.listdir(output_dir) if f.endswith('.md')]
+    
+    if not md_files:
+        logger.info("No markdown files found in %s", output_dir)
+        return
+    
+    logger.info("Found %d markdown files to re-export", len(md_files))
+    
+    for md_file in md_files:
+        md_path = os.path.join(output_dir, md_file)
+        logger.info("Re-exporting %s", md_file)
+        
+        # Extract metadata from the markdown file
+        metadata = {}
+        try:
+            with open(md_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+                # Extract title from first line
+                title_match = re.match(r'^# (.*?)(?:\s*\(.*?\))?\s*$', content.split('\n')[0])
+                if title_match:
+                    metadata['title'] = title_match.group(1)
+                
+                # Extract metadata from the document info section
+                doc_info_match = re.search(r'## Document Info\n\n(.*?)\n\n---', content, re.DOTALL)
+                if doc_info_match:
+                    doc_info = doc_info_match.group(1)
+                    for line in doc_info.split('\n'):
+                        if ':' in line:
+                            key, value = line.split(':', 1)
+                            key = key.strip('-* ').lower().replace(' ', '-')
+                            value = value.strip()
+                            metadata[key] = value
+        except Exception as e:
+            logger.warning("Failed to extract metadata from %s: %s", md_file, e)
+        
+        # Convert the file with extracted metadata
+        converter.convert(md_path, metadata=metadata, force=force)
+
+
 def main():
     """
     Main entry point for the AI Tips Generator application.
@@ -86,6 +137,7 @@ def main():
     3. Initializes the appropriate AI engine
     4. Generates tips in the requested format
     5. Handles the --check mode for testing output generation
+    6. Handles the --re-export mode for re-exporting existing markdown files
     """
     parser = argparse.ArgumentParser(
         description="AI Tips Generator (Hexagonal Architecture)",
@@ -110,6 +162,9 @@ Examples:
   # Generate tips with a specific theme
   python main.py --topic python --theme dracula
 
+  # Re-export all markdown files in the output directory
+  python main.py --re-export --theme dracula
+
 Monitoring:
   The --check flag helps verify that all output formats (markdown, HTML, PDF, EPUB)
   can be generated correctly. It creates a test file with dummy content and attempts
@@ -132,6 +187,11 @@ Monitoring:
         '--check',
         action='store_true',
         help='Check if output files can be generated with dummy content'
+    )
+    common_group.add_argument(
+        '--re-export',
+        action='store_true',
+        help='Re-export all markdown files in the output directory to HTML, EPUB, and PDF'
     )
     common_group.add_argument(
         '--progress-bar',
@@ -201,6 +261,10 @@ Monitoring:
         verifier = FileConversionVerifier()
         results = verifier.verify()
         verifier.display_results(results)
+        return
+
+    if args.re_export:
+        re_export_markdown_files(output_dir, args.theme, args.force)
         return
 
     output_md = os.path.join(
