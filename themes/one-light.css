@@ -1,12 +1,8 @@
-/* Material Light Theme for Pandoc Output
- * Based on Google's Material Design color palette
- */
-
 /* --- CSS Variables --- */
 :root {
   /* Font Sizes */
   --font-size-base: 15px;
-  --font-size-code: 12px;
+  --font-size-code: 13px;
   --font-size-h1: 2.1em;
   --font-size-h2: 1.7em;
   --font-size-h3: 1.25em;
@@ -17,48 +13,48 @@
   --spacing-large: 1.4em;
   --spacing-xlarge: 1.7em;
   --spacing-xxlarge: 2.5em;
-  --spacing-list: 0.3em;
+  --spacing-list: 0.1em;
 
   /* Colors */
-  --color-text: #546e7a;
+  --color-text: #383a42;
   --color-background: #fafafa;
-  --color-heading: #263238;
-  --color-border: #eceff1;
-  --color-code-bg: #eceff1;
-  --color-code: #e53935;
-  --color-link: #1e88e5;
-  --color-link-hover: #00acc1;
+  --color-heading: #1a1a1a;
+  --color-border: #eaecef;
+  --color-code-bg: #f6f8fa;
+  --color-code: #e45649;
+  --color-link: #0366d6;
+  --color-link-hover: #0056b3;
 
   /* Syntax Highlighting Colors */
-  --sh-alert: #e53935; /* Alert */
-  --sh-annotation: #fb8c00; /* Annotation */
-  --sh-attribute: #42a5f5; /* Attribute */
-  --sh-basen: #43a047; /* BaseN */
-  --sh-builtin: #fb8c00; /* Builtin */
-  --sh-controlflow: #8e24aa; /* ControlFlow */
-  --sh-char: #43a047; /* Char */
-  --sh-constant: #fb8c00; /* Constant */
-  --sh-comment: #90a4ae; /* Comment */
-  --sh-commentvar: #fb8c00; /* CommentVar */
-  --sh-documentation: #e53935; /* Documentation */
-  --sh-datatype: #e53935; /* DataType */
-  --sh-decval: #fb8c00; /* DecVal */
-  --sh-error: #e53935; /* Error */
-  --sh-extension: #43a047; /* Extension */
-  --sh-float: #fb8c00; /* Float */
-  --sh-function: #42a5f5; /* Function */
-  --sh-import: #fb8c00; /* Import */
-  --sh-information: #fb8c00; /* Information */
-  --sh-keyword: #8e24aa; /* Keyword */
-  --sh-operator: #263238; /* Operator */
-  --sh-other: #43a047; /* Other */
-  --sh-preprocessor: #8e24aa; /* Preprocessor */
-  --sh-specialchar: #43a047; /* SpecialChar */
-  --sh-specialstring: #43a047; /* SpecialString */
-  --sh-string: #43a047; /* String */
-  --sh-variable: #42a5f5; /* Variable */
-  --sh-verbatimstring: #43a047; /* VerbatimString */
-  --sh-warning: #e53935; /* Warning */
+  --sh-alert: #e45649;
+  --sh-annotation: #986801;
+  --sh-attribute: #4078f2;
+  --sh-basen: #50a14f;
+  --sh-builtin: #986801;
+  --sh-controlflow: #a626a4;
+  --sh-char: #50a14f;
+  --sh-constant: #986801;
+  --sh-comment: #a0a1a7;
+  --sh-commentvar: #986801;
+  --sh-documentation: #e45649;
+  --sh-datatype: #e45649;
+  --sh-decval: #986801;
+  --sh-error: #e45649;
+  --sh-extension: #50a14f;
+  --sh-float: #986801;
+  --sh-function: #4078f2;
+  --sh-import: #986801;
+  --sh-information: #986801;
+  --sh-keyword: #a626a4;
+  --sh-operator: #383a42;
+  --sh-other: #50a14f;
+  --sh-preprocessor: #a626a4;
+  --sh-specialchar: #50a14f;
+  --sh-specialstring: #50a14f;
+  --sh-string: #50a14f;
+  --sh-variable: #4078f2;
+  --sh-verbatimstring: #50a14f;
+  --sh-warning: #e45649;
 }
 
 /* --- BODY & TYPOGRAPHY --- */
@@ -77,7 +73,7 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--color-heading);
   font-weight: 700;
   line-height: 1.2;
-  margin-top: 2em;
+  margin-top: var(--spacing-xlarge);
   margin-bottom: 0.7em;
 }
 
@@ -91,7 +87,7 @@ p {
 }
 
 ul, ol {
-  margin: var(--spacing-base) 0 var(--spacing-base) 0.1em;
+  margin: var(--spacing-base) 0 var(--spacing-base) var(--spacing-list);
 }
 
 li { margin-bottom: var(--spacing-list); }

@@ -1,0 +1,165 @@
+/* --- BODY & TYPOGRAPHY --- */
+body {
+  font-family: "Segoe UI", "Helvetica Neue", Arial, "Liberation Sans", sans-serif;
+  font-size: 17px;
+  color: #565f89;
+  line-height: 1.8;
+  background: #e1e2e7;
+  max-width: 860px;
+  margin: 2.5em auto 2.5em auto;
+  padding: 0 1.5em;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: #414868;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-top: 2em;
+  margin-bottom: 0.7em;
+}
+
+h1 { font-size: 2.1em; border-bottom: 2px solid #c0caf5; padding-bottom: 0.3em; }
+h2 { font-size: 1.7em; border-bottom: 1px solid #c0caf5; padding-bottom: 0.2em; }
+h3 { font-size: 1.25em; }
+h4, h5, h6 { font-size: 1.1em; }
+
+p {
+  margin: 1.1em 0;
+}
+
+ul, ol {
+  margin: 1.1em 0 1.1em 2em;
+}
+
+li { margin-bottom: 0.3em; }
+
+hr {
+  border: none;
+  border-top: 1px solid #c0caf5;
+  margin: 2.5em 0;
+}
+
+/* --- CODE BLOCKS & INLINE CODE --- */
+pre, code {
+  font-family: "Fira Mono", "Consolas", "Menlo", "Monaco", monospace;
+  font-size: 15px;
+}
+
+pre {
+  background: #d5d6db;
+  border: 1px solid #c0caf5;
+  border-radius: 6px;
+  padding: 1em 1.1em;
+  margin: 1.4em 0;
+  overflow-x: auto;
+  color: #565f89;
+  line-height: 1.6;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+code {
+  background: #d5d6db;
+  border-radius: 4px;
+  padding: 0.18em 0.45em;
+  font-size: 15px;
+  color: #f7768e;
+}
+
+pre > code {
+  background: none;
+  padding: 0;
+  color: inherit;
+  border-radius: 0;
+}
+
+/* Remove Pandoc's per-line inline-block for code spans (avoid lines/artifacts) */
+pre > code.sourceCode > span {
+  display: inline !important;
+  line-height: inherit !important;
+  height: auto !important;
+  border: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  background: none !important;
+  vertical-align: baseline !important;
+}
+
+pre > code.sourceCode > span:empty {
+  display: none !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+pre > code.sourceCode > span > a {
+  display: none !important;
+}
+
+/* --- SYNTAX HIGHLIGHTING (override/boost "kate" a bit) --- */
+code span.al { color: #f7768e; font-weight: bold; }    /* Alert */
+code span.an { color: #ff9e64; font-style: italic; }   /* Annotation */
+code span.at { color: #7aa2f7; }                       /* Attribute */
+code span.bn { color: #9ece6a; }                       /* BaseN */
+code span.bu { color: #ff9e64; }                       /* Builtin */
+code span.cf { color: #bb9af7; font-weight: bold; }    /* ControlFlow */
+code span.ch { color: #9ece6a; }                       /* Char */
+code span.cn { color: #ff9e64; }                       /* Constant */
+code span.co { color: #565f89; font-style: italic; }   /* Comment */
+code span.cv { color: #ff9e64; font-style: italic; }   /* CommentVar */
+code span.do { color: #f7768e; font-style: italic; }   /* Documentation */
+code span.dt { color: #f7768e; }                       /* DataType */
+code span.dv { color: #ff9e64; }                       /* DecVal */
+code span.er { color: #f7768e; font-weight: bold; }    /* Error */
+code span.ex { color: #9ece6a; }                       /* Extension */
+code span.fl { color: #ff9e64; }                       /* Float */
+code span.fu { color: #7aa2f7; }                       /* Function */
+code span.im { color: #ff9e64; font-weight: bold; }    /* Import */
+code span.in { color: #ff9e64; font-style: italic; }   /* Information */
+code span.kw { color: #bb9af7; font-weight: bold; }    /* Keyword */
+code span.op { color: #414868; }                       /* Operator */
+code span.ot { color: #9ece6a; }                       /* Other */
+code span.pp { color: #bb9af7; }                       /* Preprocessor */
+code span.sc { color: #9ece6a; }                       /* SpecialChar */
+code span.ss { color: #9ece6a; }                       /* SpecialString */
+code span.st { color: #9ece6a; }                       /* String */
+code span.va { color: #7aa2f7; }                       /* Variable */
+code span.vs { color: #9ece6a; }                       /* VerbatimString */
+code span.wa { color: #f7768e; font-style: italic; }   /* Warning */
+
+/* --- TABLES --- */
+table {
+  border-collapse: collapse;
+  margin-bottom: 1.7em;
+  width: 100%;
+  background: #e1e2e7;
+}
+th, td {
+  border: 1px solid #c0caf5;
+  padding: 0.55em 1em;
+  text-align: left;
+}
+th {
+  background: #d5d6db;
+  font-weight: 600;
+}
+
+/* --- BLOCKQUOTES --- */
+blockquote {
+  color: #565f89;
+  border-left: 4px solid #c0caf5;
+  background: #d5d6db;
+  padding: 0.7em 1.2em;
+  margin: 1.5em 0;
+}
+
+/* --- LINKS --- */
+a {
+  color: #7aa2f7;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+a:hover {
+  text-decoration: underline;
+  color: #9ece6a;
+} 
