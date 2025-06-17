@@ -6,7 +6,7 @@ Defines abstract base classes for completion engines and file converters.
 
 import logging
 from abc import ABC, abstractmethod
-from typing import Tuple, List, Dict, Optional, Callable
+from typing import Tuple, List, Dict
 
 
 logger = logging.getLogger(__name__)
@@ -16,7 +16,7 @@ class CompletionEnginePort(ABC):
     """Abstract base class for completion engine implementations."""
     @abstractmethod
     def generate(
-        self, 
+        self,
         topic: str
     ) -> Tuple[List[Tuple[int, Dict[str, str], str]], str]:
         """Generate content for a given topic.

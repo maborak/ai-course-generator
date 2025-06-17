@@ -18,9 +18,9 @@ import logging
 import time
 from typing import Dict, List, Tuple, Optional, Callable
 from openai import OpenAI
+from alive_progress import alive_bar
 import tiktoken
 from core.ports import CompletionEnginePort
-from alive_progress import alive_bar
 
 # ANSI color codes
 GRAY = "\033[90m"
@@ -69,7 +69,6 @@ class OpenAIEngine(CompletionEnginePort):
         expertise_level (str): The expertise level for the generated content.
         context_note (str): The context note based on expertise level.
         tokens_used (int): Counter for tokens used in generation.
-        progress_callback: Optional[Callable[[int, str], None]]: Callback function for progress updates.
     """
 
     level_descriptions: Dict[str, str] = {
@@ -116,7 +115,7 @@ class OpenAIEngine(CompletionEnginePort):
         self.stream = stream
         self.category = category
         self.progress_bar = progress_bar
-        
+
         # Normalize expertise level to title case
         normalized_level = expertise_level.title()
         if normalized_level not in self.level_descriptions:
@@ -126,7 +125,7 @@ class OpenAIEngine(CompletionEnginePort):
             )
         self.expertise_level = normalized_level
         self.context_note = self.level_descriptions[self.expertise_level]
-        
+
         self.debug = debug
         self.tokens_used = {"input": 0, "output": 0}
         self.quantity = 5  # Default quantity
@@ -525,23 +524,14 @@ class OpenAIEngine(CompletionEnginePort):
             "total_cost": round(total_cost, 4)
         }
 
-    def set_progress_callback(self, callback: Callable[[int, str], None]) -> None:
-        """Set the callback function for progress updates.
-        
-        Args:
-            callback (Callable[[int, str], None]): Function to call with progress updates.
-                Takes current progress (int) and status text (str) as arguments.
-        """
-        pass  # Progress callback is not used in this implementation
-
     def generate(
-        self, 
+        self,
         topic: str
     ) -> Tuple[List[Tuple[int, Dict[str, str], str]], str]:
         """Generate a complete set of chapters with their content."""
         # Reset token usage at the start of generation
         self.tokens_used = {"input": 0, "output": 0}
-        
+
         # Generate chapters
         if self.progress_bar:
             print("Generating chapter titles...")

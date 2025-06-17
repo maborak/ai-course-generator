@@ -10,6 +10,7 @@ are working correctly by testing with dummy content.
 import os
 import tempfile
 import logging
+import subprocess
 from typing import Dict
 from adapters.file_converter import FileConverter
 
@@ -57,7 +58,7 @@ More dummy content.
         converter = FileConverter()
         try:
             converter.convert(output_md)
-        except Exception as exc:
+        except (FileNotFoundError, subprocess.CalledProcessError) as exc:
             logger.error("Failed to convert files: %s", exc)
             return {ext: False for ext in [".md", ".html", ".pdf", ".epub"]}
 
@@ -82,9 +83,9 @@ More dummy content.
         Args:
             results (Dict[str, bool]): Dictionary mapping file extensions to success status
         """
-        GREEN = "\033[92m"
-        RED = "\033[91m"
-        RESET = "\033[0m"
+        GREEN = "\033[92m"  # pylint: disable=C0103
+        RED = "\033[91m"    # pylint: disable=C0103
+        RESET = "\033[0m"   # pylint: disable=C0103
 
         print("\nCheck results:")
         for ext in [".md", ".html", ".pdf", ".epub"]:

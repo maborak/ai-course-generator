@@ -15,7 +15,7 @@ Example:
 import logging
 import time
 from datetime import datetime
-from typing import Any, List, Tuple, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 

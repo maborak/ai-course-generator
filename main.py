@@ -68,7 +68,7 @@ def get_available_themes():
     themes_dir = os.path.join(os.path.dirname(__file__), 'themes')
     if not os.path.exists(themes_dir):
         return ['normal']
-    
+
     themes = []
     for file in os.listdir(themes_dir):
         if file.endswith('.css'):
@@ -86,20 +86,20 @@ def re_export_markdown_files(output_dir: str, theme: str, force: bool = False) -
     """
     logger = logging.getLogger(__name__)
     converter = FileConverter(theme=theme)
-    
+
     # Find all markdown files
     md_files = [f for f in os.listdir(output_dir) if f.endswith('.md')]
-    
+
     if not md_files:
         logger.info("No markdown files found in %s", output_dir)
         return
-    
+
     logger.info("Found %d markdown files to re-export", len(md_files))
-    
+
     for md_file in md_files:
         md_path = os.path.join(output_dir, md_file)
         logger.info("Re-exporting %s", md_file)
-        
+
         # Extract metadata from the markdown file
         metadata = {}
         try:
@@ -109,7 +109,7 @@ def re_export_markdown_files(output_dir: str, theme: str, force: bool = False) -
                 title_match = re.match(r'^# (.*?)(?:\s*\(.*?\))?\s*$', content.split('\n')[0])
                 if title_match:
                     metadata['title'] = title_match.group(1)
-                
+
                 # Extract metadata from the document info section
                 doc_info_match = re.search(r'## Document Info\n\n(.*?)\n\n---', content, re.DOTALL)
                 if doc_info_match:
@@ -118,11 +118,13 @@ def re_export_markdown_files(output_dir: str, theme: str, force: bool = False) -
                         if ':' in line:
                             key, value = line.split(':', 1)
                             key = key.strip('-* ').lower().replace(' ', '-')
-                            value = value.strip()
+                            value = value.replace("*", "").strip()
                             metadata[key] = value
-        except Exception as e:
+        except (IOError, UnicodeDecodeError, ValueError) as e:
             logger.warning("Failed to extract metadata from %s: %s", md_file, e)
-        
+        metadata['title'] = f"{metadata.get('title','Re exported')} ({metadata.get('category', 'Tip')}, {metadata.get('expertise-level', 'Novice')})"
+        metadata['author'] = "Maborak"
+
         # Convert the file with extracted metadata
         converter.convert(md_path, metadata=metadata, force=force)
 
@@ -219,14 +221,14 @@ Monitoring:
     ollama_group.add_argument('--ollama-no-think', action='store_true', help='Disable thinking process in Ollama')
 
     args = parser.parse_args()
-    
+
     # Configure logging based on debug flag
     logger = logging.getLogger(__name__)
     if args.debug:
         logging.basicConfig(level=logging.DEBUG)
     else:
         logging.basicConfig(level=logging.ERROR)
-    
+
     # Create console handler with formatting
     console_handler = logging.StreamHandler()
     formatter = logging.Formatter(
@@ -235,7 +237,7 @@ Monitoring:
     )
     console_handler.setFormatter(formatter)
     logger.addHandler(console_handler)
-    
+
     logger.debug("Arguments: %s", args)
 
     # Validate engine-specific arguments

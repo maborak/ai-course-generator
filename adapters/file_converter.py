@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 class FileConverter(FileConverterPort):
     """Converts markdown files to HTML, EPUB, and PDF formats."""
-    
+
     def __init__(self, theme: str = "normal"):
         """Initialize the FileConverter.
 
@@ -66,13 +66,13 @@ class FileConverter(FileConverterPort):
         """
         if theme == "default":
             return self._get_default_css_path()
-        
+
         css_path = self._themes_dir / f"{theme}.css"
-        
+
         if not css_path.exists():
             logger.warning("Theme '%s' not found, falling back to default theme", theme)
             return self._get_default_css_path()
-        
+
         return str(css_path)
 
     def convert(self, md_file: str, metadata: Optional[dict] = None, force: bool = False) -> None:
@@ -85,11 +85,11 @@ class FileConverter(FileConverterPort):
         """
         if metadata is None:
             metadata = {}
-            
+
         # Get the directory of the input markdown file
         md_path = Path(md_file)
         output_dir = md_path.parent
-            
+
         base_name = md_path.stem
         output_files = {
             'html': str(output_dir / f"{base_name}.html"),
@@ -122,7 +122,7 @@ class FileConverter(FileConverterPort):
             ] + meta_args,
             ["weasyprint", output_files['html'], output_files['pdf']]
         ]
-        
+
         for cmd in cmds:
             logger.info("Running command: %s", ' '.join(cmd))
             try:
