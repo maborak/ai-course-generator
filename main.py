@@ -52,11 +52,17 @@ def str2bool(v):
     """
     if isinstance(v, bool):
         return v
+    if v is None:
+        raise argparse.ArgumentTypeError(
+            "Boolean value expected. Accepted values: true/false, yes/no, 1/0, on/off"
+        )
     if v.lower() in ('yes', 'true', 't', 'y', '1', 'on'):
         return True
     if v.lower() in ('no', 'false', 'f', 'n', '0', 'off'):
         return False
-    raise argparse.ArgumentTypeError('Boolean value expected.')
+    raise argparse.ArgumentTypeError(
+        'Boolean value expected. Accepted values: true/false, yes/no, 1/0, on/off'
+    )
 
 
 def get_available_themes():
@@ -127,6 +133,24 @@ def re_export_markdown_files(output_dir: str, theme: str, force: bool = False) -
 
         # Convert the file with extracted metadata
         converter.convert(md_path, metadata=metadata, force=force)
+
+
+class BooleanAction(argparse.Action):
+    def __init__(self, option_strings, dest, nargs=None, **kwargs):
+        if nargs is not None:
+            raise ValueError("nargs not allowed")
+        super().__init__(option_strings, dest, **kwargs)
+    
+    def __call__(self, parser, namespace, values, option_string=None):
+        if values is None:
+            parser.error(
+                f"argument {option_string}: Boolean value expected. Accepted values: true/false, yes/no, 1/0, on/off"
+            )
+        try:
+            value = str2bool(values)
+            setattr(namespace, self.dest, value)
+        except argparse.ArgumentTypeError as e:
+            parser.error(f"argument {option_string}: {str(e)}")
 
 
 def main():
@@ -217,8 +241,10 @@ Monitoring:
     ollama_group = parser.add_argument_group('Ollama Arguments')
     ollama_group.add_argument('--ollama-host', default=None, help='Ollama host address')
     ollama_group.add_argument('--ollama-model', default='llama3.2', help='Ollama model to use')
-    ollama_group.add_argument('--ollama-stream', type=str2bool, default=True, help='Enable streaming for Ollama responses')
-    ollama_group.add_argument('--ollama-no-think', action='store_true', help='Disable thinking process in Ollama')
+    ollama_group.add_argument('--ollama-stream', type=str2bool, default=True, help='Enable streaming for Ollama responses (true/false, yes/no, 1/0)')
+    ollama_group.add_argument('--ollama-think', type=str2bool, default=True, metavar='VALUE',
+        help='Enable/disable thinking process in Ollama. If no value is provided, defaults to True. Accepted values: true/false, yes/no, 1/0, on/off',
+        const=True, nargs='?')
 
     args = parser.parse_args()
 
@@ -302,7 +328,8 @@ Monitoring:
             category=args.category,
             expertise_level=args.expertise_level,
             debug=args.debug,
-            progress_bar=args.progress_bar
+            progress_bar=args.progress_bar,
+            think=args.ollama_think
         )
     converter = FileConverter(theme=args.theme)
 

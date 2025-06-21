@@ -1,12 +1,14 @@
 /* --- CSS Variables --- */
 :root {
   /* Font Sizes */
-  --font-size-base: 12px;
+  --font-size-base: 15px;
   --font-size-code: 8px;
   --font-size-h1: 2.1em;
   --font-size-h2: 1.7em;
   --font-size-h3: 1.25em;
   --font-size-h4: 1.1em;
+  --font-size-h5: 0.95em;
+  --font-size-h6: 0.85em;
 
   /* Spacing */
   --spacing-base: 1.1em;
@@ -80,7 +82,9 @@ h1, h2, h3, h4, h5, h6 {
 h1 { font-size: var(--font-size-h1); border-bottom: 2px solid var(--color-border); padding-bottom: 0.3em; }
 h2 { font-size: var(--font-size-h2); border-bottom: 1px solid var(--color-border); padding-bottom: 0.2em; }
 h3 { font-size: var(--font-size-h3); }
-h4, h5, h6 { font-size: var(--font-size-h4); }
+h4 { font-size: var(--font-size-h4); }
+h5 { font-size: var(--font-size-h5); }
+h6 { font-size: var(--font-size-h6); }
 
 p {
   margin: var(--spacing-base) 0;

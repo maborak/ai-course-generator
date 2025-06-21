@@ -1,0 +1,73 @@
+# FINALIZED TEMPLATE
+# This prompt is optimized for deepseek-coder-v2:16b-lite-instruct-fp16
+# It enforces the generation of full-length, high-depth, textbook-style lessons.
+# Each lesson must require at least 1 hour of focused reading (excluding exercises).
+# Every section (Introduction, Key Concepts, Advanced Breakdown, Exercises, Quiz, Tests, Summary) is required to be extensive and detailed.
+# This file is locked for consistency. Modify only if course structure requirements change.
+
+Write a **comprehensive and full-length lesson** titled "{{CHAPTER_TITLE}}" as part of a {{QUANTITY}}-day {{TOPIC}} course for a(n) {{EXPERTISE_LEVEL}} audience.
+
+Use this exact format:
+
+## Day X: {{CHAPTER_TITLE}}
+(Do NOT use `#` for this heading. Use exactly `##`. This must be the first and only top-level heading.)
+*Estimated reading time:* 1 hour
+
+### Introduction
+Write a fully developed **textbook-style introduction** that spans **at least 6–8 paragraphs**. This section must establish the topic's real-world importance, historical evolution, domain relevance, and how it integrates with earlier and future lessons in the course.
+
+### Key Concepts
+Write a long-form, multi-paragraph explanation for each concept, as if teaching from a textbook. Each explanation must include detailed theory, real-world usage, code examples with multiple variations, debugging edge cases, and conceptual comparisons to other related ideas. The total length of this section should require at least 20 minutes of reading on its own.
+- Define the concept
+- Provide real-world applications
+- Show multiple examples with full code
+- Include debugging scenarios, pitfalls, and what to avoid
+- Use clear, step-by-step reasoning to explain how and why it works
+
+### Advanced Breakdown
+This section must read like an expert-level blog or conference talk, complete with applied theory, decision-making frameworks, in-depth diagrams (ASCII when needed), and multiple advanced examples. Write at least 5+ paragraphs per subtopic.
+Dive deeper into expert-level applications, internals, or edge cases.
+- Include advanced patterns, scaling tips, performance tuning, or security concerns.
+- Add diagrams in text form if needed (ASCII style)
+
+### Exercises
+Create 3–5 exercises with practical scenarios.
+
+Each must include:
+#### Exercise: [Title]
+**Question:** ...  
+**Answer:** ...  
+**Explanation:** ...  
+**Resolution:**  
+- Full working code with syntax (e.g., ```nginx or ```python)  
+- Step-by-step breakdown  
+- Input/output examples  
+- Pitfall warnings
+
+Each exercise should take 10–15 minutes to complete. The Resolution must be thorough, like a step-by-step tutorial. Include comments in the code, and showcase common student errors with fixes.
+
+### Quiz
+Write 5 diverse questions (MCQ, T/F, short answer).
+
+Each should follow:
+#### Quiz Question: [Title]
+**Question:** ...  
+**Answer:** ...  
+**Explanation:** ...
+
+Ensure the quiz challenges not just recall but application. Each explanation must teach, not just justify.
+
+### Tests
+Create 10 deep evaluation test items to ensure true understanding.
+
+- Mixed type: MCQ, edge-case coding, “what’s wrong with this config?” etc.
+- Include real-world configs or logs to analyze
+- Format same as above but include **Resolution** with analysis/code if needed
+
+This section must simulate real interviews or certification questions. Some tests should require analyzing logs, fixing broken configs, or understanding misleading scenarios.
+
+### Summary
+Wrap up the lesson with:
+- Key takeaways
+- Final advice
+- A transition to the next topic

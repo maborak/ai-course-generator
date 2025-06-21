@@ -278,25 +278,32 @@ class OllamaEngine(CompletionEnginePort):
             chat_kwargs = {
                 "model": self.model,
                 "messages": messages,
-                "stream": True
+                "stream": self.stream
             }
             if not self.think:
                 chat_kwargs["think"] = False
 
-            for msg in self.ollama.chat(**chat_kwargs):
-                piece = msg['message']['content']
+            if self.stream:
+                for msg in self.ollama.chat(**chat_kwargs):
+                    piece = msg['message']['content']
 
-                # Handle think tags for display only
-                if "<think>" in piece:
-                    in_think_block = True
-                if "</think>" in piece:
-                    in_think_block = False
+                    # Handle think tags for display only
+                    if "<think>" in piece:
+                        in_think_block = True
+                    if "</think>" in piece:
+                        in_think_block = False
 
-                # Print with appropriate color
-                color = RED if in_think_block else GRAY
+                    # Print with appropriate color
+                    color = RED if in_think_block else GRAY
+                    if self.debug:
+                        print(f"{color}{piece}{RESET}", end="", flush=True)
+                    content += piece
+            else:
+                response = self.ollama.chat(**chat_kwargs)
+                content = response['message']['content']
                 if self.debug:
-                    print(f"{color}{piece}{RESET}", end="", flush=True)
-                content += piece
+                    print(f"{GRAY}{content}{RESET}")
+
         except ResponseError as e:
             if "does not support thinking" in str(e) and self.think:
                 logger.warning(
@@ -308,13 +315,19 @@ class OllamaEngine(CompletionEnginePort):
                 chat_kwargs = {
                     "model": self.model,
                     "messages": messages,
-                    "stream": True
+                    "stream": self.stream
                 }
-                for msg in self.ollama.chat(**chat_kwargs):
-                    piece = msg['message']['content']
+                if self.stream:
+                    for msg in self.ollama.chat(**chat_kwargs):
+                        piece = msg['message']['content']
+                        if self.debug:
+                            print(f"{GRAY}{piece}{RESET}", end="", flush=True)
+                        content += piece
+                else:
+                    response = self.ollama.chat(**chat_kwargs)
+                    content = response['message']['content']
                     if self.debug:
-                        print(f"{GRAY}{piece}{RESET}", end="", flush=True)
-                    content += piece
+                        print(f"{GRAY}{content}{RESET}")
             else:
                 raise
 
@@ -425,25 +438,32 @@ class OllamaEngine(CompletionEnginePort):
             chat_kwargs = {
                 "model": self.model,
                 "messages": messages,
-                "stream": True
+                "stream": self.stream
             }
             if not self.think:
                 chat_kwargs["think"] = False
 
-            for msg in self.ollama.chat(**chat_kwargs):
-                piece = msg['message']['content']
+            if self.stream:
+                for msg in self.ollama.chat(**chat_kwargs):
+                    piece = msg['message']['content']
 
-                # Handle think tags for display only
-                if "<think>" in piece:
-                    in_think_block = True
-                if "</think>" in piece:
-                    in_think_block = False
+                    # Handle think tags for display only
+                    if "<think>" in piece:
+                        in_think_block = True
+                    if "</think>" in piece:
+                        in_think_block = False
 
-                # Print with appropriate color
-                color = RED if in_think_block else GRAY
+                    # Print with appropriate color
+                    color = RED if in_think_block else GRAY
+                    if self.debug:
+                        print(f"{color}{piece}{RESET}", end="", flush=True)
+                    content += piece
+            else:
+                response = self.ollama.chat(**chat_kwargs)
+                content = response['message']['content']
                 if self.debug:
-                    print(f"{color}{piece}{RESET}", end="", flush=True)
-                content += piece
+                    print(f"{GRAY}{content}{RESET}")
+
         except ResponseError as e:
             if "does not support thinking" in str(e) and self.think:
                 logger.warning(
@@ -455,13 +475,19 @@ class OllamaEngine(CompletionEnginePort):
                 chat_kwargs = {
                     "model": self.model,
                     "messages": messages,
-                    "stream": True
+                    "stream": self.stream
                 }
-                for msg in self.ollama.chat(**chat_kwargs):
-                    piece = msg['message']['content']
+                if self.stream:
+                    for msg in self.ollama.chat(**chat_kwargs):
+                        piece = msg['message']['content']
+                        if self.debug:
+                            print(f"{GRAY}{piece}{RESET}", end="", flush=True)
+                        content += piece
+                else:
+                    response = self.ollama.chat(**chat_kwargs)
+                    content = response['message']['content']
                     if self.debug:
-                        print(f"{GRAY}{piece}{RESET}", end="", flush=True)
-                    content += piece
+                        print(f"{GRAY}{content}{RESET}")
             else:
                 raise
 
