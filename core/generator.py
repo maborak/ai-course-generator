@@ -127,7 +127,7 @@ class AIKnowledgeGenerator:
             if overview:
                 file.write(overview + "\n\n")
             for _, _, detail in details:
-                file.write(detail + "\n\n")
+                file.write(detail.strip() + "\n\n")
 
         # Convert to other formats
         metadata = {
